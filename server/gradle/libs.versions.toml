@@ -1,0 +1,27 @@
+[versions]
+kotlinVersion = "1.9.10"
+ktorVersion="2.3.5"
+kotlinSerializationPluginVersion="1.9.10"
+kotlinSerializationVersion="1.6.0"
+logbackVersion="1.4.11"
+postgresVersion="42.5.1"
+h2Version="2.1.214"
+
+[libraries]
+junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinVersion"}
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationVersion" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logbackVersion" }
+postgres = { module = "org.postgresql:postgresql", version.ref = "postgresVersion"}
+h2 = { module = "com.h2database:h2", version.ref = "h2Version" }
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktorVersion"}
+ktor-server-contentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktorVersion"}
+ktor-server-websockets = { module = "io.ktor:ktor-server-websockets-jvm", version.ref = "ktorVersion"}
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktorVersion"}
+ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktorVersion"}
+ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktorVersion"}
+
+
+[plugins]
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPluginVersion" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktorVersion" }
