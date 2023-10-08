@@ -5,15 +5,18 @@ GET /
 
 Возвращает все необходимые скрипты, HTML и т.д., чтобы далее frontend правильно работал.
 
+*Пока, домен отдающий главную страницу будет отличаться от домена с API. 
+В будущем это будет решаться либо через proxy, либо будет единый сервер, умеющий обрабатывать все запросы.*
+
 ## Create game session
 
 #### Request
-POST /v0/api/game-session
+POST /api/game-session
 
 ```json
 {
-  "template": {
-    "id": "<template id>"
+  "quiz": {
+    "id": "<quiz id>"
   }
 }
 ```
@@ -30,7 +33,7 @@ POST /v0/api/game-session
 
 ## Game session as host
 
-CONNECT /v0/ws/host/{session_id}
+CONNECT /ws/host/{session_id}
 
 Все запросы по WebSocket имеют следующую структуру:
 ```json 
@@ -71,9 +74,19 @@ CONNECT /v0/ws/host/{session_id}
 {
   "state": "OPENED_QUESTION",
   "payload": {
-    "row": "<row num>",
-    "column": "<column num>",
-    "question": "<question>"
+    "question": {
+      "row": "<row num>",
+      "column": "<column num>",
+      "text": "<question>"
+    },
+    "board": {
+      "cells": [{
+        "row": "<row num>",
+        "column": "<column num>",
+        "mark": "<X or O or empty>"
+      }, ...
+      ]
+    }
   }
 }
 ```
