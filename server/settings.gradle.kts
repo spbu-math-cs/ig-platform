@@ -1,1 +1,1 @@
-rootProject.name = "ig-platform"
+rootProject.name = "clvr"
