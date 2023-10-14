@@ -27,7 +27,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
     // Square Button and RenderSquare function
     function Square({value, onClick}: SquareProp) {
         return (
-            <button className="square" onClick={onClick} disabled={!!winner}>
+            <button className="square" onClick={onClick} disabled={winner ? true : false}>
                 {value}
             </button>
         )

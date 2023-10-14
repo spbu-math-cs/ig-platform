@@ -5,8 +5,8 @@ import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
 
-var TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
-var BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"]
+const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
+const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"];
 
 const Home: NextPage = () => {
     const rows = 3;
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
         // @ts-ignore
         setSquares(Array(cols * rows).fill(null));
         setNewGame(true);
-    }
+    };
 
     function handleQuitGame() {
         setIsX(true);

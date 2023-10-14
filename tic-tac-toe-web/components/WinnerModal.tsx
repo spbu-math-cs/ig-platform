@@ -2,6 +2,7 @@ import React from 'react'
 import {OIcon} from './OIcon';
 import {XIcon} from './XIcon'
 
+const BGColor = ["bg-tahiti", "bg-2048BackGround", "bg-pastelPurple"];
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
 const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"];
 const NEXTColor = ["bg-indigo", "bg-2048O", "bg-purpleO"];
