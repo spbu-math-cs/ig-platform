@@ -44,7 +44,7 @@ const Home: NextPage = () => {
     }
 
     function handlePlayer(i: number) {
-        if (calculateWinner(squares) || (squares[i] == "X") || (squares[i] == "O")) {
+        if (calculateWinner(squares)) {
             return;
         }
         squares[i] = isX ? "X" : "O";
