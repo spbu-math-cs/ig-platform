@@ -5,6 +5,7 @@ import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
 
+
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
 const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"];
 
@@ -33,6 +34,7 @@ const Home: NextPage = () => {
     function handleRolePlayer() {
         setIsHost(false);
     }
+
     function handlePlayerO() {
         setIsX(false);
     }
@@ -42,7 +44,7 @@ const Home: NextPage = () => {
     }
 
     function handlePlayer(i: number) {
-        if (calculateWinner(squares) || squares[i]) {
+        if (calculateWinner(squares) || (squares[i] == "X") || (squares[i] == "O")) {
             return;
         }
         squares[i] = isX ? "X" : "O";
@@ -60,6 +62,21 @@ const Home: NextPage = () => {
         setIsX(true);
         // @ts-ignore
         setSquares(Array(cols * rows).fill(null));
+        squares[0] = "ML";
+        squares[1] = "DB";
+        squares[2] = "Algos";
+
+        squares[3] = "CS";
+        squares[4] = "OOP";
+        squares[5] = "DEV";
+
+        squares[6] = "FP";
+        squares[7] = "DB";
+        squares[8] = "ACOS";
+
+        setSquares(squares);
+
+
         setNewGame(true);
     };
 
@@ -72,23 +89,23 @@ const Home: NextPage = () => {
 
     function calculateWinner(squares: Array<any>) {
         for (let i = 0; i < rows; ++i) { //vertical
-            if (squares[i] && squares[i] == squares[i + rows] && squares[i + rows] == squares[i + 2 * rows]) {
+            if ((squares[i] == "X" || squares[i] == "O") && squares[i] == squares[i + rows] && squares[i + rows] == squares[i + 2 * rows]) {
                 return squares[i];
             }
         }
 
         for (let i = 0; i < cols; ++i) { //horizontal
-            if (squares[i * rows] && squares[i * rows] == squares[i * rows + 1] && squares[i * rows + 1] == squares[i * rows + 2]) {
+            if ((squares[i * rows] == "X" || squares[i * rows] == "O") && squares[i * rows] == squares[i * rows + 1] && squares[i * rows + 1] == squares[i * rows + 2]) {
                 return squares[i * rows];
             }
         }
 
 
-        if (squares[0] && squares[0] == squares[1 + rows] && squares[0] == squares[2 + 2 * rows]) {
+        if ((squares[0] == "X" || squares[0] == "O") && squares[0] == squares[1 + rows] && squares[0] == squares[2 + 2 * rows]) {
             return squares[0]
         }
 
-        if (squares[2] && squares[2] == squares[1 + rows] && squares[2] == squares[2 * rows]) {
+        if ((squares[2] == "X" || squares[2] == "O") && squares[2] == squares[1 + rows] && squares[2] == squares[2 * rows]) {
             return squares[2]
         }
     }

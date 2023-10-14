@@ -17,14 +17,13 @@ interface PlayerProp {
 }
 
 interface SquareProp {
-    value: JSX.Element | string | null,
+    value: any,
 
     onClick(): void,
 }
 
 export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestartGame, squares}: PlayerProp) => {
 
-    // Square Button and RenderSquare function
     function Square({value, onClick}: SquareProp) {
         return (
             <button className="square" onClick={onClick} disabled={winner ? true : false}>
@@ -40,8 +39,10 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
             value = <XIcon themeNum={themeNumber}/>
         } else if (squares[i] === "O") {
             value = <OIcon themeNum={themeNumber}/>
-        } else {
-            value = null;
+        } else if (squares[i] != null) {
+            value = <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold  md:text-m space-y-12`}>
+                {squares[i]}
+            </p>
         }
         return value;
 
