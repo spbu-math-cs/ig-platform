@@ -27,11 +27,11 @@ const Home: NextPage = () => {
         setIsX(true);
     }
 
-    function handleRoleHost() {
+    function handleHostMode() {
         setIsHost(true);
     }
 
-    function handleRolePlayer() {
+    function handlePlayerMode() {
         setIsHost(false);
     }
 
@@ -41,6 +41,9 @@ const Home: NextPage = () => {
 
     function handleColorTheme() {
         setColorTheme((themeNumber + 1) % 3);
+    }
+
+    function PlayerGag() {
     }
 
     function handlePlayer(i: number) {
@@ -128,29 +131,41 @@ const Home: NextPage = () => {
             {!newGame
                 ?
 
-                <div>
-                    <ChooseMode
-                        themeNumber={themeNumber}
-                        handleNewGame={handleNewGame}
-                        handleHostMode={handleRoleHost}
-                        handlePlayerMode={handleRolePlayer}
-                    />
-                    <ColorTheme
-                        themeNumber={themeNumber}
-                        handleColorTheme={handleColorTheme}
-                    />
-                </div>
+                (
+                    <div>
+                        <ChooseMode
+                            themeNumber={themeNumber}
+                            handleNewGame={handleNewGame}
+                            handleHostMode={handleHostMode}
+                            handlePlayerMode={handlePlayerMode}
+                        />
+                        <ColorTheme
+                            themeNumber={themeNumber}
+                            handleColorTheme={handleColorTheme}
+                        />
+                    </div>)
                 :
-                <Board
-                    themeNumber={themeNumber}
-                    winner={winner}
-                    playerX={isX}
-                    squares={squares}
-                    handlePlayer={handlePlayer}
-                    handleRestartGame={handleRestartGame}
-                />
+                (isHost ?
+                    <Board
+                        themeNumber={themeNumber}
+                        winner={winner}
+                        playerX={isX}
+                        squares={squares}
+                        handlePlayer={handlePlayer}
+                        handleRestartGame={handleRestartGame}/>
+                    :
+                    <Board
+                        themeNumber={themeNumber}
+                        winner={winner}
+                        playerX={isX}
+                        squares={squares}
+                        handlePlayer={PlayerGag}
+                        handleRestartGame={PlayerGag}
+
+                    />)
             }
-            {winner &&
+            {
+                winner &&
                 <WinnerModal
                     themeNumber={themeNumber}
                     winner={winner}
