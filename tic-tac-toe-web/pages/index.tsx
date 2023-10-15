@@ -4,10 +4,6 @@ import React, {useState} from 'react';
 import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
-import {hidden} from "next/dist/lib/picocolors";
-import {Simulate} from "react-dom/test-utils";
-import play = Simulate.play;
-
 
 
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
@@ -58,7 +54,10 @@ const Home: NextPage = () => {
         setSquares(Array(cols * rows).fill(null));
     }
 
+
     function handleNewGame() {
+
+
         setIsX(true);
         // @ts-ignore
         setSquares(Array(cols * rows).fill(null));
@@ -78,7 +77,11 @@ const Home: NextPage = () => {
 
         setNewGame(true);
 
-        new Audio("/LobbyMusicBASSBOOST.mp3").play();
+        let k = new Audio("/LobbyMusic.mp3")
+
+        k.addEventListener("canplaythrough", (event) => {
+            k.play()
+        }, true);
     }
 
     function handleQuitGame() {
@@ -101,7 +104,6 @@ const Home: NextPage = () => {
             }
         }
 
-
         if ((squares[0] == "X" || squares[0] == "O") && squares[0] == squares[1 + rows] && squares[0] == squares[2 + 2 * rows]) {
             return squares[0]
         }
@@ -120,16 +122,11 @@ const Home: NextPage = () => {
 
 
             <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 ${TextColor[themeNumber]} `}>
-                TIC
-                {" "}
-                <span className="text-[#f3b236]">TAC </span>
-                {" "}
-                TOE
+                TIC{" "}<span className="text-[#f3b236]">TAC </span>{" "}TOE
             </h1>
 
             {!newGame
                 ?
-
                 (
                     <div>
                         <ChooseMode
@@ -174,11 +171,6 @@ const Home: NextPage = () => {
                     handleNewGame={handleNewGame}
                 />
             }
-
-            <audio loop autoPlay hidden controls src="/LobbyMusicBASSBOOST.mp3" >
-            </audio>
-
-
         </div>
     )
 }

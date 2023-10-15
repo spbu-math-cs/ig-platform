@@ -16,7 +16,6 @@ const answer = ["Это ответ задачи1", "Это ответ задач
     "Это ответ задачи6", "Это ответ задачи7", "Это ответ задачи8", "Это ответ задачи9", ""]
 
 
-
 interface PlayerProp {
     themeNumber: number
     winner: string,
