@@ -1,7 +1,7 @@
 import React from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
-
+const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"];
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
 const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purpleO"];
 
@@ -26,7 +26,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
 
     function Square({value, onClick}: SquareProp) {
         return (
-            <button className="square" onClick={onClick} disabled={winner ? true : false}>
+            <button className={`flex h-[190px] w-[190px] md:h-[130px] md:w-[130px] items-center justify-center ${PanelColor[themeNumber]} rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`} onClick={onClick} disabled={!!winner}>
                 {value}
             </button>
         )
@@ -55,55 +55,62 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
 
     return (
         <div>
-            <div className="board">
-                <div className=" w-[300px] md:[w-400px] rounded-lg flex items-center justify-center space-x-10">
-                    <div>
-                        {playerX
-                            ?
-                            <div
-                                className="text-white bg-gray-700 text-xl px-4 py-1 w-28 rounded-lg font-medium uppercase">
+            <div className=" w-[800px] md:[w-800px] rounded-lg flex items-center justify-center space-y-32  space-x-36">
+                <div className="board">
+                    <div className=" w-[700px] md:[w-700px] rounded-lg flex items-center justify-center space-x-24">
+                        <div>
+                            {playerX
+                                ?
+                                <div
+                                    className={`text-white ${PanelColor[themeNumber]} text-xl px-4 py-1 w-28 space-y-8 rounded-lg font-medium uppercase`}>
                                 <span className={`${TextColor[themeNumber]} text-2xl font-bold`}>
                                 X </span> {" "} Turn
-                            </div>
-                            :
-                            <div
-                                className="text-white bg-gray-700 text-xl px-4 py-1 w-28 rounded-lg font-medium  uppercase">
+                                </div>
+                                :
+                                <div
+                                    className={`text-white ${PanelColor[themeNumber]} text-xl px-4 py-1 w-28 space-y-8 rounded-lg font-medium  uppercase`}>
                                 <span className={`${TextColor[themeNumber]} text-2xl  font-bold`}>
                                 O</span>{" "} Turn
-                            </div>
-                        }
+                                </div>
+                            }
+                        </div>
+
+
+                        <button onClick={handleRestartGame}
+                                className={`group button px-2 py-1 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 ${HoverPanelColor[themeNumber]}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in space-y-10  " fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </button>
                     </div>
 
+                    <div className="board-row">
+                        {renderSquare(0)}
+                        {renderSquare(1)}
+                        {renderSquare(2)}
+                    </div>
 
-                    <button onClick={handleRestartGame}
-                            className={`group button px-2 py-1 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] ${HoverPanelColor[themeNumber]}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in  " fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round"
-                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
+                    <div className="board-row">
+                        {renderSquare(3)}
+                        {renderSquare(4)}
+                        {renderSquare(5)}
+                    </div>
+
+                    <div className="board-row">
+                        {renderSquare(6)}
+                        {renderSquare(7)}
+                        {renderSquare(8)}
+                    </div>
                 </div>
-
-                <div className="board-row">
-                    {renderSquare(0)}
-                    {renderSquare(1)}
-                    {renderSquare(2)}
+                <div className={` w-[500px] md:[w-700px] bg-[#ffe1a9] rounded-lg flex items-top justify-center space-y-18`}>
+                <button
+                    className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in rounded-xl px-40 py-40 text-3xl md:text-4xl font-extrabold mt-10 ${TextColor[themeNumber]}`}>
+                    Click Me
+                </button>
                 </div>
-
-                <div className="board-row">
-                    {renderSquare(3)}
-                    {renderSquare(4)}
-                    {renderSquare(5)}
-                </div>
-
-                <div className="board-row">
-                    {renderSquare(6)}
-                    {renderSquare(7)}
-                    {renderSquare(8)}
-                </div>
-
             </div>
         </div>
     )
