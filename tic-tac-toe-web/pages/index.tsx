@@ -4,7 +4,8 @@ import React, {useState} from 'react';
 import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
-import {bgBlack} from "next/dist/lib/picocolors";
+import {hidden} from "next/dist/lib/picocolors";
+
 
 
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
@@ -169,8 +170,7 @@ const Home: NextPage = () => {
                     handleNewGame={handleNewGame}
                 />
             }
-            <audio controls src="/LobbyMusicBASSBOOST.mp3" loop hidden
-            >
+            <audio loop autoPlay controls src="/LobbyMusicBASSBOOST.mp3" hidden>
             </audio>
 
 
