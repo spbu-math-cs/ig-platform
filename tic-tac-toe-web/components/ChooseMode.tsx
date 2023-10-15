@@ -45,12 +45,12 @@ export const ChooseMode = ({themeNumber, handleHostMode, handleNewGame, handlePl
                 </p>
                 <div className=" bg-gray-800  flex items-center justify-evenly h-35 rounded-2xl p-2 ">
                     <button onClick={handleHostMode}
-                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] trasnsition duartion-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 ${TextColorPlayer[themeNumber]} `}>
+                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 ${TextColorPlayer[themeNumber]} `}>
                         HOST
                     </button>
 
                     <button onClick={handlePlayerMode}
-                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] trasnsition duartion-300 ease-in flex items-center justify-center rounded-xl px-6 py-6 text-3xl md:text-4xl font-extrabold mt-1 ${TextColorHost[themeNumber]}  `}>
+                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6 text-3xl md:text-4xl font-extrabold mt-1 ${TextColorHost[themeNumber]}  `}>
                         PLAYER
                     </button>
                 </div>

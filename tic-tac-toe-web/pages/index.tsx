@@ -21,21 +21,12 @@ const Home: NextPage = () => {
     const [isHost, setIsHost] = useState<boolean>(true);
 
     let winner = calculateWinner(squares);
-
-    function handlePlayerX() {
-        setIsX(true);
-    }
-
     function handleHostMode() {
         setIsHost(true);
     }
 
     function handlePlayerMode() {
         setIsHost(false);
-    }
-
-    function handlePlayerO() {
-        setIsX(false);
     }
 
     function handleColorTheme() {
@@ -151,7 +142,8 @@ const Home: NextPage = () => {
                         playerX={isX}
                         squares={squares}
                         handlePlayer={handlePlayer}
-                        handleRestartGame={handleRestartGame}/>
+                        handleRestartGame={handleRestartGame}
+                        isHost={isHost}/>
                     :
                     <Board
                         themeNumber={themeNumber}
@@ -160,6 +152,7 @@ const Home: NextPage = () => {
                         squares={squares}
                         handlePlayer={PlayerGag}
                         handleRestartGame={PlayerGag}
+                        isHost={isHost}
 
                     />)
             }

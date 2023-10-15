@@ -16,6 +16,7 @@ interface PlayerProp {
     winner: string,
     playerX: boolean,
     squares: Array<any>,
+    isHost: boolean,
 
     handlePlayer(i: number): void,
 
@@ -28,7 +29,7 @@ interface SquareProp {
     onClick(): void,
 }
 
-export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestartGame, squares}: PlayerProp) => {
+export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestartGame, squares, isHost}: PlayerProp) => {
     const [cellNumber, setCell] = useState<number>(9)
 
     function Square({value, onClick}: SquareProp) {
@@ -49,9 +50,10 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
         } else if (squares[i] === "O") {
             value = <OIcon themeNum={themeNumber}/>
         } else if (squares[i] != null) {
-            value = <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold text-xl md:text-2xl space-y-12`}>
-                {squares[i]}
-            </p>
+            value =
+                <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold text-xl md:text-2xl space-y-12`}>
+                    {squares[i]}
+                </p>
         }
         return value;
 
@@ -59,7 +61,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
 
     const renderSquare = (i: number) => {
         return <Square value={value(i)} onClick={() => {
-            handlePlayer(i), setCell(i)
+            isHost ? (handlePlayer(i), setCell(i)) : {}
         }}/>
     }
 
