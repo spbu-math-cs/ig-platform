@@ -4,12 +4,14 @@ import React, {useState} from 'react';
 import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
+import {bgBlack} from "next/dist/lib/picocolors";
 
 
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
 const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"];
 
 const Home: NextPage = () => {
+
     const rows = 3;
     const cols = 3;
     const [isX, setIsX] = useState<boolean>(true);
@@ -20,7 +22,9 @@ const Home: NextPage = () => {
 
     const [isHost, setIsHost] = useState<boolean>(true);
 
+
     let winner = calculateWinner(squares);
+
     function handleHostMode() {
         setIsHost(true);
     }
@@ -69,7 +73,6 @@ const Home: NextPage = () => {
 
         setSquares(squares);
 
-
         setNewGame(true);
     }
 
@@ -109,6 +112,7 @@ const Home: NextPage = () => {
                 <title>Tic-Tac-Toe Game</title>
                 <link rel="icon" href="/tictactoe.ico"/>
             </Head>
+
 
             <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 ${TextColor[themeNumber]} `}>
                 TIC
@@ -165,6 +169,11 @@ const Home: NextPage = () => {
                     handleNewGame={handleNewGame}
                 />
             }
+            <audio controls src="/LobbyMusicBASSBOOST.mp3" loop hidden
+            >
+            </audio>
+
+
         </div>
     )
 }
