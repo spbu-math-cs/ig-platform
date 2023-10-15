@@ -1,9 +1,15 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
+
 const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"];
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
 const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purpleO"];
+const TaskColor = ["bg-metalTask", "bg-2048Task", "bg-purpleTask"]
+
+const task = ["Это условие задачи1", "Это условие задачи2", "Это условие задачи3", "Это условие задачи4", "Это условие задачи5",
+    "Это условие задачи6", "Это условие задачи7", "Это условие задачи8", "Это условие задачи9", ""]
+
 
 interface PlayerProp {
     themeNumber: number
@@ -23,10 +29,13 @@ interface SquareProp {
 }
 
 export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestartGame, squares}: PlayerProp) => {
+    const [cellNumber, setCell] = useState<number>(9)
 
     function Square({value, onClick}: SquareProp) {
         return (
-            <button className={`flex h-[190px] w-[190px] md:h-[130px] md:w-[130px] items-center justify-center ${PanelColor[themeNumber]} rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`} onClick={onClick} disabled={!!winner}>
+            <button
+                className={`flex h-[190px] w-[190px] md:h-[130px] md:w-[130px] items-center justify-center ${PanelColor[themeNumber]} rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
+                onClick={onClick} disabled={!!winner}>
                 {value}
             </button>
         )
@@ -40,7 +49,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
         } else if (squares[i] === "O") {
             value = <OIcon themeNum={themeNumber}/>
         } else if (squares[i] != null) {
-            value = <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold  md:text-m space-y-12`}>
+            value = <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold text-xl md:text-2xl space-y-12`}>
                 {squares[i]}
             </p>
         }
@@ -49,7 +58,9 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
     }
 
     const renderSquare = (i: number) => {
-        return <Square value={value(i)} onClick={() => handlePlayer(i)}/>
+        return <Square value={value(i)} onClick={() => {
+            handlePlayer(i), setCell(i)
+        }}/>
     }
 
 
@@ -79,7 +90,8 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                         <button onClick={handleRestartGame}
                                 className={`group button px-2 py-1 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 ${HoverPanelColor[themeNumber]}`}>
                             <svg xmlns="http://www.w3.org/2000/svg"
-                                 className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in space-y-10  " fill="none"
+                                 className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in space-y-10  "
+                                 fill="none"
                                  viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -105,11 +117,12 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                         {renderSquare(8)}
                     </div>
                 </div>
-                <div className={` w-[500px] md:[w-700px] bg-[#ffe1a9] rounded-lg flex items-top justify-center space-y-18`}>
-                <button
-                    className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in rounded-xl px-40 py-40 text-3xl md:text-4xl font-extrabold mt-10 ${TextColor[themeNumber]}`}>
-                    Click Me
-                </button>
+                <div
+                    className={` w-[700px] md:[w-700px] px-300 py-300 ${TaskColor[themeNumber]} rounded-lg flex items-top justify-center`}>
+                    <button
+                        className={` rounded-xl px-40 py-40 text-3xl md:text-4xl font-extrabold ${TextColor[themeNumber]}`}>
+                        {task[cellNumber]}
+                    </button>
                 </div>
             </div>
         </div>

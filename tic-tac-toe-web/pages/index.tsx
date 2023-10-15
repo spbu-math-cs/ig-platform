@@ -20,7 +20,6 @@ const Home: NextPage = () => {
 
     const [isHost, setIsHost] = useState<boolean>(true);
 
-
     let winner = calculateWinner(squares);
 
     function handlePlayerX() {
@@ -81,7 +80,7 @@ const Home: NextPage = () => {
 
 
         setNewGame(true);
-    };
+    }
 
     function handleQuitGame() {
         setIsX(true);
