@@ -5,6 +5,8 @@ import {Board} from '../components/Board';
 import {ChooseMode, ColorTheme} from '../components/ChooseMode';
 import {WinnerModal} from '../components/WinnerModal';
 import {hidden} from "next/dist/lib/picocolors";
+import {Simulate} from "react-dom/test-utils";
+import play = Simulate.play;
 
 
 
@@ -75,6 +77,8 @@ const Home: NextPage = () => {
         setSquares(squares);
 
         setNewGame(true);
+
+        new Audio("/LobbyMusicBASSBOOST.mp3").play();
     }
 
     function handleQuitGame() {
@@ -170,7 +174,8 @@ const Home: NextPage = () => {
                     handleNewGame={handleNewGame}
                 />
             }
-            <audio loop autoPlay controls src="/LobbyMusicBASSBOOST.mp3" hidden>
+
+            <audio loop autoPlay hidden controls src="/LobbyMusicBASSBOOST.mp3" >
             </audio>
 
 
