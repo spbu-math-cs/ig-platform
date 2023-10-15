@@ -1,12 +1,20 @@
 package com.clvr.server.plugins
 
+import com.clvr.server.utils.Event
+import com.clvr.server.utils.Session
+import com.clvr.server.utils.SessionManager
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.Duration
 
 fun Application.configureSockets() {
+    val exampleSessionManager = SessionManager(1) { }
+
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -23,6 +31,22 @@ fun Application.configureSockets() {
                         close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                     }
                 }
+            }
+        }
+
+        webSocket("/ws/host/") {
+            val hostChannel = exampleSessionManager.hostChannel
+
+            launch {
+                for (event in hostChannel) {
+                    outgoing.send(Frame.Text(Json.encodeToString(event)))
+                }
+            }
+
+            for (frame in incoming) {
+                // TODO: deserialize string to event properly
+                val event: Event<String> = Event(Session(1), "example", "")
+                exampleSessionManager.handleHostEvent(event)
             }
         }
     }
