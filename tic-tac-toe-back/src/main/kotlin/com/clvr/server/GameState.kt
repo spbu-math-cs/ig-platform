@@ -1,12 +1,13 @@
 package com.clvr.server
 
+import com.clvr.server.plugins.Id
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Question(val topic: String, val statement: String, val answer: String, val hints: List<String>)
 
 @Serializable
-data class GameTemplate(val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String?, val templateAuthor: String?)
+data class GameTemplate(val id: Id, val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String?, val templateAuthor: String?)
 
 //content is empty when both teams answered incorrectly, check rules of the game
 enum class CellContent { NOT_OPENED, X, O, EMPTY }
