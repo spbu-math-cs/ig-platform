@@ -1,8 +1,12 @@
 package com.clvr.server
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Question(val topic: String, val statement: String, val answer: String, val hints: List<String>)
 
-typealias GameTemplate = Array<Array<Question>>
+@Serializable
+data class GameTemplate(val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String, val templateAuthor: String)
 
 //content is empty when both teams answered incorrectly, check rules of the game
 enum class CellContent { NOT_OPENED, X, O, EMPTY }
@@ -15,27 +19,25 @@ enum class GameResult { UNKNOWN, X_WIN, O_WIN }
 
 enum class Player { X, O }
 
-fun oppositePlayer(player: Player) = if (player == Player.X) Player.O else Player.X 
+private fun oppositePlayer(player: Player) = if (player == Player.X) Player.O else Player.X 
 
-fun getPlayerByContent(content: CellContent): Player = 
+private fun getPlayerByContent(content: CellContent): Player = 
     when (content) {
         CellContent.X -> Player.X
         CellContent.O -> Player.O
         else -> throw IllegalArgumentException()
     }
 
-fun getResultByContent(content: CellContent): GameResult =
+private fun getResultByContent(content: CellContent): GameResult =
     when (content) {
         CellContent.X -> GameResult.X_WIN
         CellContent.O -> GameResult.O_WIN
         else -> throw IllegalArgumentException()
     }
 
-class GameState(private val questions: GameTemplate) {
-    val side = questions.size
-    
-    private val state: GridState = Array(side) {
-        Array(side) {
+class GameState(private val template: GameTemplate) {
+    private val state: GridState = Array(template.gridSide) {
+        Array(template.gridSide) {
             CellState(0, CellContent.NOT_OPENED)
         }
     }
@@ -44,22 +46,28 @@ class GameState(private val questions: GameTemplate) {
         private set
 
     private fun getKthHint(row: Int, column: Int, id: Int) = 
-        questions[row][column].hints[id]
+        template.questions[row][column].hints[id]
 
     fun isCellValid(row: Int, column: Int): Boolean = 
-        row >= 0 && row < side && column >= 0 && column < side
+        row >= 0 && row < template.gridSide && column >= 0 && column < template.gridSide
+
+    fun getSide(): Int = template.gridSide
+
+    fun getTemplateAuthor(): String = template.templateAuthor
+
+    fun getTemplateTitle(): String = template.templateTitle
 
     fun getQuestionTopic(row: Int, column: Int) =
-        questions[row][column].topic
+        template.questions[row][column].topic
 
     fun getQuestionStatement(row: Int, column: Int) = 
-        questions[row][column].statement
+        template.questions[row][column].statement
 
     fun getQuestionAnswer(row: Int, column: Int) = 
-        questions[row][column].answer
+        template.questions[row][column].answer
 
     fun changeQuestion(row: Int, column: Int, newQuestion: Question) {
-        questions[row][column] = newQuestion
+        template.questions[row][column] = newQuestion
     }
     
     fun getNextHint(row: Int, column: Int): String {
@@ -77,7 +85,7 @@ class GameState(private val questions: GameTemplate) {
         } else {
             turn = getPlayerByContent(newContent)
             state.forEach { 
-                row -> row.forEach { 
+                currentRow -> currentRow.forEach { 
                     if (it.content == CellContent.EMPTY) {
                         it.content = newContent
                     } 
@@ -94,8 +102,8 @@ class GameState(private val questions: GameTemplate) {
         var cntX: Int = 0
         var cntO: Int = 0
 
-        for (row in 0 until side) {
-            for (column in 0 until side) {
+        for (row in 0 until template.gridSide) {
+            for (column in 0 until template.gridSide) {
                 if (state[row][column].content == CellContent.EMPTY || state[row][column].content == CellContent.NOT_OPENED) {
                     continue
                 }
@@ -106,15 +114,17 @@ class GameState(private val questions: GameTemplate) {
                     cntO++
                 }
 
-                for (dr in -1..1) {
-                    for (dc in -1..1) {
-                        if (dr == 0 && dc == 0) {
+                for (deltaRow in -1..1) {
+                    for (deltaCol in -1..1) {
+                        if (deltaRow == 0 && deltaCol == 0) {
                             continue
                         }
 
                         var ok: Boolean = true
-                        for (i in 0 until side) {
-                            if (!isCellValid(row + dr * i, column + dc * i) || state[row + dr * i][column + dc * i].content != state[row][column].content) {
+                        for (i in 0 until template.gridSide) {
+                            if (!isCellValid(row + deltaRow * i, column + deltaCol * i) || 
+                                state[row + deltaRow * i][column + deltaCol * i].content != state[row][column].content) {
+
                                 ok = false
                                 break
                             }
@@ -128,7 +138,7 @@ class GameState(private val questions: GameTemplate) {
             }
         }
 
-        if (cntX + cntO < side * side) {
+        if (cntX + cntO < template.gridSide * template.gridSide) {
             return GameResult.UNKNOWN
         }                    
 
