@@ -9,7 +9,7 @@ export type Session = {
   id: string
 }
 
-type Mark = "X" | "O" | ""
+export type Mark = "X" | "O" | ""
 
 type Cell = {
   row: number
@@ -29,6 +29,8 @@ type Question = {
 
 /**
  * The game state when the game is connecting, reconnecting, or otherwise not ready.
+ *
+ * TODO: differentiate between reconnection attempt and failed connection
  */
 interface GameStateLoading {
   state: "_LOADING"
@@ -55,27 +57,3 @@ interface GameStateQuestion {
  * Describes the current game state.
  */
 export type GameState = GameStateLoading | GameStateMainBoard | GameStateQuestion
-
-/**
- * A host to server request to open a question and show it to the players.
- */
-interface RequestOpenQuestion {
-  type: "OPEN_QUESTION"
-  row: number
-  column: number
-}
-
-/**
- * A host to server request to set a field on the board.
- */
-interface RequestSetField {
-  type: "SET_FIELD"
-  row: number
-  column: number
-  mark: Mark
-}
-
-/**
- * A request to the game server.
- */
-export type Request = RequestOpenQuestion | RequestSetField

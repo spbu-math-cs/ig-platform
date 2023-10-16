@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {Session, GameState, Request} from "@/game/state"
+import {Session, GameState} from "@/game/state"
+import {Request} from "@/game/wsRequests"
 
 /**
  * Connects to the game server and returns the current game state and a function to send requests.
