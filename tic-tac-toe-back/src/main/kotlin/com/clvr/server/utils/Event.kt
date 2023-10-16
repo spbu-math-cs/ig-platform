@@ -1,6 +1,7 @@
 package com.clvr.server.utils
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import java.lang.IllegalArgumentException
@@ -18,6 +19,18 @@ data class Event<T: EventPayloadInterface>(
     val type: String,
     val payload: T
 )
+
+// TODO: remove this method and implement normal one
+@Suppress("UNCHECKED_CAST")
+fun encodeEventToJson(event: Event<*>): String {
+    return when (event.payload) {
+        is QuestionRequest -> Json.encodeToString(event as Event<QuestionRequest>)
+        is QuestionResponse -> Json.encodeToString(event as Event<QuestionResponse>)
+        is SetFieldRequest -> Json.encodeToString(event as Event<SetFieldRequest>)
+        is SetFieldResponse -> Json.encodeToString(event as Event<SetFieldResponse>)
+        else -> throw IllegalArgumentException("unknown payload type")
+    }
+}
 
 fun decodeJsonToEvent(jsonString: String): Event<*> {
     val jsonObject: JsonObject = Json.decodeFromString(jsonString)
