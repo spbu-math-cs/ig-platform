@@ -42,7 +42,7 @@ BOARD = {"cells": [{
 }, {
     "row": 1,
     "column": 1,
-    "mark": "X",
+    "mark": "<img src=\"https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif\" width=\"50px\"/>",
 }, {
     "row": 1,
     "column": 2,
@@ -58,7 +58,7 @@ BOARD = {"cells": [{
 }, {
     "row": 2,
     "column": 2,
-    "mark": "",
+    "mark": "<span style=\"color: red;\">hello!</span>",
 },
 ]}
 
@@ -83,7 +83,7 @@ async def handle_host_message(_ws: web.WebSocketResponse, msg: aiohttp.WSMessage
                         "question": {
                             "row": data["payload"]["row"],
                             "column": data["payload"]["column"],
-                            "text": "What is the answer to life, the universe and everything?",
+                            "text": "<span style=\"color: blue;\">What is the answer to life, the universe and everything?</span>",
                         },
                         "board": BOARD,
                     },

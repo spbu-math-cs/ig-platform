@@ -14,6 +14,7 @@ const Home: NextPage = () => {
     const cols = 3
     const [isX, setIsX] = useState<boolean>(true)
     const [newGame, setNewGame] = useState<boolean>(false)
+    const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [themeNumber, setColorTheme] = useState<number>(1)
 
     const [isHost, setIsHost] = useState<boolean>(true)
@@ -44,9 +45,25 @@ const Home: NextPage = () => {
 
 
     function handleNewGame() {
+
+
         setIsX(true)
         // @ts-ignore
         setSquares(Array(cols * rows).fill(null))
+        squares[0] = "ML"
+        squares[1] = "DB"
+        squares[2] = "Algos"
+
+        squares[3] = "CS"
+        squares[4] = "OOP"
+        squares[5] = "DEV"
+
+        squares[6] = "FP"
+        squares[7] = "DB"
+        squares[8] = "ACOS"
+
+        setSquares(squares)
+
         setNewGame(true)
     }
 
