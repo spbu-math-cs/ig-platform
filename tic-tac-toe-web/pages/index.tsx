@@ -20,6 +20,8 @@ const Home: NextPage = () => {
     const [themeNumber, setColorTheme] = useState<number>(1);
 
     const [isHost, setIsHost] = useState<boolean>(true);
+    const [isMove, setIsMove] = useState<boolean>(false);
+
 
 
     let winner = calculateWinner(squares);
@@ -40,12 +42,27 @@ const Home: NextPage = () => {
     }
 
     function handlePlayer(i: number) {
-        if (calculateWinner(squares)) {
+        if (i < rows * cols && isMove) {
+            if (calculateWinner(squares)) {
+                return;
+            }
+            squares[i] = isX ? "X" : "O";
+            setSquares(squares);
+            setIsX(!isX);
+            setIsMove(false);
             return;
         }
-        squares[i] = isX ? "X" : "O";
-        setSquares(squares);
-        setIsX(!isX);
+
+        if (i == rows * cols + 1) {
+            setIsX(true);
+            setIsMove(true);
+            return;
+        }
+        if (i == rows * cols + 2) {
+            setIsX(false);
+            setIsMove(true);
+            return;
+        }
     }
 
     function handleRestartGame() {
