@@ -3,6 +3,8 @@ import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session} from "./state"
 import {Request} from "./wsRequests"
 
+type Role = "host" | "board";
+
 /**
  * Connects to the game server and returns the current game state and a function to send requests.
  *
@@ -17,11 +19,12 @@ import {Request} from "./wsRequests"
  *  successfully fulfilled. This means that differentiating between request in progress and connection
  *  lost is... annoying.
  *
+ * @param role The role being played
  * @param session The session to connect with (returned by POST /api/game-session endpoint)
  * @returns A tuple containing the current game state and a function to send requests
  */
-export function useServerState(session: Session): [GameState, (action: Request) => void] {
-    const url = new URL(`host/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+export function useServerState(role: Role, session: Session): [GameState, (action: Request) => void] {
+    const url = new URL(`${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
         shouldReconnect: () => true,

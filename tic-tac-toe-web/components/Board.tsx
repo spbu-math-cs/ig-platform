@@ -1,6 +1,7 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
+import {useServerState} from "../game/websockets"
 
 const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"]
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
@@ -24,10 +25,7 @@ interface PlayerProp {
     themeNumber: number
     winner: string,
     playerX: boolean,
-    squares: Array<any>,
     isHost: boolean,
-
-    handlePlayer(i: number): void,
 
     handleRestartGame(): void,
 }
@@ -38,8 +36,17 @@ interface SquareProp {
     onClick(): void,
 }
 
-export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestartGame, squares, isHost}: PlayerProp) => {
-    const [cellNumber, setCell] = useState<number>(9)
+export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost}: PlayerProp) => {
+    const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
+    const [game, sendMessage] = useServerState(isHost ? "host" : "board", {"id": "ABCD"});
+
+    useEffect(() => {
+        let k = new Audio("/LobbyMusic.mp3")
+
+        k.addEventListener("canplaythrough", (_) => {
+            k.play().then()
+        }, true)
+    }, [])
 
     function Square({value, onClick}: SquareProp) {
         return (
@@ -49,19 +56,24 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                 {value}
             </button>
         )
-
     }
 
     function value(i: number) {
         let value
-        if (squares[i] === "X") {
+        let board
+        if (game.state !== "_LOADING") {
+            board = game.board
+        }
+        if (board === undefined) {
+            return undefined
+        } else if (board.cells[i].mark === "X") {
             value = <XIcon themeNum={themeNumber}/>
-        } else if (squares[i] === "O") {
+        } else if (board.cells[i].mark === "O") {
             value = <OIcon themeNum={themeNumber}/>
-        } else if (squares[i] != null) {
+        } else if (board.cells[i].mark != null) {
             value =
                 <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold text-xl md:text-2xl space-y-12`}>
-                    {squares[i]}
+                    {board.cells[i].mark[i]}
                 </p>
         }
         return value
@@ -70,16 +82,31 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
 
     const renderSquare = (i: number) => {
         return <Square value={value(i)} onClick={() => {
-            isHost ? (handlePlayer(i), setCell(i)) : {}
+            if (!isHost) return
+            if (currentPlayer !== undefined) {
+                sendMessage({
+                    type: "SET_FIELD",
+                    mark: currentPlayer,
+                    row: Math.floor(i / rows),
+                    column: i % cols,
+                })
+            } else {
+                sendMessage({
+                    type: "OPEN_QUESTION",
+                    row: Math.floor(i / rows),
+                    column: i % cols,
+                })
+            }
+            setCurrentPlayer(undefined)
         }}/>
     }
 
     function setX() {
-        handlePlayer(rows * cols + 1)
+        setCurrentPlayer("X")
     }
 
     function setO() {
-        handlePlayer(rows * cols + 2)
+        setCurrentPlayer("O")
     }
 
 
@@ -152,7 +179,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                         className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] ${TaskColor[themeNumber]} rounded-lg flex items-top justify-center`}>
                         <button
                             className={` rounded-xl py-30 px-40 text-3xl md:text-4xl font-extrabold ${TextColor[themeNumber]}`}>
-                            {task[cellNumber]}
+                            {game.state === "OPENED_QUESTION" ? game.question.text : ""}
                         </button>
                     </div>
                     {isHost ?
@@ -160,7 +187,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                             className={`w-[500px] h-[100px] ${AnswerColor[themeNumber]} rounded-lg flex items-top justify-center`}>
                             <button
                                 className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center ${AnswerTextColor[themeNumber]}`}>
-                                {answer[cellNumber]}
+                                {"Answer placeholder"}
                             </button>
                         </div>
                         : <div></div>

@@ -6,7 +6,7 @@ import {useRef} from "react"
  * Testing page for the websocket API, and an example of how to use it.
  */
 export default function ApiTest() {
-    const [game, sendMessage] = useServerState({
+    const [game, sendMessage] = useServerState("host", {
         id: "ABCD",
     })
 

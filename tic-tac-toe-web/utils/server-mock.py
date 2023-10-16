@@ -26,39 +26,39 @@ clients: set[web.WebSocketResponse] = set()
 BOARD = {"cells": [{
     "row": 0,
     "column": 0,
-    "state": "X",
+    "mark": "X",
 }, {
     "row": 0,
     "column": 1,
-    "state": "O",
+    "mark": "O",
 }, {
     "row": 0,
     "column": 2,
-    "state": "",
+    "mark": "",
 }, {
     "row": 1,
     "column": 0,
-    "state": "O",
+    "mark": "O",
 }, {
     "row": 1,
     "column": 1,
-    "state": "X",
+    "mark": "X",
 }, {
     "row": 1,
     "column": 2,
-    "state": "O",
+    "mark": "O",
 }, {
     "row": 2,
     "column": 0,
-    "state": "O",
+    "mark": "O",
 }, {
     "row": 2,
     "column": 1,
-    "state": "X",
+    "mark": "X",
 }, {
     "row": 2,
     "column": 2,
-    "state": "",
+    "mark": "",
 },
 ]}
 
@@ -107,6 +107,13 @@ async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocket
     ws = web.WebSocketResponse()
     await ws.prepare(request)
     clients.add(ws)
+
+    await broadcast_message({
+        "state": "MAIN_BOARD",
+        "payload": {
+            "board": BOARD,
+        },
+    })
 
     try:
         async for msg in ws:
