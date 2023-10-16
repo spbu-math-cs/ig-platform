@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Question(val topic: String, val statement: String, val answer: String, val hints: List<String>)
 
 @Serializable
-data class GameTemplate(val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String, val templateAuthor: String)
+data class GameTemplate(val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String?, val templateAuthor: String?)
 
 //content is empty when both teams answered incorrectly, check rules of the game
 enum class CellContent { NOT_OPENED, X, O, EMPTY }
@@ -53,9 +53,9 @@ class GameState(private val template: GameTemplate) {
 
     fun getSide(): Int = template.gridSide
 
-    fun getTemplateAuthor(): String = template.templateAuthor
+    fun getTemplateAuthor(): String? = template.templateAuthor
 
-    fun getTemplateTitle(): String = template.templateTitle
+    fun getTemplateTitle(): String? = template.templateTitle
 
     fun getQuestionTopic(row: Int, column: Int) =
         template.questions[row][column].topic
