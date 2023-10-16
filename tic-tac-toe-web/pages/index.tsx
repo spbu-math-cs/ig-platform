@@ -48,7 +48,6 @@ const Home: NextPage = () => {
             }
             squares[i] = isX ? "X" : "O";
             setSquares(squares);
-            setIsX(!isX);
             setIsMove(false);
             return;
         }
