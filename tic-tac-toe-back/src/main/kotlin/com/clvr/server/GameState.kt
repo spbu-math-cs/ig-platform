@@ -46,7 +46,7 @@ class GameState(private val template: GameTemplate) {
         private set
 
     private fun getKthHint(row: Int, column: Int, id: Int) = 
-        template.questions[row][column].hints[id]
+        template.questions[row][column].hints.getOrNull(id)
 
     fun isCellValid(row: Int, column: Int): Boolean = 
         row >= 0 && row < template.gridSide && column >= 0 && column < template.gridSide
@@ -70,9 +70,8 @@ class GameState(private val template: GameTemplate) {
         template.questions[row][column] = newQuestion
     }
     
-    fun getNextHint(row: Int, column: Int): String {
-        state[row][column].hintsUsed++
-        return getKthHint(row, column, state[row][column].hintsUsed)
+    fun getNextHint(row: Int, column: Int): String? {
+        return getKthHint(row, column, state[row][column].hintsUsed++)
     }
 
     fun getGridContent(): List<List<CellContent>> = 
