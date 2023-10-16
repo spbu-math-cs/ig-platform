@@ -1,8 +1,8 @@
 package com.clvr.server.plugins
 
 import com.clvr.server.utils.Event
-import com.clvr.server.utils.Session
 import com.clvr.server.utils.SessionManager
+import com.clvr.server.utils.decodeJsonToEvent
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -44,8 +44,11 @@ fun Application.configureSockets() {
             }
 
             for (frame in incoming) {
-                // TODO: deserialize string to event properly
-                val event: Event<String> = Event(Session(1), "example", "")
+                if (frame !is Frame.Text) {
+                    continue
+                }
+
+                val event: Event<*> = decodeJsonToEvent(frame.readText())
                 exampleSessionManager.handleHostEvent(event)
             }
         }

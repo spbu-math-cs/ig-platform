@@ -65,6 +65,10 @@ class SessionManagerTest {
         }
     }
 
-    data class TestHostPayload(val data: String)
-    data class TestClientPayload(val data: String)
+    data class TestHostPayload(val data: String): EventPayloadInterface {
+        override fun type(): String = "TEST_HOST_PAYLOAD"
+    }
+    data class TestClientPayload(val data: String): EventPayloadInterface {
+        override fun type(): String = "TEST_CLIENT_PAYLOAD"
+    }
 }

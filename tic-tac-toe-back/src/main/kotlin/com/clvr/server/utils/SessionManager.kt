@@ -2,17 +2,6 @@ package com.clvr.server.utils
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class Session(val id: Long)
-
-@Serializable
-data class Event<T>(
-    val session: Session,
-    val type: String,
-    val payload: T
-)
 
 class SessionManager(
     private val sessionId: Long,

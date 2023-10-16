@@ -13,18 +13,13 @@ class EventTest {
 
     @Test
     fun `check json format corresponds docs API`() {
-       val event: Event<TestPayload> = Event(
-            Session(1703),
-           "test payload",
-           TestPayload("very important information")
-        )
-
+        val event: Event<TestPayload> = eventOf(1703, TestPayload("very important information"))
         val expectedJsonString =
 """{
     "session": {
         "id": 1703
     },
-    "type": "test payload",
+    "type": "TEST_PAYLOAD",
     "payload": {
         "importantField": "very important information"
     }
@@ -33,10 +28,34 @@ class EventTest {
         assertEquals(expectedJsonString, jsonPrettyFormatter.encodeToString(event))
     }
 
+    @Test
+    fun `check some request from API-doc`() {
+        val event: Event<SetFieldRequest> = eventOf(1703, SetFieldRequest(1, 1, CellMark.X))
+        val expectedJsonString =
+"""{
+    "session": {
+        "id": 1703
+    },
+    "type": "SET_FIELD",
+    "payload": {
+        "row": 1,
+        "column": 1,
+        "mark": "X"
+    }
+}"""
+        val jsonString = jsonPrettyFormatter.encodeToString(event)
+        assertEquals(expectedJsonString, jsonString)
+
+        val decodedEvent: Event<SetFieldRequest> = decodeJsonToEvent(jsonString) as Event<SetFieldRequest>
+        assertEquals(event, decodedEvent)
+    }
+
     @Serializable
     @OptIn(ExperimentalSerializationApi::class)
     data class TestPayload(
         @JsonNames("field")
         val importantField: String
-    )
+    ): EventPayloadInterface {
+        override fun type(): String = "TEST_PAYLOAD"
+    }
 }
