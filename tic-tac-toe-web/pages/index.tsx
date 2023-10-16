@@ -1,41 +1,39 @@
-import type {NextPage} from 'next';
-import Head from 'next/head';
-import React, {useState} from 'react';
-import {Board} from '../components/Board';
-import {ChooseMode, ColorTheme} from '../components/ChooseMode';
-import {WinnerModal} from '../components/WinnerModal';
+import type {NextPage} from 'next'
+import Head from 'next/head'
+import React, {useState} from 'react'
+import {Board} from '../components/Board'
+import {ChooseMode, ColorTheme} from '../components/ChooseMode'
+import {WinnerModal} from '../components/WinnerModal'
 
 
-const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
-const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"];
+const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
+const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"]
 
 const Home: NextPage = () => {
-
-    const rows = 3;
-    const cols = 3;
-    const [isX, setIsX] = useState<boolean>(true);
-    const [newGame, setNewGame] = useState<boolean>(false);
+    const rows = 3
+    const cols = 3
+    const [isX, setIsX] = useState<boolean>(true)
+    const [newGame, setNewGame] = useState<boolean>(false)
     // @ts-ignore
-    const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null));
-    const [themeNumber, setColorTheme] = useState<number>(1);
+    const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
+    const [themeNumber, setColorTheme] = useState<number>(1)
 
-    const [isHost, setIsHost] = useState<boolean>(true);
-    const [isMove, setIsMove] = useState<boolean>(false);
+    const [isHost, setIsHost] = useState<boolean>(true)
+    const [isMove, setIsMove] = useState<boolean>(false)
 
 
-
-    let winner = calculateWinner(squares);
+    let winner = calculateWinner(squares)
 
     function handleHostMode() {
-        setIsHost(true);
+        setIsHost(true)
     }
 
     function handlePlayerMode() {
-        setIsHost(false);
+        setIsHost(false)
     }
 
     function handleColorTheme() {
-        setColorTheme((themeNumber + 1) % 3);
+        setColorTheme((themeNumber + 1) % 3)
     }
 
     function PlayerGag() {
@@ -44,79 +42,79 @@ const Home: NextPage = () => {
     function handlePlayer(i: number) {
         if (i < rows * cols && isMove) {
             if (calculateWinner(squares)) {
-                return;
+                return
             }
-            squares[i] = isX ? "X" : "O";
-            setSquares(squares);
-            setIsMove(false);
-            return;
+            squares[i] = isX ? "X" : "O"
+            setSquares(squares)
+            setIsMove(false)
+            return
         }
 
         if (i == rows * cols + 1) {
-            setIsX(true);
-            setIsMove(true);
-            return;
+            setIsX(true)
+            setIsMove(true)
+            return
         }
         if (i == rows * cols + 2) {
-            setIsX(false);
-            setIsMove(true);
-            return;
+            setIsX(false)
+            setIsMove(true)
+            return
         }
     }
 
     function handleRestartGame() {
-        setIsX(true);
+        setIsX(true)
         // @ts-ignore
-        setSquares(Array(cols * rows).fill(null));
+        setSquares(Array(cols * rows).fill(null))
     }
 
 
     function handleNewGame() {
 
 
-        setIsX(true);
+        setIsX(true)
         // @ts-ignore
-        setSquares(Array(cols * rows).fill(null));
-        squares[0] = "ML";
-        squares[1] = "DB";
-        squares[2] = "Algos";
+        setSquares(Array(cols * rows).fill(null))
+        squares[0] = "ML"
+        squares[1] = "DB"
+        squares[2] = "Algos"
 
-        squares[3] = "CS";
-        squares[4] = "OOP";
-        squares[5] = "DEV";
+        squares[3] = "CS"
+        squares[4] = "OOP"
+        squares[5] = "DEV"
 
-        squares[6] = "FP";
-        squares[7] = "DB";
-        squares[8] = "ACOS";
+        squares[6] = "FP"
+        squares[7] = "DB"
+        squares[8] = "ACOS"
 
-        setSquares(squares);
+        setSquares(squares)
 
-        setNewGame(true);
+        setNewGame(true)
 
         let k = new Audio("/LobbyMusic.mp3")
 
-        k.addEventListener("canplaythrough", (event) => {
-            k.play()
-        }, true);
+        k.addEventListener("canplaythrough", (_) => {
+            k.play().then()
+        }, true)
     }
 
     function handleQuitGame() {
-        setIsX(true);
+        setIsX(true)
         // @ts-ignore
-        setSquares(Array(cols * rows).fill(null));
-        setNewGame(false);
+        setSquares(Array(cols * rows).fill(null))
+        setNewGame(false)
     }
 
     function calculateWinner(squares: Array<any>) {
         for (let i = 0; i < rows; ++i) { //vertical
             if ((squares[i] == "X" || squares[i] == "O") && squares[i] == squares[i + rows] && squares[i + rows] == squares[i + 2 * rows]) {
-                return squares[i];
+                return squares[i]
             }
         }
 
         for (let i = 0; i < cols; ++i) { //horizontal
             if ((squares[i * rows] == "X" || squares[i * rows] == "O") && squares[i * rows] == squares[i * rows + 1] && squares[i * rows + 1] == squares[i * rows + 2]) {
-                return squares[i * rows];
+                return squares[i * rows]
             }
         }
 

@@ -2,20 +2,25 @@ import React from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 
-const TextColorPlayer = ["text-metalX", "text-2048X", "text-purpleX"];
-const TextColorHost = ["text-indigo", "text-2048O", "text-purpleX"];
-const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"];
-const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048Panel", "hover:bg-purplePanel"];
-const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
+const TextColorPlayer = ["text-metalX", "text-2048X", "text-purpleX"]
+const TextColorHost = ["text-indigo", "text-2048O", "text-purpleX"]
+const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"]
+const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048Panel", "hover:bg-purplePanel"]
+const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
 
 interface PlayerProp {
-    themeNumber : number,
+    themeNumber: number,
+
     handleHostMode(): void,
+
     handlePlayerMode(): void,
+
     handleNewGame(): void,
 }
+
 interface ColorThemeProp {
-    themeNumber : number;
+    themeNumber: number;
+
     handleColorTheme(): void;
 }
 

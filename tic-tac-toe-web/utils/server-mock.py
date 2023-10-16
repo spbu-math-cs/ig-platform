@@ -23,44 +23,43 @@ async def create_game_session(request: web.Request) -> web.Response:
 
 clients: set[web.WebSocketResponse] = set()
 
-
 BOARD = {"cells": [{
-        "row": 0,
-        "column": 0,
-        "state": "X",
-    }, {
-        "row": 0,
-        "column": 1,
-        "state": "O",
-    }, {
-        "row": 0,
-        "column": 2,
-        "state": "",
-    }, {
-        "row": 1,
-        "column": 0,
-        "state": "O",
-    }, {
-        "row": 1,
-        "column": 1,
-        "state": "X",
-    }, {
-        "row": 1,
-        "column": 2,
-        "state": "O",
-    }, {
-        "row": 2,
-        "column": 0,
-        "state": "O",
-    }, {
-        "row": 2,
-        "column": 1,
-        "state": "X",
-    }, {
-        "row": 2,
-        "column": 2,
-        "state": "",
-    },
+    "row": 0,
+    "column": 0,
+    "state": "X",
+}, {
+    "row": 0,
+    "column": 1,
+    "state": "O",
+}, {
+    "row": 0,
+    "column": 2,
+    "state": "",
+}, {
+    "row": 1,
+    "column": 0,
+    "state": "O",
+}, {
+    "row": 1,
+    "column": 1,
+    "state": "X",
+}, {
+    "row": 1,
+    "column": 2,
+    "state": "O",
+}, {
+    "row": 2,
+    "column": 0,
+    "state": "O",
+}, {
+    "row": 2,
+    "column": 1,
+    "state": "X",
+}, {
+    "row": 2,
+    "column": 2,
+    "state": "",
+},
 ]}
 
 
@@ -113,8 +112,10 @@ async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocket
         async for msg in ws:
             msg: aiohttp.WSMessage
             match kind:
-                case "host": await handle_host_message(ws, msg)
-                case "board": await handle_board_message(msg)
+                case "host":
+                    await handle_host_message(ws, msg)
+                case "board":
+                    await handle_board_message(msg)
     finally:
         clients.remove(ws)
 

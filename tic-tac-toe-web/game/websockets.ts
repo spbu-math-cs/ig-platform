@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {Session, GameState} from "@/game/state"
-import {Request} from "@/game/wsRequests"
+import {GameState, Session} from "./state"
+import {Request} from "./wsRequests"
 
 /**
  * Connects to the game server and returns the current game state and a function to send requests.
@@ -21,61 +21,61 @@ import {Request} from "@/game/wsRequests"
  * @returns A tuple containing the current game state and a function to send requests
  */
 export function useServerState(session: Session): [GameState, (action: Request) => void] {
-  const url = new URL(`host/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+    const url = new URL(`host/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
-  const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
-    shouldReconnect: () => true,
-  })
+    const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
+        shouldReconnect: () => true,
+    })
 
-  const [gameState, setGameState] =
-    useState<GameState>({state: "_LOADING"})
+    const [gameState, setGameState] =
+        useState<GameState>({state: "_LOADING"})
 
-  useEffect(() => {
-    if (readyState != ReadyState.OPEN) {
-      setGameState({state: "_LOADING"})
-    }
-  }, [readyState])
+    useEffect(() => {
+        if (readyState != ReadyState.OPEN) {
+            setGameState({state: "_LOADING"})
+        }
+    }, [readyState])
 
-  useEffect(() => {
-    const msg = lastJsonMessage as any
-    if (msg === null) return
-    if (msg.state === "OPENED_QUESTION") {
-      setGameState({
-        state: msg.state,
-        board: msg.payload.board,
-        question: msg.payload.question,
-      }) // TODO: validate
-    } else if (msg.state === "MAIN_BOARD") {
-      setGameState({
-        state: msg.state,
-        board: msg.payload.board,
-      }) // TODO: validate
-    }
-  }, [lastJsonMessage])
+    useEffect(() => {
+        const msg = lastJsonMessage as any
+        if (msg === null) return
+        if (msg.state === "OPENED_QUESTION") {
+            setGameState({
+                state: msg.state,
+                board: msg.payload.board,
+                question: msg.payload.question,
+            }) // TODO: validate
+        } else if (msg.state === "MAIN_BOARD") {
+            setGameState({
+                state: msg.state,
+                board: msg.payload.board,
+            }) // TODO: validate
+        }
+    }, [lastJsonMessage])
 
-  return [gameState, (action: Request) => {
-    let request: any
-    if (action.type == "OPEN_QUESTION") {
-      request = {
-        session: session,
-        type: "OPEN_QUESTION",
-        payload: {
-          row: action.row,
-          column: action.column,
-        },
-      }
-    } else if (action.type == "SET_FIELD") {
-      request = {
-        session: session,
-        type: "SET_FIELD",
-        payload: {
-          row: action.row,
-          column: action.column,
-          mark: action.mark,
-        },
-      }
-    }
+    return [gameState, (action: Request) => {
+        let request: any
+        if (action.type == "OPEN_QUESTION") {
+            request = {
+                session: session,
+                type: "OPEN_QUESTION",
+                payload: {
+                    row: action.row,
+                    column: action.column,
+                },
+            }
+        } else if (action.type == "SET_FIELD") {
+            request = {
+                session: session,
+                type: "SET_FIELD",
+                payload: {
+                    row: action.row,
+                    column: action.column,
+                    mark: action.mark,
+                },
+            }
+        }
 
-    sendJsonMessage(request)
-  }]
+        sendJsonMessage(request)
+    }]
 }

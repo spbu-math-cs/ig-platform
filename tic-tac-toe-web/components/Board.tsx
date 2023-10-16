@@ -2,12 +2,12 @@ import React, {useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 
-const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"];
-const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"];
-const TextColorXO = ["text-metalPanel", "text-[#303030]", "text-purplePanel"];
-const AnswerTextColor = ["text-metalText", "text-2048Task", "text-purpleX"];
-const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purpleO"];
-const AnswerColor = ["bg-metalPanel", "bg-2048X", "bg-purpleO"];
+const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"]
+const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
+const TextColorXO = ["text-metalPanel", "text-[#303030]", "text-purplePanel"]
+const AnswerTextColor = ["text-metalText", "text-2048Task", "text-purpleX"]
+const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purpleO"]
+const AnswerColor = ["bg-metalPanel", "bg-2048X", "bg-purpleO"]
 const TaskColor = ["bg-metalTask", "bg-2048Task", "bg-purpleTask"]
 
 const task = ["Это условие задачи1", "Это условие задачи2", "Это условие задачи3", "Это условие задачи4", "Это условие задачи5",
@@ -16,8 +16,8 @@ const task = ["Это условие задачи1", "Это условие за
 const answer = ["Это ответ задачи1", "Это ответ задачи2", "Это ответ задачи3", "Это ответ задачи4", "Это ответ задачи5",
     "Это ответ задачи6", "Это ответ задачи7", "Это ответ задачи8", "Это ответ задачи9", ""]
 
-const rows = 3;
-const cols = 3;
+const rows = 3
+const cols = 3
 
 
 interface PlayerProp {
@@ -53,7 +53,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
     }
 
     function value(i: number) {
-        let value;
+        let value
         if (squares[i] === "X") {
             value = <XIcon themeNum={themeNumber}/>
         } else if (squares[i] === "O") {
@@ -64,7 +64,7 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
                     {squares[i]}
                 </p>
         }
-        return value;
+        return value
 
     }
 
@@ -75,11 +75,11 @@ export const Board = ({themeNumber, winner, playerX, handlePlayer, handleRestart
     }
 
     function setX() {
-        handlePlayer(rows * cols + 1);
+        handlePlayer(rows * cols + 1)
     }
 
     function setO() {
-        handlePlayer(rows * cols + 2);
+        handlePlayer(rows * cols + 2)
     }
 
 

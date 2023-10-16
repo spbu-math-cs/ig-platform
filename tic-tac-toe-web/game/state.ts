@@ -6,25 +6,25 @@
  * It is returned by the POST /api/game-session endpoint.
  */
 export type Session = {
-  id: string
+    id: string
 }
 
 export type Mark = "X" | "O" | ""
 
 type Cell = {
-  row: number
-  column: number
-  mark: Mark
+    row: number
+    column: number
+    mark: Mark
 }
 
 type Board = {
-  cells: Cell[]
+    cells: Cell[]
 }
 
 type Question = {
-  row: number
-  column: number
-  text: string
+    row: number
+    column: number
+    text: string
 }
 
 /**
@@ -33,24 +33,24 @@ type Question = {
  * TODO: differentiate between reconnection attempt and failed connection
  */
 interface GameStateLoading {
-  state: "_LOADING"
+    state: "_LOADING"
 }
 
 /**
  * The game state where the board is shown.
  */
 interface GameStateMainBoard {
-  state: "MAIN_BOARD"
-  board: Board
+    state: "MAIN_BOARD"
+    board: Board
 }
 
 /**
  * The game state when a question is opened.
  */
 interface GameStateQuestion {
-  state: "OPENED_QUESTION"
-  board: Board
-  question: Question
+    state: "OPENED_QUESTION"
+    board: Board
+    question: Question
 }
 
 /**
