@@ -7,7 +7,7 @@ import {useRef} from "react"
  */
 export default function ApiTest() {
     const [game, sendMessage] = useServerState("host", {
-        id: "ABCD",
+        id: "239",
     })
 
     const openQuestionRowNumberRef = useRef<HTMLInputElement | null>(null)

@@ -1,10 +1,20 @@
 package com.clvr.server.plugins
 
+import com.clvr.server.GameState
 import com.clvr.server.logger
+import com.clvr.server.utils.Board
+import com.clvr.server.utils.Cell
 import com.clvr.server.utils.Event
+import com.clvr.server.utils.Question
+import com.clvr.server.utils.QuestionRequest
+import com.clvr.server.utils.QuestionResponse
+import com.clvr.server.utils.RequestEvent
 import com.clvr.server.utils.SessionManager
+import com.clvr.server.utils.SetFieldRequest
+import com.clvr.server.utils.SetFieldResponse
 import com.clvr.server.utils.decodeJsonToEvent
 import com.clvr.server.utils.encodeEventToJson
+import com.clvr.server.utils.responseEventOf
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -94,7 +104,45 @@ private val sessionManagers: ConcurrentHashMap<Long, SessionManager> = Concurren
 private fun Application.getSessionManager(sessionId: Long): SessionManager =
     sessionManagers.computeIfAbsent(sessionId) { createSessionManager(sessionId) }
 
+private val GameState.asBoard: Board
+    get() = Board(
+        getGridContent().mapIndexed { i, row ->
+            row.mapIndexed { j, cellContent ->
+                Cell(i, j, cellContent)
+            }
+        }.flatten()
+    )
+
 // TODO: create normal handler
-fun Application.createSessionManager(sessionId: Long) = SessionManager(sessionId) { event: Event<*> -> sendToClients(event) }
+fun Application.createSessionManager(sessionId: Long) = SessionManager(sessionId) { event ->
+    val logger: KLogger = logger()
+
+    event as RequestEvent
+
+    val game = games[Id(event.session.id.toString())] ?: run {
+        logger.error { "No game with id ${event.session.id} found!" }
+        return@SessionManager
+    }
+
+    when (event.type) {
+        "OPEN_QUESTION" -> {
+            val (row, column) = event.payload as QuestionRequest
+            val statement = game.getQuestionStatement(row, column)
+            val response = responseEventOf(
+                QuestionResponse(Question(row, column, statement), game.asBoard)
+            )
+            sendToHost(response)
+            sendToClients(response)
+        }
+        "SET_FIELD" -> {
+            val (row, column, mark) = event.payload as SetFieldRequest
+            val gameResult = game.updateCellContent(row, column, mark)
+            logger.info { "Game result: $gameResult" }
+            val response = responseEventOf(SetFieldResponse(game.asBoard))
+            sendToHost(response)
+            sendToClients(response)
+        }
+    }
+}
 
 private fun endpoint(endpoint: RequestConnectionPoint): String = endpoint.remoteAddress + ":" + endpoint.remotePort
