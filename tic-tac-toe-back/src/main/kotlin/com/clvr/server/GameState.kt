@@ -9,9 +9,7 @@ data class Question(val topic: String, val statement: String, val answer: String
 @Serializable
 data class GameTemplate(val id: Id, val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String?, val templateAuthor: String?)
 
-//content is empty when both teams answered incorrectly, check rules of the game
-@Serializable
-enum class CellContent { NOT_OPENED, X, O, EMPTY }
+typealias CellContent = String
 
 data class CellState(var hintsUsed: Int, var content: CellContent)
 
@@ -25,22 +23,22 @@ private fun oppositePlayer(player: Player) = if (player == Player.X) Player.O el
 
 private fun getPlayerByContent(content: CellContent): Player = 
     when (content) {
-        CellContent.X -> Player.X
-        CellContent.O -> Player.O
+        "X" -> Player.X
+        "O" -> Player.O
         else -> throw IllegalArgumentException()
     }
 
 private fun getResultByContent(content: CellContent): GameResult =
     when (content) {
-        CellContent.X -> GameResult.X_WIN
-        CellContent.O -> GameResult.O_WIN
+        "X" -> GameResult.X_WIN
+        "O" -> GameResult.O_WIN
         else -> throw IllegalArgumentException()
     }
 
 class GameState(private val template: GameTemplate) {
     private val state: GridState = Array(template.gridSide) {
         Array(template.gridSide) {
-            CellState(0, CellContent.NOT_OPENED)
+            CellState(0, "NOT_OPENED")
         }
     }
 
@@ -67,12 +65,13 @@ class GameState(private val template: GameTemplate) {
             state[row][column].hintsUsed++
             return template.questions[row][column].statement
         } else {
-            val hint = getKthHint(row, column, state[row][column].hintsUsed)
+            val hint = getKthHint(row, column, state[row][column].hintsUsed - 1)
             if (hint == null) {
                 state[row][column].hintsUsed = 0
                 return template.questions[row][column].answer
             }
-            return getKthHint(row, column, state[row][column].hintsUsed++)!!
+            state[row][column].hintsUsed++
+            return hint
         }
     }
 
@@ -88,17 +87,23 @@ class GameState(private val template: GameTemplate) {
     }
 
     fun getGridContent(): List<List<CellContent>> = 
-        state.map { row -> row.map { it.content } }
+        state.mapIndexed { i, row -> row.mapIndexed { j, column ->
+            if (column.content == "NOT_OPENED") {
+                getQuestionTopic(i, j)
+            } else {
+                column.content
+            }
+        } }
 
     fun updateCellContent(row: Int, column: Int, newContent: CellContent): GameResult {
         state[row][column].content = newContent
-        if (newContent == CellContent.EMPTY) {
+        if (newContent == "EMPTY") {
             turn = oppositePlayer(turn)
         } else {
             turn = getPlayerByContent(newContent)
             state.forEach { 
                 currentRow -> currentRow.forEach { 
-                    if (it.content == CellContent.EMPTY) {
+                    if (it.content == "EMPTY") {
                         it.content = newContent
                     } 
                 } 
@@ -116,11 +121,11 @@ class GameState(private val template: GameTemplate) {
 
         for (row in 0 until template.gridSide) {
             for (column in 0 until template.gridSide) {
-                if (state[row][column].content == CellContent.EMPTY || state[row][column].content == CellContent.NOT_OPENED) {
+                if (state[row][column].content == "EMPTY" || state[row][column].content == "NOT_OPENED") {
                     continue
                 }
 
-                if (state[row][column].content == CellContent.X) {
+                if (state[row][column].content == "X") {
                     cntX++
                 } else {
                     cntO++
