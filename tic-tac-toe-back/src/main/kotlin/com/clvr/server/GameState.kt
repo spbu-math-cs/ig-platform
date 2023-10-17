@@ -62,8 +62,19 @@ class GameState(private val template: GameTemplate) {
     fun getQuestionTopic(row: Int, column: Int) =
         template.questions[row][column].topic
 
-    fun getQuestionStatement(row: Int, column: Int) = 
-        template.questions[row][column].statement
+    fun getQuestionStatement(row: Int, column: Int): String {
+        if (state[row][column].hintsUsed == 0) {
+            state[row][column].hintsUsed++
+            return template.questions[row][column].statement
+        } else {
+            val hint = getKthHint(row, column, state[row][column].hintsUsed)
+            if (hint == null) {
+                state[row][column].hintsUsed = 0
+                return template.questions[row][column].answer
+            }
+            return getKthHint(row, column, state[row][column].hintsUsed++)!!
+        }
+    }
 
     fun getQuestionAnswer(row: Int, column: Int) = 
         template.questions[row][column].answer
