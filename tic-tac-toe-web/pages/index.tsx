@@ -1,6 +1,6 @@
 import type {NextPage} from 'next'
 import Head from 'next/head'
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {Board} from '../components/Board'
 import {ChooseMode, ColorTheme} from '../components/ChooseMode'
 import {WinnerModal} from '../components/WinnerModal'
@@ -13,9 +13,28 @@ const Home: NextPage = () => {
     const rows = 3
     const cols = 3
     const [isX, setIsX] = useState<boolean>(true)
+    const [sessionId, setSessionId] = useState<string>("")
     const [newGame, setNewGame] = useState<boolean>(false)
     const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [themeNumber, setColorTheme] = useState<number>(1)
+
+    useEffect(() => {
+        fetch("http://0.0.0.0:8080/api/game-session", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "quiz": {
+                    "id": "ABCD",
+                },
+            })
+        }).then((response) => {
+            return response.json()
+        }).then((data) => {
+            setSessionId(data.session.id)
+        })
+    }, [])
 
     const [isHost, setIsHost] = useState<boolean>(true)
 
@@ -107,6 +126,7 @@ const Home: NextPage = () => {
                         themeNumber={themeNumber}
                         winner={winner}
                         playerX={isX}
+                        sessionId={sessionId}
                         handleRestartGame={handleRestartGame}
                         isHost={isHost}/>
                     :
@@ -114,6 +134,7 @@ const Home: NextPage = () => {
                         themeNumber={themeNumber}
                         winner={winner}
                         playerX={isX}
+                        sessionId={sessionId}
                         handleRestartGame={PlayerGag}
                         isHost={isHost}
                     />)

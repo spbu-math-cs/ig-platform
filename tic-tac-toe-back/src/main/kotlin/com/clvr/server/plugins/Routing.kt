@@ -18,6 +18,9 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
+        options("/api/game-session") {
+            call.respond(HttpStatusCode.OK)
+        }
         post("/api/game-session") {
             val quizRequest = try {
                 call.receive<QuizRequest>()
