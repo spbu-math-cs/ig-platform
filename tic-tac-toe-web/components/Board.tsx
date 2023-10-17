@@ -179,7 +179,7 @@ export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost, 
                     <div
                         className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] ${TaskColor[themeNumber]} rounded-lg flex items-top justify-center`}>
                         <button
-                            className={` rounded-xl py-30 px-40 text-3xl md:text-4xl font-extrabold ${TextColor[themeNumber]}`}
+                            className={` rounded-xl py-10 px-10 text-3xl md:text-4xl font-extrabold ${TextColor[themeNumber]}`}
                             dangerouslySetInnerHTML={{__html: game.state === "OPENED_QUESTION" ? game.question.text : ""}}>
                         </button>
                     </div>
