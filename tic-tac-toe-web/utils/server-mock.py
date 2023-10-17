@@ -26,39 +26,45 @@ clients: set[web.WebSocketResponse] = set()
 BOARD = {"cells": [{
     "row": 0,
     "column": 0,
-    "mark": "X",
+    "mark": "<span style=\"font-size: 60pt;\">😈</span>",
+    "questions": ["Опишите значение следующих эмодзи", "🔰😤🆎"]
 }, {
     "row": 0,
     "column": 1,
-    "mark": "O",
+    "mark": "Языки I",
+    "questions": ["На каком языке написана следующая программа", "<pre>Say hello.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n</pre>", "", "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3c/Whitespace_in_vim2.png\"></img>"]
 }, {
     "row": 0,
     "column": 2,
-    "mark": "",
+    "mark": "<div style=\"font-size: 5pt; line-height: 1.2;\">Какая-то рандомная дичь которая парит только меня да и то только потому что я посмотрел про нее видос на ютубе и я скорее всего про нее забуду через пару месяцев но сейчас мне кажется что это очень интересно и я хочу дать на это вопрос</div>",
+    "questions": ["Это фанарт по известному американскому комиксу. Назовите хотя бы одного изображенного персонажа", "<img src=\"https://ibb.co/HgRfTYC\"></img>", "<img src=\"https://i.redd.it/9nhnc6ter3151.jpg\">", "<img src=\"https://assets.amuniversal.com/8b8b6b403ed2013c1aef005056a9545d\"></img>"]
 }, {
     "row": 1,
     "column": 0,
-    "mark": "O",
+    "mark": "\"матеша\"",
+    "questions": ["Назовите наименьнший первообразный корень числа 998244353"]
 }, {
     "row": 1,
     "column": 1,
-    "mark": "<img src=\"https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif\" width=\"50px\"/>",
+    "mark": "Языки II",
+    "questions": ["Заполните пропуск", "https://ibb.co/yy4JjBD"]
 }, {
     "row": 1,
     "column": 2,
-    "mark": "O",
+    "mark": "Kotlin🥰",
+    "questions": ["Каков результат работы следующей программы?", "<img src=\"https://ibb.co/d7LqDcN\"/>"]
 }, {
     "row": 2,
     "column": 0,
-    "mark": "O",
+    "mark": "ООП🤮",
 }, {
     "row": 2,
     "column": 1,
-    "mark": "X",
+    "mark": "<span style=\"font-size: 60pt\">🤔</span>",
 }, {
     "row": 2,
     "column": 2,
-    "mark": "<span style=\"color: red;\">hello!</span>",
+    "mark": "<img src=\"https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif\" width=\"100px\"/>",
 },
 ]}
 
