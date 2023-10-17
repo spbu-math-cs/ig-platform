@@ -128,7 +128,7 @@ CONNECT /ws/host/{session_id}
 
 
 ## Game session as board
-CONNECT /v0/ws/board/{session_id}
+CONNECT ws/board/{session_id}
 
 В данном режиме нет запросов, но клиент слушает сообщения от сервера и применяет их. 
 На данный момент все сообщения к хосту применимы и к клиентам, кто смотрит трансляцию. 

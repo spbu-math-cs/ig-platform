@@ -31,4 +31,9 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.call.logging)
     testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.jupiter)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
