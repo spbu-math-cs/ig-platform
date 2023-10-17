@@ -1,9 +1,11 @@
 package com.clvr.server
 
 import com.clvr.server.plugins.*
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.cors.routing.*
 import mu.KLogger
 import mu.KotlinLogging
 
@@ -18,6 +20,14 @@ fun main() {
 fun Application.logger(): KLogger = mainLogger
 
 fun Application.module() {
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Get)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader(HttpHeaders.ContentType)
+        anyHost()
+    }
     configureCallLogging()
     configureSerialization()
     configureDatabases()

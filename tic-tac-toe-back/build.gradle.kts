@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.call.logging)
+    implementation(libs.ktor.server.cors)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.jupiter)
 }
