@@ -13,12 +13,14 @@ const Home: NextPage = () => {
     const rows = 3
     const cols = 3
     const [isX, setIsX] = useState<boolean>(true)
-    const [sessionId, setSessionId] = useState<string>("")
+    const [sessionId, setSessionId] = useState<string>("239")
     const [newGame, setNewGame] = useState<boolean>(false)
     const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [themeNumber, setColorTheme] = useState<number>(1)
+    const [isHost, setIsHost] = useState<boolean>(true)
 
     useEffect(() => {
+        if (isHost) return;
         fetch("http://0.0.0.0:8080/api/game-session", {
             method: "POST",
             headers: {
@@ -32,11 +34,10 @@ const Home: NextPage = () => {
         }).then((response) => {
             return response.json()
         }).then((data) => {
+            console.log(data)
             setSessionId(data.session.id)
         })
-    }, [])
-
-    const [isHost, setIsHost] = useState<boolean>(true)
+    }, [isHost])
 
     // let winner = calculateWinner(squares)
     let winner = ""

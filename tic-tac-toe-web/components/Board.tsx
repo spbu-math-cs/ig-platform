@@ -39,7 +39,7 @@ interface SquareProp {
 
 export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, sendMessage] = useServerState(isHost ? "host" : "board", {"id": sessionId});
+    const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId});
 
     useEffect(() => {
         let k = new Audio("/LobbyMusic.mp3")
