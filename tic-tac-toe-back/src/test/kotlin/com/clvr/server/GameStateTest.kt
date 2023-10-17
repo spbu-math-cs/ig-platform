@@ -1,9 +1,11 @@
 package com.clvr.server
 
+import com.clvr.server.plugins.Id
 import kotlin.test.*
 
 class GameStateTest {
     private val template = GameTemplate(
+        Id("random id"),
         arrayOf(
             arrayOf(Question("t1", "s1", "a1", listOf()), Question("t2", "s2", "a2", listOf("h21", "h22"))), 
             arrayOf(Question("t3", "s3", "a3", listOf("hint hint hint")), Question("kek", "what?", "kek!", listOf("kek1", "kek2", "kek3")))), 
