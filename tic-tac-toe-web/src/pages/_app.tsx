@@ -4,7 +4,7 @@ import {Provider, useSelector} from "react-redux"
 import {RootState, store} from "@/state/store"
 
 function MyApp({Component, pageProps}: AppProps) {
-    function ThemeAwareComponent() {
+    function ThemeAware() {
         const theme = useSelector((state: RootState) => state.theme)
         return <div className={theme.value}>
             <Component {...pageProps} />
@@ -12,7 +12,7 @@ function MyApp({Component, pageProps}: AppProps) {
     }
 
     return <Provider store={store}>
-        <ThemeAwareComponent/>
+        <ThemeAware/>
     </Provider>
 }
 

@@ -17,21 +17,18 @@ const cols = 3
 
 interface PlayerProp {
     themeNumber: number
-    winner: string
     playerX: boolean
     isHost: boolean
     sessionId: string
-
     handleRestartGame(): void
 }
 
 interface SquareProp {
-    value: any,
-
-    onClick(): void,
+    value: any
+    onClick(): void
 }
 
-export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
+export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
     const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId})
 
@@ -47,7 +44,7 @@ export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost, 
         return (
             <button
                 className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center ${PanelColor[themeNumber]} rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
-                onClick={onClick} disabled={!!winner}>
+                onClick={onClick}>
                 {value}
             </button>
         )

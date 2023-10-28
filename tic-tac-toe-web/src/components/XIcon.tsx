@@ -3,7 +3,7 @@ import React from 'react'
 const XColor = ["bg-metalX", "bg-2048X", "bg-purpleX"]
 
 interface XProp {
-    themeNum: number,
+    themeNum: number
 }
 
 export const XIcon = ({themeNum}: XProp) => {

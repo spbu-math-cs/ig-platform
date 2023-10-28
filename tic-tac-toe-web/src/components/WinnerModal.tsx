@@ -12,9 +12,7 @@ const QUITColor = ["bg-metalX", "bg-2048X", "bg-purpleX"]
 interface GameProps {
     themeNumber: number
     winner: string
-
     handleQuitGame(): void
-
     handleNewGame(): void
 }
 

@@ -9,19 +9,15 @@ const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048Panel", "hover:bg-
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
 
 interface PlayerProp {
-    themeNumber: number,
-
-    handleHostMode(): void,
-
-    handlePlayerMode(): void,
-
-    handleNewGame(): void,
+    themeNumber: number
+    handleHostMode(): void
+    handlePlayerMode(): void
+    handleNewGame(): void
 }
 
 interface ColorThemeProp {
-    themeNumber: number;
-
-    handleColorTheme(): void;
+    themeNumber: number
+    handleColorTheme(): void
 }
 
 export const ColorTheme = ({themeNumber, handleColorTheme}: ColorThemeProp) => {

@@ -3,7 +3,7 @@ import React from 'react'
 const OColor = ["ring-indigo", "ring-2048O", "ring-purpleO"]
 
 interface OProp {
-    themeNum: number,
+    themeNum: number
 }
 
 export const OIcon = ({themeNum}: OProp) => {

@@ -3,7 +3,7 @@ import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session} from "./state"
 import {Request} from "./wsRequests"
 
-type Role = "host" | "board";
+type Role = "host" | "board"
 
 /**
  * Connects to the game server and returns the current game state and a function to send requests.

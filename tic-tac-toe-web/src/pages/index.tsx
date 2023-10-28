@@ -132,7 +132,6 @@ const Home: NextPage = () => {
                 (isHost ?
                     <Board
                         themeNumber={themeNumber}
-                        winner={winner}
                         playerX={isX}
                         sessionId={sessionId}
                         handleRestartGame={handleRestartGame}
@@ -140,7 +139,6 @@ const Home: NextPage = () => {
                     :
                     <Board
                         themeNumber={themeNumber}
-                        winner={winner}
                         playerX={isX}
                         sessionId={sessionId}
                         handleRestartGame={PlayerGag}
