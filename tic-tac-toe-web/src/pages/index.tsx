@@ -4,6 +4,8 @@ import React, {useEffect, useState} from 'react'
 import {Board} from '@/components/Board'
 import {ChooseMode, ColorTheme} from '@/components/ChooseMode'
 import {WinnerModal} from '@/components/WinnerModal'
+import {nextTheme, setTheme, ThemeClass} from "@/state/themeSlice"
+import {useDispatch} from "react-redux"
 
 
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
@@ -18,6 +20,8 @@ const Home: NextPage = () => {
     const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [themeNumber, setColorTheme] = useState<number>(1)
     const [isHost, setIsHost] = useState<boolean>(true)
+
+    const dispatch = useDispatch()
 
     useEffect(() => {
         if (isHost) return;
@@ -51,7 +55,10 @@ const Home: NextPage = () => {
     }
 
     function handleColorTheme() {
+        // TODO: remove this, and only use theme from redux state
         setColorTheme((themeNumber + 1) % 3)
+        // keep this, this is for redux state
+        dispatch(nextTheme())
     }
 
     function PlayerGag() {
@@ -102,7 +109,7 @@ const Home: NextPage = () => {
             </Head>
 
 
-            <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 ${TextColor[themeNumber]} `}>
+            <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
                 TIC{" "}<span className="text-[#f3b236]">TAC </span>{" "}TOE
             </h1>
 

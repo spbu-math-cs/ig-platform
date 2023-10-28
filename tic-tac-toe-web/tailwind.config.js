@@ -58,5 +58,38 @@ module.exports = {
         },
         extend: {},
     },
-    plugins: [],
+    plugins: [
+        require('tailwindcss-themer')({
+            defaultTheme: "metal",
+            themes: [
+                {
+                    name: "metal",
+                    selectors: [".theme-metal"],
+                    extend: {
+                        colors: {
+                            'primary': '#f3b236',
+                        }
+                    }
+                },
+                {
+                    name: "2048",
+                    selectors: [".theme-2048"],
+                    extend: {
+                        colors: {
+                            'primary': '#f67c5f',
+                        }
+                    }
+                },
+                {
+                    name: "purple",
+                    selectors: [".theme-purple"],
+                    extend: {
+                        colors: {
+                            'primary': '#b93f73'
+                        },
+                    }
+                },
+            ]
+        }),
+    ],
 }
