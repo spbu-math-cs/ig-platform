@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
-import {useServerState} from "../game/websockets"
+import {useServerState} from "@/game/websockets"
 
 const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"]
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
@@ -11,24 +11,18 @@ const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purp
 const AnswerColor = ["bg-metalPanel", "bg-2048X", "bg-purpleO"]
 const TaskColor = ["bg-metalTask", "bg-2048Task", "bg-purpleTask"]
 
-const task = ["Это условие задачи1", "Это условие задачи2", "Это условие задачи3", "Это условие задачи4", "Это условие задачи5",
-    "Это условие задачи6", "Это условие задачи7", "Это условие задачи8", "Это условие задачи9", ""]
-
-const answer = ["Это ответ задачи1", "Это ответ задачи2", "Это ответ задачи3", "Это ответ задачи4", "Это ответ задачи5",
-    "Это ответ задачи6", "Это ответ задачи7", "Это ответ задачи8", "Это ответ задачи9", ""]
-
 const rows = 3
 const cols = 3
 
 
 interface PlayerProp {
     themeNumber: number
-    winner: string,
-    playerX: boolean,
-    isHost: boolean,
-    sessionId: string,
+    winner: string
+    playerX: boolean
+    isHost: boolean
+    sessionId: string
 
-    handleRestartGame(): void,
+    handleRestartGame(): void
 }
 
 interface SquareProp {
@@ -39,7 +33,7 @@ interface SquareProp {
 
 export const Board = ({themeNumber, winner, playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId});
+    const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId})
 
     useEffect(() => {
         let k = new Audio("/LobbyMusic.mp3")

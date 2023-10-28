@@ -1,9 +1,9 @@
 import type {NextPage} from 'next'
 import Head from 'next/head'
 import React, {useEffect, useState} from 'react'
-import {Board} from '../components/Board'
-import {ChooseMode, ColorTheme} from '../components/ChooseMode'
-import {WinnerModal} from '../components/WinnerModal'
+import {Board} from '@/components/Board'
+import {ChooseMode, ColorTheme} from '@/components/ChooseMode'
+import {WinnerModal} from '@/components/WinnerModal'
 
 
 const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]

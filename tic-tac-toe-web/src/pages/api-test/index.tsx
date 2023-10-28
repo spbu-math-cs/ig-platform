@@ -1,5 +1,5 @@
 "use client"
-import {useServerState} from "../../game/websockets"
+import {useServerState} from "@/game/websockets"
 import {useRef} from "react"
 
 /**

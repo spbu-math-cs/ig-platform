@@ -16,7 +16,7 @@ async def create_game_session(request: web.Request) -> web.Response:
 
     return web.json_response({
         "quiz": {
-            "id": "ABCD",
+            "id": "239",
         }
     })
 
@@ -79,7 +79,7 @@ async def broadcast_message(json) -> None:
 async def handle_host_message(_ws: web.WebSocketResponse, msg: aiohttp.WSMessage):
     if msg.type == aiohttp.WSMsgType.TEXT:
         data = msg.json()
-        assert data["session"]["id"] == "ABCD"
+        assert data["session"]["id"] == "239"
 
         match data["type"]:
             case "OPEN_QUESTION":
@@ -138,8 +138,8 @@ async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocket
 app = web.Application()
 app.add_routes([
     web.post("/api/game-session", create_game_session),
-    web.get("/host/ABCD", functools.partial(handle_ws_connection, "host")),
-    web.get("/board/ABCD", functools.partial(handle_ws_connection, "board")),
+    web.get("/ws/host/239", functools.partial(handle_ws_connection, "host")),
+    web.get("/ws/board/239", functools.partial(handle_ws_connection, "board")),
 ])
 
 web.run_app(app, port=8080)
