@@ -4,7 +4,6 @@ import {XIcon} from './XIcon'
 
 
 interface GameProps {
-    themeNumber: number
     winner: string
 
     handleQuitGame(): void
@@ -12,7 +11,7 @@ interface GameProps {
     handleNewGame(): void
 }
 
-export const WinnerModal = ({themeNumber, winner, handleQuitGame, handleNewGame}: GameProps) => {
+export const WinnerModal = ({winner, handleQuitGame, handleNewGame}: GameProps) => {
     return (
         <div className="bg-gray-900/90 z-10 min-h-screen w-full absolute top-0 left-0">
             <div

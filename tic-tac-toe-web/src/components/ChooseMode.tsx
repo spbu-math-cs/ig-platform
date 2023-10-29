@@ -38,12 +38,12 @@ export const ChooseMode = ({handleHostMode, handleJoinGame}: PlayerProp) => {
                 </p>
                 <div className=" bg-gray-800  flex items-center justify-evenly h-35 rounded-2xl p-2 ">
                     <button onClick={handleHostMode}
-                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-playerTxt`}>
+                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
                         CREATE
                     </button>
 
                     <button onClick={handleJoinGame}
-                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6 text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
+                            className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6 text-3xl md:text-4xl font-extrabold mt-1 text-playerTxt`}>
                         JOIN
                     </button>
                 </div>

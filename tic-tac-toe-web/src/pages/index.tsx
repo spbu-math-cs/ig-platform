@@ -17,9 +17,9 @@ const Home: NextPage = () => {
     const [sessionId, setSessionId] = useState<string>("239")
     const [newGame, setNewGame] = useState<boolean>(false)
     const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
-    const [themeNumber, setColorTheme] = useState<number>(1)
     const [isHost, setIsHost] = useState<boolean>(true)
     const [isJoining, setIsJoining] = useState<boolean>(false)
+    const [isError, setIsError] = useState<boolean>(false)
 
 
     const dispatch = useDispatch()
@@ -51,33 +51,28 @@ const Home: NextPage = () => {
         setIsHost(true)
     }
 
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault()
-
-        //if (value.trim().length === 0) {
-       //     return
-       // }
-    }
-
 
     function handlePlayerMode() {
         setIsHost(false)
     }
 
-    function handleJoiningRequest(id : string) {
-        // TODO
+    function handleJoiningRequest(id : string) {  // TODO
+        if (id === 'Hello world') {
+            setIsError(true);
+            handleJoinGame()
+        }
+
+        else {
+            handleNewGame()
+        }
     }
 
     function handleJoinGame() {
         handlePlayerMode();
         setIsJoining(true)
-      //  handleNewGame();
     }
 
     function handleColorTheme() {
-        // TODO: remove this, and only use theme from redux state
-      //  setColorTheme((themeNumber + 1) % 3)
-        // keep this, this is for redux state
         dispatch(nextTheme())
     }
 
@@ -148,9 +143,8 @@ const Home: NextPage = () => {
                     </div>)
                         :
                         <JoinGame
-                            themeNumber={themeNumber}
                             handleJoiningRequest={handleJoiningRequest}
-                            handleSubmit={handleSubmit}
+                            isError={isError}
                         />
 
                 )
@@ -172,7 +166,6 @@ const Home: NextPage = () => {
             {
                 winner &&
                 <WinnerModal
-                    themeNumber={themeNumber}
                     winner={winner}
                     handleQuitGame={handleQuitGame}
                     handleNewGame={handleNewGame}

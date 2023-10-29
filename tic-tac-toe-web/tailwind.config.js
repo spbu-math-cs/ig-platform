@@ -25,6 +25,8 @@ module.exports = {
             'metalTask': '#455677',
             'metalPanel': '#303759',
 
+            'error' : '#a2203d',
+
 
             'purpleX': '#AE445A',
             // 'purpleO' : '#581845',
@@ -126,7 +128,7 @@ module.exports = {
                             'boardHover': '#f3b236',
                             'answerTxt': '#AE445A',
                             'XO': '#571e65',
-                            'hostTxt': '#AE445A',
+                            'hostTxt': '#f3b236',
                             'playerTxt': '#AE445A',
                         },
                     }
