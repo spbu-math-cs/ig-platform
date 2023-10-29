@@ -68,6 +68,20 @@ module.exports = {
                     extend: {
                         colors: {
                             'primary': '#f3b236',
+                            'O': '#f3b236',
+                            'X': '#565584',
+                            'task': '#455677',
+                            'answerPanel': '#303759',
+                            'back': '#7C81AD',
+                            'next': '#f3b236',
+                            'quit': '#565584',
+                            'txt': '#f3b236',
+                            'panel': '#303759',
+                            'boardHover': '#303759',
+                            'answerTxt': '#f3b236',
+                            'XO': '#303759',
+                            'hostTxt': '#f3b236',
+                            'playerTxt': '#565584',
                         }
                     }
                 },
@@ -77,6 +91,20 @@ module.exports = {
                     extend: {
                         colors: {
                             'primary': '#f67c5f',
+                            'O': '#edc850',
+                            'X': '#f59563',
+                            'task': '#ffe1a9',
+                            'answerPanel': '#f59563',
+                            'back': '#ecceb3',
+                            'next': '#edc850',
+                            'quit': '#f59563',
+                            'txt': '#f67c5f',
+                            'panel': '#835c5c',
+                            'boardHover': '#f59563',
+                            'answerTxt': '#ffe1a9',
+                            'XO': '#303030',
+                            'hostTxt': '#edc850',
+                            'playerTxt': '#f59563',
                         }
                     }
                 },
@@ -85,7 +113,21 @@ module.exports = {
                     selectors: [".theme-purple"],
                     extend: {
                         colors: {
-                            'primary': '#b93f73'
+                            'primary': '#b93f73',
+                            'O': '#f3b236',
+                            'X': '#AE445A',
+                            'task': '#eda8ee',
+                            'answerPanel': '#f3b236',
+                            'back': '#ffd3ef',
+                            'next': '#f3b236',
+                            'quit': '#AE445A',
+                            'txt': '#b93f73',
+                            'panel': '#571e65',
+                            'boardHover': '#f3b236',
+                            'answerTxt': '#AE445A',
+                            'XO': '#571e65',
+                            'hostTxt': '#AE445A',
+                            'playerTxt': '#AE445A',
                         },
                     }
                 },

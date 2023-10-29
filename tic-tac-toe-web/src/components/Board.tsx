@@ -3,32 +3,24 @@ import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 import {useServerState} from "@/game/websockets"
 
-const PanelColor = ["bg-metalPanel", "bg-2048Panel", "bg-purplePanel"]
-const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
-const TextColorXO = ["text-metalPanel", "text-[#303030]", "text-purplePanel"]
-const AnswerTextColor = ["text-metalText", "text-2048Task", "text-purpleX"]
-const HoverPanelColor = ["hover:bg-metalPanel", "hover:bg-2048X", "hover:bg-purpleO"]
-const AnswerColor = ["bg-metalPanel", "bg-2048X", "bg-purpleO"]
-const TaskColor = ["bg-metalTask", "bg-2048Task", "bg-purpleTask"]
-
 const rows = 3
 const cols = 3
 
-
 interface PlayerProp {
-    themeNumber: number
     playerX: boolean
     isHost: boolean
     sessionId: string
+
     handleRestartGame(): void
 }
 
 interface SquareProp {
     value: any
+
     onClick(): void
 }
 
-export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
+export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
     const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId})
 
@@ -43,7 +35,7 @@ export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionI
     function Square({value, onClick}: SquareProp) {
         return (
             <button
-                className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center ${PanelColor[themeNumber]} rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
+                className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center bg-panel rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
                 onClick={onClick}>
                 {value}
             </button>
@@ -59,12 +51,12 @@ export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionI
         if (board === undefined) {
             return undefined
         } else if (board.cells[i].mark === "X") {
-            value = <XIcon themeNum={themeNumber}/>
+            value = <XIcon/>
         } else if (board.cells[i].mark === "O") {
-            value = <OIcon themeNum={themeNumber}/>
+            value = <OIcon/>
         } else if (board.cells[i].mark != null) {
             value =
-                <p className={`text-md ${TextColor[themeNumber]} uppercase font-bold text-xl md:text-2xl space-y-12`}
+                <p className={`text-md text-txt uppercase font-bold text-xl md:text-2xl space-y-12`}
                    dangerouslySetInnerHTML={{__html: board.cells[i].mark}}>
                 </p>
         }
@@ -111,14 +103,14 @@ export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionI
                             {playerX
                                 ?
                                 <div
-                                    className={`text-white ${PanelColor[themeNumber]} text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
-                                <span className={`${TextColor[themeNumber]} text-2xl font-bold`}>
+                                    className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
+                                <span className={`text-txt text-2xl font-bold`}>
                                 X </span> {" "} Turn
                                 </div>
                                 :
                                 <div
-                                    className={`text-white ${PanelColor[themeNumber]} text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium  uppercase`}>
-                                <span className={`${TextColor[themeNumber]} text-2xl  font-bold`}>
+                                    className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium  uppercase`}>
+                                <span className={`text-txt text-2xl  font-bold`}>
                                 O</span>{" "} Turn
                                 </div>
                             }
@@ -126,17 +118,17 @@ export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionI
 
                         <div className="md:[w-400px] rounded-lg flex items-center justify-center space-x-4 ml-4">
                             <button onClick={setX}
-                                    className={`button px-4 py-2 ml-19 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 ${HoverPanelColor[themeNumber]}`}>
-                                <span className={`${TextColorXO[themeNumber]} text-2xl  font-bold`}> X </span>
+                                    className={`button px-4 py-2 ml-19 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 hover:bg-boardHover`}>
+                                <span className={`text-XO text-2xl  font-bold`}> X </span>
                             </button>
                             <button onClick={setO}
-                                    className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 ${HoverPanelColor[themeNumber]}`}>
-                                <span className={`${TextColorXO[themeNumber]} text-2xl  font-bold`}> O </span>
+                                    className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 hover:bg-boardHover`}>
+                                <span className={`text-XO text-2xl  font-bold`}> O </span>
                             </button>
 
 
                             <button onClick={handleRestartGame}
-                                    className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 ${HoverPanelColor[themeNumber]}`}>
+                                    className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 hover:bg-boardHover`}>
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in space-y-10  "
                                      fill="none"
@@ -168,17 +160,17 @@ export const Board = ({themeNumber, playerX, handleRestartGame, isHost, sessionI
                 </div>
                 <div className={"space-y-4"}>
                     <div
-                        className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] ${TaskColor[themeNumber]} rounded-lg flex items-top justify-center`}>
+                        className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] bg-task rounded-lg flex items-top justify-center`}>
                         <button
-                            className={` rounded-xl py-10 px-10 text-3xl md:text-4xl font-extrabold ${TextColor[themeNumber]}`}
+                            className={` rounded-xl py-10 px-10 text-3xl md:text-4xl font-extrabold text-txt`}
                             dangerouslySetInnerHTML={{__html: game.state === "OPENED_QUESTION" ? game.question.text : ""}}>
                         </button>
                     </div>
                     {isHost ?
                         <div
-                            className={`w-[500px] h-[100px] ${AnswerColor[themeNumber]} rounded-lg flex items-top justify-center`}>
+                            className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-top justify-center`}>
                             <button
-                                className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center ${AnswerTextColor[themeNumber]}`}>
+                                className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}>
                                 {"Answer placeholder"}
                             </button>
                         </div>

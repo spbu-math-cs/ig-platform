@@ -2,14 +2,13 @@ import type {NextPage} from 'next'
 import Head from 'next/head'
 import React, {useEffect, useState} from 'react'
 import {Board} from '@/components/Board'
+import {JoinGame} from "@/components/JoinGame";
 import {ChooseMode, ColorTheme} from '@/components/ChooseMode'
 import {WinnerModal} from '@/components/WinnerModal'
 import {nextTheme, setTheme, ThemeClass} from "@/state/themeSlice"
 import {useDispatch} from "react-redux"
 
 
-const TextColor = ["text-metalText", "text-2048Text", "text-purpleText"]
-const BGColor = ["bg-metalBG", "bg-2048BG", "bg-purpleBG"]
 
 const Home: NextPage = () => {
     const rows = 3
@@ -20,6 +19,8 @@ const Home: NextPage = () => {
     const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [themeNumber, setColorTheme] = useState<number>(1)
     const [isHost, setIsHost] = useState<boolean>(true)
+    const [isJoining, setIsJoining] = useState<boolean>(false)
+
 
     const dispatch = useDispatch()
 
@@ -50,13 +51,32 @@ const Home: NextPage = () => {
         setIsHost(true)
     }
 
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault()
+
+        //if (value.trim().length === 0) {
+       //     return
+       // }
+    }
+
+
     function handlePlayerMode() {
         setIsHost(false)
     }
 
+    function handleJoiningRequest(id : string) {
+        // TODO
+    }
+
+    function handleJoinGame() {
+        handlePlayerMode();
+        setIsJoining(true)
+      //  handleNewGame();
+    }
+
     function handleColorTheme() {
         // TODO: remove this, and only use theme from redux state
-        setColorTheme((themeNumber + 1) % 3)
+      //  setColorTheme((themeNumber + 1) % 3)
         // keep this, this is for redux state
         dispatch(nextTheme())
     }
@@ -92,6 +112,7 @@ const Home: NextPage = () => {
         setSquares(squares)
 
         setNewGame(true)
+        setIsJoining(false)
     }
 
     function handleQuitGame() {
@@ -102,7 +123,7 @@ const Home: NextPage = () => {
     }
 
     return (
-        <div className={`flex min-h-screen ${BGColor[themeNumber]} flex-col items-center py-2`}>
+        <div className={`flex min-h-screen bg-back flex-col items-center py-2`}>
             <Head>
                 <title>Tic-Tac-Toe Game</title>
                 <link rel="icon" href="/tictactoe.ico"/>
@@ -115,30 +136,33 @@ const Home: NextPage = () => {
 
             {!newGame
                 ?
-                (
-                    <div>
+                (!isJoining ?
+                    (<div>
                         <ChooseMode
-                            themeNumber={themeNumber}
-                            handleNewGame={handleNewGame}
+                            handleJoinGame={handleJoinGame}
                             handleHostMode={handleHostMode}
-                            handlePlayerMode={handlePlayerMode}
                         />
                         <ColorTheme
-                            themeNumber={themeNumber}
                             handleColorTheme={handleColorTheme}
                         />
                     </div>)
+                        :
+                        <JoinGame
+                            themeNumber={themeNumber}
+                            handleJoiningRequest={handleJoiningRequest}
+                            handleSubmit={handleSubmit}
+                        />
+
+                )
                 :
                 (isHost ?
                     <Board
-                        themeNumber={themeNumber}
                         playerX={isX}
                         sessionId={sessionId}
                         handleRestartGame={handleRestartGame}
                         isHost={isHost}/>
                     :
                     <Board
-                        themeNumber={themeNumber}
                         playerX={isX}
                         sessionId={sessionId}
                         handleRestartGame={PlayerGag}
