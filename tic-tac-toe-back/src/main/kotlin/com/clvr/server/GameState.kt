@@ -10,6 +10,7 @@ data class Question(val topic: String, val statement: String, val answer: String
 data class GameTemplate(val id: Id, val questions: Array<Array<Question>>, val gridSide: Int, val templateTitle: String?, val templateAuthor: String?)
 
 //content is empty when both teams answered incorrectly, check rules of the game
+@Serializable
 enum class CellContent { NOT_OPENED, X, O, EMPTY }
 
 data class CellState(var hintsUsed: Int, var content: CellContent)
