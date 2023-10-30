@@ -98,7 +98,7 @@ fun Application.configureSockets() {
             }
         }
 
-        webSocket("/ws/client/{session_id}") {
+        webSocket("/ws/board/{session_id}") {
             val sessionId: Long =
                 call.parameters["session_id"]?.toLong() ?: throw IllegalArgumentException("failed to get session id")
             val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
