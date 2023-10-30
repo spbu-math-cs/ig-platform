@@ -27,7 +27,7 @@ class SessionManagerTest {
         val hostChannel: Channel<Event<*>> = echoSessionManager.hostChannel
 
         var clientEvent: Event<TestClientPayload> = Event(
-            Session(sessionId),
+            SessionId(sessionId),
             "client event",
             TestClientPayload("x")
         )
@@ -40,7 +40,7 @@ class SessionManagerTest {
 
         val secondClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-2")
         clientEvent = Event(
-            Session(sessionId),
+            SessionId(sessionId),
             "client event",
             TestClientPayload("y")
         )
@@ -54,7 +54,7 @@ class SessionManagerTest {
         assertTrue(firstClientChannel.isClosedForSend)
 
         val hostEvent: Event<TestHostPayload> = Event(
-            Session(sessionId),
+            SessionId(sessionId),
             "host event",
             TestHostPayload("a")
         )

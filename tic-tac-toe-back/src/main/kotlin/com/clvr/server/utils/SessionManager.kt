@@ -4,7 +4,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 
 class SessionManager(
-    private val sessionId: Long,
+    private val session: SessionId,
     private val hostEventHandler: SessionManager.(event: Event<*>) -> Unit
 ): AutoCloseable {
     val hostChannel: Channel<Event<*>> = Channel(Channel.UNLIMITED)

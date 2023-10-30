@@ -1,6 +1,6 @@
 package com.clvr.server.utils
 
-import com.clvr.server.CellContent
+import com.clvr.server.model.CellContent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -14,7 +14,7 @@ class EventTest {
 
     @Test
     fun `check json format corresponds docs API`() {
-        val event: Event<TestPayload> = requestEventOf(1703, TestPayload("very important information"))
+        val event: Event<TestPayload> = RequestEvent(1703, TestPayload("very important information"))
         val expectedJsonString =
 """{
     "session": {
@@ -31,7 +31,7 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event: Event<SetFieldRequest> = requestEventOf(1703, SetFieldRequest(1, 1, CellContent.X))
+        val event: Event<SetFieldRequest> = RequestEvent(1703, SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {

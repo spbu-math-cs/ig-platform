@@ -1,23 +1,30 @@
 package com.clvr.server.plugins
 
-import com.clvr.server.GameState
+import com.clvr.server.SessionStorage
+import com.clvr.server.common.Quiz
+import com.clvr.server.common.QuizId
+import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.util.concurrent.ConcurrentHashMap
+
+@Serializable
+data class SessionResponse(val session: SessionId)
+
+@Serializable
+data class QuizRequest(val quiz: QuizId)
+
+typealias QuizDatabase = List<Quiz>
 
 private val quizFile = Application::class.java.classLoader.getResource("dumbQuizCollection.json")!!
 private val quizDatabase = Json.decodeFromString<QuizDatabase>(quizFile.readText())
-internal val games: MutableMap<Id, GameState> = ConcurrentHashMap()
 
 fun Application.configureRouting() {
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
         options("/api/game-session") {
             call.respond(HttpStatusCode.OK)
         }
@@ -34,9 +41,9 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val newId = Id(/*UUID.randomUUID().hashCode()*/239.toString())
-            games[newId] = GameState(quiz)
-            call.respond(HttpStatusCode.OK, GameSession(newId))
+            val newSession = SessionId(/*UUID.randomUUID()*/239.toString())
+            SessionStorage.startNewGame(newSession, quiz)
+            call.respond(HttpStatusCode.OK, SessionResponse(newSession))
         }
     }
 }

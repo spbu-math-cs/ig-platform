@@ -1,10 +1,14 @@
 package com.clvr.server
 
+import com.clvr.server.model.CellContent
+import com.clvr.server.model.GameResult
+import com.clvr.server.model.GameState
+import com.clvr.server.model.Player
 import com.clvr.server.plugins.Id
 import kotlin.test.*
 
 class GameStateTest {
-    private val template = GameTemplate(
+    private val quiz = Quiz(
         Id("random id"),
         arrayOf(
             arrayOf(Question("t1", "s1", "a1", listOf()), Question("t2", "s2", "a2", listOf("h21", "h22"))), 
@@ -16,7 +20,7 @@ class GameStateTest {
 
     @Test
     fun testTurn() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
         
         assertEquals(Player.X, gameState.turn)
         gameState.updateCellContent(0, 0, CellContent.X)
@@ -24,12 +28,12 @@ class GameStateTest {
         gameState.updateCellContent(1, 1, CellContent.O)
         assertEquals(Player.O, gameState.turn)
         gameState.updateCellContent(0, 1, CellContent.EMPTY)
-        assertEquals(Player.X, gameState.turn)   
+        assertEquals(Player.X, gameState.turn)
     }   
 
     @Test 
     fun testCellValidation() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
 
         assertEquals(true, gameState.isCellValid(0, 0))
         assertEquals(true, gameState.isCellValid(1, 1))
@@ -41,7 +45,7 @@ class GameStateTest {
 
     @Test
     fun testGetters() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
 
         assertEquals(2, gameState.getSide())
         assertEquals("unstoppablechillmachine", gameState.getTemplateAuthor())
@@ -54,7 +58,7 @@ class GameStateTest {
 
     @Test 
     fun testHints() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
 
         assertEquals(null, gameState.getNextHint(0, 0))
         assertEquals("hint hint hint", gameState.getNextHint(1, 0))
@@ -63,7 +67,7 @@ class GameStateTest {
 
     @Test
     fun testChangeQuestion() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
         
         gameState.changeQuestion(1, 1, Question("a", "a", "a", listOf()))
         assertEquals("a", gameState.getQuestionAnswer(1, 1))
@@ -81,12 +85,12 @@ class GameStateTest {
                                 continue;
                             }
 
-                            val gameState = GameState(template)
+                            val gameState = GameState(quiz)
 
                             assertEquals(false, gameState.isGameEnded())
                             assertEquals(GameResult.UNKNOWN, gameState.currentResult())
                             assertEquals(listOf(
-                                listOf(CellContent.NOT_OPENED, CellContent.NOT_OPENED), 
+                                listOf(CellContent.NOT_OPENED, CellContent.NOT_OPENED),
                                 listOf(CellContent.NOT_OPENED, CellContent.NOT_OPENED)
                             ), gameState.getGridContent())
 
@@ -131,9 +135,9 @@ class GameStateTest {
 
     @Test 
     fun testGridStateHard() {
-        val gameState = GameState(template)
+        val gameState = GameState(quiz)
         gameState.updateCellContent(0, 1, CellContent.EMPTY)
         gameState.updateCellContent(1, 0, CellContent.X)
-        assertEquals(GameResult.X_WIN, gameState.currentResult())               
+        assertEquals(GameResult.X_WIN, gameState.currentResult())
     }
 }
