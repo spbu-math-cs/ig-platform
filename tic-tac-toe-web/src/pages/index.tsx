@@ -49,6 +49,7 @@ const Home: NextPage = () => {
 
     function handleHostMode() {
         setIsHost(true)
+        handleNewGame()
     }
 
 
