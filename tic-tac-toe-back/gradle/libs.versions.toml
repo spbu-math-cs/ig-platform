@@ -7,6 +7,7 @@ logbackVersion="1.4.11"
 postgresVersion="42.5.1"
 h2Version="2.1.214"
 kotlinLoggingVersion="1.8.3"
+jupiterVersion="5.8.1"
 
 [libraries]
 junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinVersion"}
@@ -21,9 +22,12 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktorVersion" }
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktorVersion" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktorVersion" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktorVersion" }
 
 kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlinLoggingVersion" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logbackVersion" }
+
+jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jupiterVersion" }
 
 [plugins]
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPluginVersion" }
