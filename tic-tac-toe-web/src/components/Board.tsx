@@ -100,7 +100,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                 <div className="board">
                     <div className="w-[700px] md:[w-500px] rounded-lg flex items-center justify-center space-x-40">
                         <div>
-                            {playerX
+                            {currentPlayer == "X"
                                 ?
                                 <div
                                     className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
