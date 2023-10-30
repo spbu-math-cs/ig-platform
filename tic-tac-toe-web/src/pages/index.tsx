@@ -153,10 +153,10 @@ const Home: NextPage = () => {
                                         className={`mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0
                                     text-3xl md:text-4xl font-bold  text-center text-txt outline-none `}
                                         value={joiningGameId}
-                                        onChange={e => setJoiningGameId(e.currentTarget.value)}
+                                        onChange={e => { console.log(e.currentTarget.value); return setJoiningGameId(e.currentTarget.value); }}
                                     />
 
-                                    <button onClick={e => setJoiningGameId(e.currentTarget.value)}
+                                    <button onClick={e => { console.log("Joining game " + joiningGameId) }}
                                             type="submit"
                                             className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-[#f3b236] hover:bg-panel`}>
                                         START GAME
@@ -175,7 +175,13 @@ const Home: NextPage = () => {
 
                 )
                 :
-                (isHost ?
+                <div>
+                    <center>
+                        <h1 className={`text-100xl md:text-10000xl font-extrabold mt-0 text-primary`}>
+                            session: {sessionId}{" "}
+                        </h1>
+                    </center>
+                    {(isHost ?
                     <Board
                         playerX={isX}
                         sessionId={sessionId}
@@ -191,7 +197,8 @@ const Home: NextPage = () => {
                         handleRestartGame={() => {
                         }}
                         isHost={isHost}
-                    />)
+                    />)}
+                </div>
             }
             {
                 winner &&
