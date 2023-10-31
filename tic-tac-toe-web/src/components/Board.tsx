@@ -22,7 +22,7 @@ interface SquareProp {
 
 export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, sendMessage] = useServerState(isHost ? "host" : "host", {"id": sessionId})
+    const [game, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
     useEffect(() => {
         let k = new Audio("/LobbyMusic.mp3")
@@ -48,17 +48,21 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
         if (game.state !== "_LOADING") {
             board = game.board
         }
+
         if (board === undefined) {
             return undefined
         } else if (board.cells[i].mark === "X") {
             value = <XIcon/>
         } else if (board.cells[i].mark === "O") {
             value = <OIcon/>
-        } else if (board.cells[i].mark != null) {
+        } else if (board.cells[i].mark === "NOT_OPENED") {
             value =
                 <p className={`text-md text-txt uppercase font-bold text-xl md:text-2xl space-y-12`}
-                   dangerouslySetInnerHTML={{__html: board.cells[i].mark}}>
+                   dangerouslySetInnerHTML={{__html: board.cells[i].topic}}>
                 </p>
+        } else {
+            console.log("Unexpected mark value " + board.cells[i].mark)
+            value = ""
         }
         return value
 
@@ -100,7 +104,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                 <div className="board">
                     <div className="w-[700px] md:[w-500px] rounded-lg flex items-center justify-center space-x-40">
                         <div>
-                            {playerX
+                            {currentPlayer == "X"
                                 ?
                                 <div
                                     className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
@@ -171,7 +175,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                             className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-top justify-center`}>
                             <button
                                 className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}>
-                                {"Answer placeholder"}
+                                { game.state == "OPENED_QUESTION" ? game.question.answer : "" }
                             </button>
                         </div>
                         : <div></div>
