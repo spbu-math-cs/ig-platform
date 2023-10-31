@@ -2,8 +2,13 @@ package com.clvr.server.model
 
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.common.Quiz
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-typealias CellContent = String
+@Serializable
+enum class CellContent {
+    NOT_OPENED, X, O, EMPTY
+}
 
 data class CellState(var hintsUsed: Int, var content: CellContent)
 
@@ -17,22 +22,22 @@ private fun oppositePlayer(player: Player) = if (player == Player.X) Player.O el
 
 private fun getPlayerByContent(content: CellContent): Player =
     when (content) {
-        "X" -> Player.X
-        "O" -> Player.O
-        else -> throw IllegalArgumentException()
+        CellContent.X -> Player.X
+        CellContent.O -> Player.O
+        else          -> throw IllegalArgumentException()
     }
 
 private fun getResultByContent(content: CellContent): GameResult =
     when (content) {
-        "X" -> GameResult.X_WIN
-        "O" -> GameResult.O_WIN
-        else -> throw IllegalArgumentException()
+        CellContent.X -> GameResult.X_WIN
+        CellContent.O -> GameResult.O_WIN
+        else          -> throw IllegalArgumentException()
     }
 
 class GameState(private val quiz: Quiz) {
     private val state: GridState = Array(quiz.gridSide) {
         Array(quiz.gridSide) {
-            CellState(0, "NOT_OPENED")
+            CellState(0, CellContent.NOT_OPENED)
         }
     }
 
@@ -55,18 +60,19 @@ class GameState(private val quiz: Quiz) {
         quiz.questions[row][column].topic
 
     fun getQuestionStatement(row: Int, column: Int): String {
-        if (state[row][column].hintsUsed == 0) {
-            state[row][column].hintsUsed++
-            return quiz.questions[row][column].statement
-        } else {
-            val hint = getKthHint(row, column, state[row][column].hintsUsed - 1)
-            if (hint == null) {
-                state[row][column].hintsUsed = 0
-                return quiz.questions[row][column].answer
-            }
-            state[row][column].hintsUsed++
-            return hint
-        }
+        return quiz.questions[row][column].statement
+//        if (state[row][column].hintsUsed == 0) {
+//            state[row][column].hintsUsed++
+//            return quiz.questions[row][column].statement
+//        } else {
+//            val hint = getKthHint(row, column, state[row][column].hintsUsed - 1)
+//            if (hint == null) {
+//                state[row][column].hintsUsed = 0
+//                return quiz.questions[row][column].answer
+//            }
+//            state[row][column].hintsUsed++
+//            return hint
+//        }
     }
 
     fun getQuestionAnswer(row: Int, column: Int) = 
@@ -81,26 +87,24 @@ class GameState(private val quiz: Quiz) {
     }
 
     fun getGridContent(): List<List<CellContent>> =
-        state.mapIndexed { i, row -> row.mapIndexed { j, column ->
-            if (column.content == "NOT_OPENED") {
-                getQuestionTopic(i, j)
-            } else {
-                column.content
+        state.map { row ->
+            row.map {
+               it.content
             }
-        } }
+        }
 
     fun updateCellContent(row: Int, column: Int, newContent: CellContent): GameResult {
         state[row][column].content = newContent
-        if (newContent == "EMPTY") {
+        if (newContent == CellContent.EMPTY) {
             turn = oppositePlayer(turn)
         } else {
             turn = getPlayerByContent(newContent)
-            state.forEach { 
-                currentRow -> currentRow.forEach { 
-                    if (it.content == "EMPTY") {
-                        it.content = newContent
-                    } 
-                } 
+            state.forEach {
+                    currentRow -> currentRow.forEach {
+                if (it.content == CellContent.EMPTY) {
+                    it.content = newContent
+                }
+            }
             }
         }
 
@@ -115,11 +119,11 @@ class GameState(private val quiz: Quiz) {
 
         for (row in 0 until quiz.gridSide) {
             for (column in 0 until quiz.gridSide) {
-                if (state[row][column].content == "EMPTY" || state[row][column].content == "NOT_OPENED") {
+                if (state[row][column].content == CellContent.EMPTY || state[row][column].content == CellContent.NOT_OPENED) {
                     continue
                 }
 
-                if (state[row][column].content == "X") {
+                if (state[row][column].content == CellContent.X) {
                     cntX++
                 } else {
                     cntO++
@@ -133,7 +137,7 @@ class GameState(private val quiz: Quiz) {
 
                         var ok: Boolean = true
                         for (i in 0 until quiz.gridSide) {
-                            if (!isCellValid(row + deltaRow * i, column + deltaCol * i) || 
+                            if (!isCellValid(row + deltaRow * i, column + deltaCol * i) ||
                                 state[row + deltaRow * i][column + deltaCol * i].content != state[row][column].content) {
 
                                 ok = false
@@ -151,7 +155,7 @@ class GameState(private val quiz: Quiz) {
 
         if (cntX + cntO < quiz.gridSide * quiz.gridSide) {
             return GameResult.UNKNOWN
-        }                    
+        }
 
         return if (cntX > cntO) GameResult.X_WIN else GameResult.O_WIN
     }
