@@ -132,6 +132,7 @@ data class SetFieldRequest(
 
 @Serializable
 data class SetFieldResponse(
+    @SerialName("board")
     val gameStateView: GameStateView
 ): EventPayloadInterface {
     override val type: PayloadType = MAIN_BOARD

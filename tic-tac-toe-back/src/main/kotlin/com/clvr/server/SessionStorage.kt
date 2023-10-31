@@ -20,6 +20,11 @@ object SessionStorage {
         games[session] = GameState(quiz)
     }
 
+    fun getGameStateView(session: SessionId): GameStateView {
+        val game = games[session]!!
+        return GameStateView.fromGameState(game)
+    }
+
     private fun createSessionManager(session: SessionId) = SessionManager(session) { event ->
         // TODO: move this lambda somewhere out of storage
         event as RequestEvent
