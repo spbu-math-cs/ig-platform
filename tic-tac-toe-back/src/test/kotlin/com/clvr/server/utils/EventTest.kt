@@ -14,13 +14,13 @@ class EventTest {
 
     @Test
     fun `check json format corresponds docs API`() {
-        val event: Event<TestPayload> = RequestEvent(1703, TestPayload("very important information"))
+        val event: RequestEvent<TestPayload> = RequestEvent(SessionId("1703"), TestPayload("very important information"))
         val expectedJsonString =
 """{
     "session": {
-        "id": 1703
+        "id": "1703"
     },
-    "type": "TEST_PAYLOAD",
+    "type": "MAIN_BOARD",
     "payload": {
         "importantField": "very important information"
     }
@@ -31,11 +31,11 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event: Event<SetFieldRequest> = RequestEvent(1703, SetFieldRequest(1, 1, CellContent.X))
+        val event: RequestEvent<SetFieldRequest> = RequestEvent(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {
-        "id": 1703
+        "id": "1723"
     },
     "type": "SET_FIELD",
     "payload": {
@@ -47,7 +47,7 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent: Event<SetFieldRequest> = decodeJsonToEvent(jsonString) as Event<SetFieldRequest>
+        val decodedEvent: RequestEvent<SetFieldRequest> = decodeJsonToEvent(jsonString) as RequestEvent<SetFieldRequest>
         assertEquals(event, decodedEvent)
     }
 
@@ -57,6 +57,6 @@ class EventTest {
         @JsonNames("field")
         val importantField: String
     ): EventPayloadInterface {
-        override val type: String = "TEST_PAYLOAD"
+        override val type: PayloadType = PayloadType.MAIN_BOARD // Just a random one
     }
 }

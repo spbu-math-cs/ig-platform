@@ -20,6 +20,11 @@ object SessionStorage {
         games[session] = GameState(quiz)
     }
 
+    fun getGameStateView(session: SessionId): GameStateView {
+        val game = games[session]!!
+        return GameStateView.fromGameState(game)
+    }
+
     private fun createSessionManager(session: SessionId) = SessionManager(session) { event ->
         // TODO: move this lambda somewhere out of storage
         event as RequestEvent
@@ -33,8 +38,12 @@ object SessionStorage {
             PayloadType.OPEN_QUESTION -> {
                 val (row, column) = event.payload as QuestionRequest
                 val statement = game.getQuestionStatement(row, column)
+                val answer = game.getQuestionAnswer(row, column)
                 val response = ResponseEvent(
-                    QuestionResponse(QuestionView(row, column, statement), GameStateView.fromGameState(game))
+                    QuestionResponse(
+                        QuestionView(row, column, statement, answer),
+                        GameStateView.fromGameState(game)
+                    )
                 )
                 sendToHost(response)
                 sendToClients(response)

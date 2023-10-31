@@ -23,12 +23,13 @@ interface EventPayloadInterface {
     val type: PayloadType
 }
 
-interface Event<T: EventPayloadInterface> {
+@Serializable
+sealed interface Event<T: EventPayloadInterface> {
     val payload: T
 }
 
 @Serializable
-class RequestEvent<T: EventPayloadInterface> private constructor (
+data class RequestEvent<T: EventPayloadInterface> private constructor (
     val session: SessionId,
     val type: PayloadType,
     override val payload: T
@@ -37,7 +38,7 @@ class RequestEvent<T: EventPayloadInterface> private constructor (
 }
 
 @Serializable
-class ResponseEvent<T: EventPayloadInterface> private constructor (
+data class ResponseEvent<T: EventPayloadInterface> private constructor (
     val state: PayloadType,
     override val payload: T
 ): Event<T> {
@@ -71,7 +72,8 @@ fun decodeJsonToEvent(jsonString: String): Event<*> {
 data class CellStateView(
     val row: Int,
     val column: Int,
-    val mark: CellContent
+    val mark: CellContent,
+    val topic: String
 )
 
 @Serializable
@@ -84,7 +86,7 @@ data class GameStateView(
             return GameStateView(
                 gameState.getGridContent().mapIndexed { i, row ->
                     row.mapIndexed { j, cellContent ->
-                        CellStateView(i, j, cellContent)
+                        CellStateView(i, j, cellContent, gameState.getQuestionTopic(i, j))
                     }
                 }.flatten()
             )
@@ -96,7 +98,8 @@ data class GameStateView(
 data class QuestionView(
     val row: Int,
     val column: Int,
-    val text: String
+    val text: String,
+    val answer: String
 )
 
 @Serializable
@@ -129,6 +132,7 @@ data class SetFieldRequest(
 
 @Serializable
 data class SetFieldResponse(
+    @SerialName("board")
     val gameStateView: GameStateView
 ): EventPayloadInterface {
     override val type: PayloadType = MAIN_BOARD

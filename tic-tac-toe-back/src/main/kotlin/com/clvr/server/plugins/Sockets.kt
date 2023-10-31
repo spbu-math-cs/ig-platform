@@ -40,12 +40,17 @@ fun Application.configureSockets() {
         }
 
         webSocket("/ws/host/{session_id}") {
-            val sessionId: String = call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            val sessionId = SessionId(
+                call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            )
             val hostEndpoint: String = endpoint(call.request.origin)
-            val sessionManager: SessionManager = SessionStorage.getSessionManager(SessionId(sessionId))
+            val sessionManager: SessionManager = SessionStorage.getSessionManager(sessionId)
             val hostChannel = sessionManager.hostChannel
 
             logger.info { "Host $hostEndpoint connected to game $sessionId" }
+
+            val initialEvent = ResponseEvent(SetFieldResponse(SessionStorage.getGameStateView(sessionId)))
+            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             coroutineScope {
                 launch {
@@ -86,12 +91,16 @@ fun Application.configureSockets() {
         }
 
         webSocket("/ws/client/{session_id}") {
-            val sessionId: String =
+            val sessionId = SessionId(
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            )
             val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
-            val sessionManager: SessionManager = SessionStorage.getSessionManager(SessionId(sessionId))
+            val sessionManager: SessionManager = SessionStorage.getSessionManager(sessionId)
             val clientChannel: Channel<Event<*>> = sessionManager.registerClient(clientEndpoint)
             logger.info { "Client $clientEndpoint connected to game $sessionId" }
+
+            val initialEvent = ResponseEvent(SetFieldResponse(SessionStorage.getGameStateView(sessionId)))
+            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             try {
                 coroutineScope {

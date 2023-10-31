@@ -11,7 +11,7 @@ class SessionManagerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `session manager simple test`() {
-        val sessionId: Long = 1
+        val sessionId = SessionId("1")
 
         val echoSessionManager: SessionManager = SessionManager(
             sessionId
@@ -26,9 +26,8 @@ class SessionManagerTest {
         val firstClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-1")
         val hostChannel: Channel<Event<*>> = echoSessionManager.hostChannel
 
-        var clientEvent: Event<TestClientPayload> = Event(
-            SessionId(sessionId),
-            "client event",
+        var clientEvent: Event<TestClientPayload> = RequestEvent(
+            sessionId,
             TestClientPayload("x")
         )
 
@@ -39,9 +38,8 @@ class SessionManagerTest {
         }
 
         val secondClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-2")
-        clientEvent = Event(
-            SessionId(sessionId),
-            "client event",
+        clientEvent = RequestEvent(
+            sessionId,
             TestClientPayload("y")
         )
         echoSessionManager.handleHostEvent(clientEvent)
@@ -53,9 +51,8 @@ class SessionManagerTest {
         echoSessionManager.unregisterClient("client-1")
         assertTrue(firstClientChannel.isClosedForSend)
 
-        val hostEvent: Event<TestHostPayload> = Event(
-            SessionId(sessionId),
-            "host event",
+        val hostEvent: Event<TestHostPayload> = RequestEvent(
+            sessionId,
             TestHostPayload("a")
         )
         echoSessionManager.handleHostEvent(hostEvent)
@@ -66,9 +63,9 @@ class SessionManagerTest {
     }
 
     data class TestHostPayload(val data: String): EventPayloadInterface {
-        override fun type(): String = "TEST_HOST_PAYLOAD"
+        override val type: PayloadType = PayloadType.MAIN_BOARD
     }
     data class TestClientPayload(val data: String): EventPayloadInterface {
-        override fun type(): String = "TEST_CLIENT_PAYLOAD"
+        override val type: PayloadType = PayloadType.MAIN_BOARD
     }
 }

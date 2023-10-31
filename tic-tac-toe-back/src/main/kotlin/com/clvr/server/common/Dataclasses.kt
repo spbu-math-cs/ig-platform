@@ -6,7 +6,12 @@ import kotlinx.serialization.Serializable
 data class QuizId(val id: String)
 
 @Serializable
-data class QuizQuestion(val topic: String, val statement: String, val answer: String, val hints: List<String>)
+data class QuizQuestion(
+    val topic: String,
+    val statement: String,
+    val answer: String,
+    val hints: List<String>
+)
 
 @Serializable
 data class Quiz(

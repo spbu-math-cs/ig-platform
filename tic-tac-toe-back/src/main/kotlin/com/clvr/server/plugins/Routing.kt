@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.util.*
 
 @Serializable
 data class SessionResponse(val session: SessionId)
@@ -41,7 +42,7 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val newSession = SessionId(/*UUID.randomUUID()*/239.toString())
+            val newSession = SessionId(UUID.randomUUID().toString().take(6))
             SessionStorage.startNewGame(newSession, quiz)
             call.respond(HttpStatusCode.OK, SessionResponse(newSession))
         }
