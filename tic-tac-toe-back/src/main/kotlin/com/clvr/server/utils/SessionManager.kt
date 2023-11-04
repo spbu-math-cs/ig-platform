@@ -1,20 +1,24 @@
 package com.clvr.server.utils
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 
-class SessionManager(
-    private val session: SessionId,
-    private val hostEventHandler: SessionManager.(event: Event<*>) -> Unit
-): AutoCloseable {
-    val hostChannel: Channel<Event<*>> = Channel(Channel.UNLIMITED)
-    private val clientChannels: MutableMap<String, Channel<Event<*>>> = mutableMapOf()
+fun interface EventHandler<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
+    fun handle(manager: SessionManager<Req, Resp>, event: RequestEvent<Req>)
+}
 
-    fun handleHostEvent(event: Event<*>) {
-        hostEventHandler(this, event)
+class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInterface>(
+    private val hostEventHandler: EventHandler<Req, Resp>
+): AutoCloseable {
+    val hostChannel: Channel<ResponseEvent<Resp>> = Channel(Channel.UNLIMITED)
+    private val clientChannels: MutableMap<String, Channel<ResponseEvent<Resp>>> = mutableMapOf()
+
+    fun handleHostEvent(event: RequestEvent<Req>) {
+        hostEventHandler.handle(this, event)
     }
 
-    fun sendToClients(event: Event<*>) {
+    fun sendToClients(event: ResponseEvent<Resp>) {
         synchronized(clientChannels) {
             runBlocking {
                 clientChannels.values.forEach { clientChannel ->
@@ -24,13 +28,13 @@ class SessionManager(
         }
     }
 
-    fun sendToHost(event: Event<*>) {
+    fun sendToHost(event: ResponseEvent<Resp>) {
         runBlocking {
             hostChannel.send(event)
         }
     }
 
-    fun registerClient(clientEndpoint: String): Channel<Event<*>> {
+    fun registerClient(clientEndpoint: String): ReceiveChannel<ResponseEvent<Resp>> {
         synchronized(clientChannels) {
             return clientChannels.computeIfAbsent(clientEndpoint) { Channel(Channel.UNLIMITED) }
         }

@@ -15,10 +15,10 @@ class SessionManagerTest {
 
         val echoSessionManager: SessionManager = SessionManager(
             sessionId
-        ) { event ->
+        ) { manager, event ->
             when (event.payload) {
-                is TestHostPayload -> sendToHost(event)
-                is TestClientPayload -> sendToClients(event)
+                is TestHostPayload -> manager.sendToHost(event)
+                is TestClientPayload -> manager.sendToClients(event)
                 else -> throw RuntimeException("unknown payload")
             }
         }
@@ -27,8 +27,7 @@ class SessionManagerTest {
         val hostChannel: Channel<Event<*>> = echoSessionManager.hostChannel
 
         var clientEvent: Event<TestClientPayload> = RequestEvent(
-            sessionId,
-            TestClientPayload("x")
+            sessionId
         )
 
         echoSessionManager.handleHostEvent(clientEvent)
@@ -39,8 +38,7 @@ class SessionManagerTest {
 
         val secondClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-2")
         clientEvent = RequestEvent(
-            sessionId,
-            TestClientPayload("y")
+            sessionId
         )
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {
@@ -52,8 +50,7 @@ class SessionManagerTest {
         assertTrue(firstClientChannel.isClosedForSend)
 
         val hostEvent: Event<TestHostPayload> = RequestEvent(
-            sessionId,
-            TestHostPayload("a")
+            sessionId
         )
         echoSessionManager.handleHostEvent(hostEvent)
         runBlocking {
