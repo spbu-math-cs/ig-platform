@@ -23,7 +23,6 @@ dependencies {
     implementation(libs.h2)
     implementation(libs.kotlin.logging)
     implementation(libs.logback)
-    implementation(libs.junit)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.serialization.kotlinx.json)

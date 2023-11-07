@@ -10,7 +10,6 @@ kotlinLoggingVersion="1.8.3"
 jupiterVersion="5.8.1"
 
 [libraries]
-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinVersion"}
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationVersion" }
 postgres = { module = "org.postgresql:postgresql", version.ref = "postgresVersion" }
 h2 = { module = "com.h2database:h2", version.ref = "h2Version" }
