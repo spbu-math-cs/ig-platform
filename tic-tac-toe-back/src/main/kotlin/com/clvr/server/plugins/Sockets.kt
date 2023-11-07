@@ -1,6 +1,6 @@
 package com.clvr.server.plugins
 
-import com.clvr.server.SessionStorage
+import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.logger
 import com.clvr.server.utils.*
@@ -44,12 +44,12 @@ fun Application.configureSockets() {
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
             )
             val hostEndpoint: String = endpoint(call.request.origin)
-            val sessionManager: TicTacToeSessionManager = SessionStorage.getSessionManager(sessionId)
+            val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
             val hostChannel = sessionManager.hostChannel
 
             logger.info { "Host $hostEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(SetFieldResponse(SessionStorage.getGameStateView(sessionId)))
+            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
             outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             coroutineScope {
@@ -95,11 +95,11 @@ fun Application.configureSockets() {
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
             )
             val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
-            val sessionManager: TicTacToeSessionManager = SessionStorage.getSessionManager(sessionId)
+            val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
             val clientChannel = sessionManager.registerClient(clientEndpoint)
             logger.info { "Client $clientEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(SetFieldResponse(SessionStorage.getGameStateView(sessionId)))
+            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
             outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             try {

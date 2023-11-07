@@ -7,7 +7,8 @@ import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
 import com.clvr.server.model.Player
-import kotlin.test.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class GameStateTest {
     private val quiz = Quiz(
@@ -84,7 +85,7 @@ class GameStateTest {
                     for (dx in 0..1) {
                         for (dy in 0..1) {
                             if (dx == 0 && dy == 0) {
-                                continue;
+                                continue
                             }
 
                             val gameState = GameState(quiz)

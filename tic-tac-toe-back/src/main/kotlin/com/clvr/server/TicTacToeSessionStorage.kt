@@ -1,7 +1,7 @@
 package com.clvr.server
 
 import com.clvr.server.common.Quiz
-import com.clvr.server.controller.GameStateController
+import com.clvr.server.controller.TicTacToeGameStateController
 import com.clvr.server.model.GameState
 import com.clvr.server.utils.*
 import java.util.concurrent.ConcurrentHashMap
@@ -14,8 +14,9 @@ private data class GameRecord(
     val sessionManager: TicTacToeSessionManager
 )
 
+// TODO: get rid of !!
 // TODO: add exception handling here
-object SessionStorage {
+object TicTacToeSessionStorage {
     private val games: MutableMap<SessionId, GameRecord> = ConcurrentHashMap()
 
     fun getSessionManager(session: SessionId): TicTacToeSessionManager =
@@ -23,7 +24,7 @@ object SessionStorage {
 
     fun startNewGame(session: SessionId, quiz: Quiz) {
         val gameState = GameState(quiz)
-        val sessionManager = SessionManager(GameStateController(gameState))
+        val sessionManager = SessionManager(TicTacToeGameStateController(gameState))
         games[session] = GameRecord(gameState, sessionManager)
     }
 

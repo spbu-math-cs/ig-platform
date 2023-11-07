@@ -1,19 +1,22 @@
 package com.clvr.server.utils
 
-import kotlinx.serialization.ExperimentalSerializationApi
+import com.clvr.server.model.CellContent
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNames
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class EventTest {
     private val jsonPrettyFormatter = Json { prettyPrint = true }
 
     @Test
     fun `check json format corresponds docs API`() {
-        val event: RequestEvent<TestPayload> = RequestEvent(SessionId("1703"))
+        val event: RequestEvent<DummyRequestPayload> = RequestEvent(
+                SessionId("1703"),
+                DummyRequestPayload("very important information")
+        )
         val expectedJsonString =
 """{
     "session": {
@@ -21,7 +24,7 @@ class EventTest {
     },
     "type": "MAIN_BOARD",
     "payload": {
-        "importantField": "very important information"
+        "field": "very important information"
     }
 }"""
 
@@ -30,7 +33,7 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event: RequestEvent<SetFieldRequest> = RequestEvent(SessionId("1723"))
+        val event = RequestEvent(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {
@@ -46,16 +49,15 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent: RequestEvent<SetFieldRequest> = decodeJsonToEvent(jsonString) as RequestEvent<SetFieldRequest>
+        val decodedEvent = decodeJsonToEvent(jsonString)
         assertEquals(event, decodedEvent)
     }
 
     @Serializable
-    @OptIn(ExperimentalSerializationApi::class)
-    data class TestPayload(
-        @JsonNames("field")
-        val importantField: String
-    ): EventPayloadInterface {
-        override val type: PayloadType = PayloadType.MAIN_BOARD // Just a random one
+    private data class DummyRequestPayload(
+            @SerialName("field")
+            val importantField: String
+    ) : EventPayloadInterface {
+        override val type: String = "MAIN_BOARD" // Just a random one
     }
 }

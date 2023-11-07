@@ -1,6 +1,6 @@
 package com.clvr.server.plugins
 
-import com.clvr.server.SessionStorage
+import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.common.Quiz
 import com.clvr.server.common.QuizId
 import com.clvr.server.utils.SessionId
@@ -43,7 +43,7 @@ fun Application.configureRouting() {
             }
 
             val newSession = SessionId(UUID.randomUUID().toString().take(6))
-            SessionStorage.startNewGame(newSession, quiz)
+            TicTacToeSessionStorage.startNewGame(newSession, quiz)
             call.respond(HttpStatusCode.OK, SessionResponse(newSession))
         }
     }

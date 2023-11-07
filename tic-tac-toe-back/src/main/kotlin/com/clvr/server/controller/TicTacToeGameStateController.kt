@@ -5,7 +5,7 @@ import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.model.GameState
 import com.clvr.server.utils.*
 
-class GameStateController(private val game: GameState) : TicTacToeEventHandler {
+class TicTacToeGameStateController(private val game: GameState) : TicTacToeEventHandler {
     override fun handle(manager: TicTacToeSessionManager, event: RequestEvent<TicTacToeRequestPayload>) {
         when (event.payload) {
             is QuestionRequest -> {
