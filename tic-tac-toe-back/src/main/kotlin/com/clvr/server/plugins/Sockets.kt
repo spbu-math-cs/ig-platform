@@ -1,6 +1,7 @@
 package com.clvr.server.plugins
 
-import com.clvr.server.SessionStorage
+import com.clvr.server.TicTacToeSessionStorage
+import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.logger
 import com.clvr.server.utils.*
 import io.ktor.http.*
@@ -10,7 +11,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import mu.KLogger
@@ -40,12 +40,17 @@ fun Application.configureSockets() {
         }
 
         webSocket("/ws/host/{session_id}") {
-            val sessionId: String = call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            val sessionId = SessionId(
+                call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            )
             val hostEndpoint: String = endpoint(call.request.origin)
-            val sessionManager: SessionManager = SessionStorage.getSessionManager(SessionId(sessionId))
+            val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
             val hostChannel = sessionManager.hostChannel
 
             logger.info { "Host $hostEndpoint connected to game $sessionId" }
+
+            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
+            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             coroutineScope {
                 launch {
@@ -71,7 +76,7 @@ fun Application.configureSockets() {
                             val jsonEvent: String = frame.readText()
                             logger.debug { "Receive event $jsonEvent from host $hostEndpoint in $sessionId game" }
 
-                            val event: Event<*> = decodeJsonToEvent(jsonEvent)
+                            val event: RequestEvent<TicTacToeRequestPayload> = decodeJsonToEvent(jsonEvent)
                             sessionManager.handleHostEvent(event)
                         } catch (e: Exception) {
                             logger.error { "Failed to process event incoming frame because of error $e" }
@@ -86,12 +91,16 @@ fun Application.configureSockets() {
         }
 
         webSocket("/ws/client/{session_id}") {
-            val sessionId: String =
+            val sessionId = SessionId(
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
+            )
             val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
-            val sessionManager: SessionManager = SessionStorage.getSessionManager(SessionId(sessionId))
-            val clientChannel: Channel<Event<*>> = sessionManager.registerClient(clientEndpoint)
+            val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
+            val clientChannel = sessionManager.registerClient(clientEndpoint)
             logger.info { "Client $clientEndpoint connected to game $sessionId" }
+
+            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
+            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             try {
                 coroutineScope {

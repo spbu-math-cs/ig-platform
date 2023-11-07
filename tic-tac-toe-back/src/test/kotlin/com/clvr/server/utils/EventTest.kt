@@ -1,28 +1,30 @@
 package com.clvr.server.utils
 
 import com.clvr.server.model.CellContent
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNames
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class EventTest {
     private val jsonPrettyFormatter = Json { prettyPrint = true }
 
     @Test
     fun `check json format corresponds docs API`() {
-        val event: Event<TestPayload> = RequestEvent(1703, TestPayload("very important information"))
+        val event: RequestEvent<DummyRequestPayload> = RequestEvent(
+                SessionId("1703"),
+                DummyRequestPayload("very important information")
+        )
         val expectedJsonString =
 """{
     "session": {
-        "id": 1703
+        "id": "1703"
     },
-    "type": "TEST_PAYLOAD",
+    "type": "MAIN_BOARD",
     "payload": {
-        "importantField": "very important information"
+        "field": "very important information"
     }
 }"""
 
@@ -31,11 +33,11 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event: Event<SetFieldRequest> = RequestEvent(1703, SetFieldRequest(1, 1, CellContent.X))
+        val event = RequestEvent(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {
-        "id": 1703
+        "id": "1723"
     },
     "type": "SET_FIELD",
     "payload": {
@@ -47,16 +49,15 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent: Event<SetFieldRequest> = decodeJsonToEvent(jsonString) as Event<SetFieldRequest>
+        val decodedEvent = decodeJsonToEvent(jsonString)
         assertEquals(event, decodedEvent)
     }
 
     @Serializable
-    @OptIn(ExperimentalSerializationApi::class)
-    data class TestPayload(
-        @JsonNames("field")
-        val importantField: String
-    ): EventPayloadInterface {
-        override val type: String = "TEST_PAYLOAD"
+    private data class DummyRequestPayload(
+            @SerialName("field")
+            val importantField: String
+    ) : EventPayloadInterface {
+        override val type: String = "MAIN_BOARD" // Just a random one
     }
 }

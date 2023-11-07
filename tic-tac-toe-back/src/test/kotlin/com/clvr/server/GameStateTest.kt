@@ -1,18 +1,21 @@
 package com.clvr.server
 
+import com.clvr.server.common.Quiz
+import com.clvr.server.common.QuizId
+import com.clvr.server.common.QuizQuestion
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
 import com.clvr.server.model.Player
-import com.clvr.server.plugins.Id
-import kotlin.test.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class GameStateTest {
     private val quiz = Quiz(
-        Id("random id"),
+        QuizId("random id"),
         arrayOf(
-            arrayOf(Question("t1", "s1", "a1", listOf()), Question("t2", "s2", "a2", listOf("h21", "h22"))), 
-            arrayOf(Question("t3", "s3", "a3", listOf("hint hint hint")), Question("kek", "what?", "kek!", listOf("kek1", "kek2", "kek3")))), 
+            arrayOf(QuizQuestion("t1", "s1", "a1", listOf()), QuizQuestion("t2", "s2", "a2", listOf("h21", "h22"))),
+            arrayOf(QuizQuestion("t3", "s3", "a3", listOf("hint hint hint")), QuizQuestion("kek", "what?", "kek!", listOf("kek1", "kek2", "kek3")))),
         2, 
         null, 
         "unstoppablechillmachine"
@@ -69,7 +72,7 @@ class GameStateTest {
     fun testChangeQuestion() {
         val gameState = GameState(quiz)
         
-        gameState.changeQuestion(1, 1, Question("a", "a", "a", listOf()))
+        gameState.changeQuestion(1, 1, QuizQuestion("a", "a", "a", listOf()))
         assertEquals("a", gameState.getQuestionAnswer(1, 1))
     }
 
@@ -82,7 +85,7 @@ class GameStateTest {
                     for (dx in 0..1) {
                         for (dy in 0..1) {
                             if (dx == 0 && dy == 0) {
-                                continue;
+                                continue
                             }
 
                             val gameState = GameState(quiz)

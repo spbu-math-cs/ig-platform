@@ -2,43 +2,38 @@ package com.clvr.server.utils
 
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameState
-import com.clvr.server.utils.PayloadType.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 
 @Serializable
-enum class PayloadType {
-    OPEN_QUESTION,
-    OPENED_QUESTION,
-    SET_FIELD,
-    MAIN_BOARD
-}
-
-@Serializable
 data class SessionId(val id: String)
 
 interface EventPayloadInterface {
-    val type: PayloadType
+    val type: String
 }
 
-interface Event<T: EventPayloadInterface> {
+sealed interface TicTacToeRequestPayload: EventPayloadInterface
+
+sealed interface TicTacToeResponsePayload: EventPayloadInterface
+
+sealed interface Event<out T: EventPayloadInterface> {
     val payload: T
 }
 
 @Serializable
-class RequestEvent<T: EventPayloadInterface> private constructor (
+data class RequestEvent<out T: EventPayloadInterface> private constructor (
     val session: SessionId,
-    val type: PayloadType,
+    val type: String,
     override val payload: T
 ): Event<T> {
     constructor(session: SessionId, payload: T): this(session, payload.type, payload)
 }
 
 @Serializable
-class ResponseEvent<T: EventPayloadInterface> private constructor (
-    val state: PayloadType,
+data class ResponseEvent<out T: EventPayloadInterface> private constructor (
+    val state: String,
     override val payload: T
 ): Event<T> {
     constructor(payload: T): this(payload.type, payload)
@@ -46,24 +41,20 @@ class ResponseEvent<T: EventPayloadInterface> private constructor (
 
 // TODO: remove this method and implement normal one
 @Suppress("UNCHECKED_CAST")
-fun encodeEventToJson(event: Event<*>): String {
-    return when (event.payload.type) {
-        OPEN_QUESTION   -> Json.encodeToString(event as RequestEvent<QuestionRequest>)
-        OPENED_QUESTION -> Json.encodeToString(event as ResponseEvent<QuestionResponse>)
-        SET_FIELD       -> Json.encodeToString(event as RequestEvent<SetFieldRequest>)
-        MAIN_BOARD      -> Json.encodeToString(event as ResponseEvent<SetFieldResponse>)
+fun encodeEventToJson(event: ResponseEvent<TicTacToeResponsePayload>): String {
+    return when (event.payload) {
+        is QuestionResponse -> Json.encodeToString(event as ResponseEvent<QuestionResponse>)
+        is SetFieldResponse -> Json.encodeToString(event as ResponseEvent<SetFieldResponse>)
     }
 }
 
-fun decodeJsonToEvent(jsonString: String): Event<*> {
+fun decodeJsonToEvent(jsonString: String): RequestEvent<TicTacToeRequestPayload> {
     val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
-    // TODO: reimplement with map of available classes & get rid of "
-    return when (Json.decodeFromJsonElement<PayloadType>(jsonObject["type"]!!)) {
-        OPEN_QUESTION -> Json.decodeFromString<RequestEvent<QuestionRequest>>(jsonString)
-        OPENED_QUESTION -> Json.decodeFromString<RequestEvent<QuestionResponse>>(jsonString)
-        SET_FIELD -> Json.decodeFromString<RequestEvent<SetFieldRequest>>(jsonString)
-        MAIN_BOARD -> Json.decodeFromString<RequestEvent<SetFieldResponse>>(jsonString)
+    return when (jsonObject["type"]!!.jsonPrimitive.content) {
+        QuestionRequest.type -> Json.decodeFromString<RequestEvent<QuestionRequest>>(jsonString)
+        SetFieldRequest.type -> Json.decodeFromString<RequestEvent<SetFieldRequest>>(jsonString)
+        else -> error("Request expected")
     }
 }
 
@@ -71,7 +62,8 @@ fun decodeJsonToEvent(jsonString: String): Event<*> {
 data class CellStateView(
     val row: Int,
     val column: Int,
-    val mark: CellContent
+    val mark: CellContent,
+    val topic: String
 )
 
 @Serializable
@@ -84,7 +76,7 @@ data class GameStateView(
             return GameStateView(
                 gameState.getGridContent().mapIndexed { i, row ->
                     row.mapIndexed { j, cellContent ->
-                        CellStateView(i, j, cellContent)
+                        CellStateView(i, j, cellContent, gameState.getQuestionTopic(i, j))
                     }
                 }.flatten()
             )
@@ -96,15 +88,20 @@ data class GameStateView(
 data class QuestionView(
     val row: Int,
     val column: Int,
-    val text: String
+    val text: String,
+    val answer: String
 )
 
 @Serializable
 data class QuestionRequest(
     val row: Int,
     val column: Int
-): EventPayloadInterface {
-    override val type: PayloadType = OPEN_QUESTION
+): TicTacToeRequestPayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "OPEN_QUESTION"
+    }
 }
 
 @Serializable
@@ -114,8 +111,12 @@ data class QuestionResponse(
 
     @SerialName("board")
     val gameStateView: GameStateView
-): EventPayloadInterface {
-    override val type: PayloadType = OPENED_QUESTION
+): TicTacToeResponsePayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "OPENED_QUESTION"
+    }
 }
 
 @Serializable
@@ -123,13 +124,22 @@ data class SetFieldRequest(
     val row: Int,
     val column: Int,
     val mark: CellContent
-): EventPayloadInterface {
-    override val type: PayloadType = SET_FIELD
+): TicTacToeRequestPayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "SET_FIELD"
+    }
 }
 
 @Serializable
 data class SetFieldResponse(
+    @SerialName("board")
     val gameStateView: GameStateView
-): EventPayloadInterface {
-    override val type: PayloadType = MAIN_BOARD
+): TicTacToeResponsePayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "MAIN_BOARD"
+    }
 }

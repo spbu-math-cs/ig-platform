@@ -1,74 +1,59 @@
 package com.clvr.server.utils
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.lang.RuntimeException
 
 class SessionManagerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `session manager simple test`() {
-        val sessionId: Long = 1
+        val sessionId = SessionId("1")
 
-        val echoSessionManager: SessionManager = SessionManager(
-            sessionId
-        ) { event ->
+        val echoSessionManager = SessionManager<DummyPayload, DummyPayload> { manager, event ->
             when (event.payload) {
-                is TestHostPayload -> sendToHost(event)
-                is TestClientPayload -> sendToClients(event)
-                else -> throw RuntimeException("unknown payload")
+                is TestHostPayload   -> manager.sendToHost(ResponseEvent(event.payload))
+                is TestClientPayload -> manager.sendToClients(ResponseEvent(event.payload))
             }
         }
 
-        val firstClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-1")
-        val hostChannel: Channel<Event<*>> = echoSessionManager.hostChannel
+        val firstClientChannel = echoSessionManager.registerClient("client-1")
+        val hostChannel = echoSessionManager.hostChannel
 
-        var clientEvent: Event<TestClientPayload> = Event(
-            SessionId(sessionId),
-            "client event",
-            TestClientPayload("x")
-        )
+        var clientEvent: RequestEvent<TestClientPayload> = RequestEvent(sessionId, TestClientPayload("client-1 data"))
 
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {
-            assertEquals(clientEvent, firstClientChannel.receive())
+            assertEquals(clientEvent.payload, firstClientChannel.receive().payload)
             assertTrue(hostChannel.isEmpty)
         }
 
-        val secondClientChannel: Channel<Event<*>> = echoSessionManager.registerClient("client-2")
-        clientEvent = Event(
-            SessionId(sessionId),
-            "client event",
-            TestClientPayload("y")
-        )
+        val secondClientChannel = echoSessionManager.registerClient("client-2")
+        clientEvent = RequestEvent(sessionId, TestClientPayload("client-2 data"))
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {
-            assertEquals(clientEvent, firstClientChannel.receive())
-            assertEquals(clientEvent, secondClientChannel.receive())
+            assertEquals(clientEvent.payload, firstClientChannel.receive().payload)
+            assertEquals(clientEvent.payload, secondClientChannel.receive().payload)
         }
 
         echoSessionManager.unregisterClient("client-1")
-        assertTrue(firstClientChannel.isClosedForSend)
+        assertTrue(firstClientChannel.isClosedForReceive)
 
-        val hostEvent: Event<TestHostPayload> = Event(
-            SessionId(sessionId),
-            "host event",
-            TestHostPayload("a")
-        )
+        val hostEvent: RequestEvent<TestHostPayload> = RequestEvent(sessionId, TestHostPayload("host data"))
         echoSessionManager.handleHostEvent(hostEvent)
         runBlocking {
-            assertEquals(hostEvent, hostChannel.receive())
+            assertEquals(hostEvent.payload, hostChannel.receive().payload)
             assertTrue(secondClientChannel.isEmpty)
         }
     }
 
-    data class TestHostPayload(val data: String): EventPayloadInterface {
-        override fun type(): String = "TEST_HOST_PAYLOAD"
+    sealed interface DummyPayload: EventPayloadInterface
+
+    data class TestHostPayload(val data: String): DummyPayload {
+        override val type: String = "MAIN_BOARD"
     }
-    data class TestClientPayload(val data: String): EventPayloadInterface {
-        override fun type(): String = "TEST_CLIENT_PAYLOAD"
+    data class TestClientPayload(val data: String): DummyPayload {
+        override val type: String = "MAIN_BOARD"
     }
 }

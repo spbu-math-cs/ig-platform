@@ -9,12 +9,13 @@ export type Session = {
     id: string
 }
 
-export type Mark = "X" | "O" | ""
+export type Mark = "X" | "O" | "NOT_OPENED"
 
 type Cell = {
     row: number
     column: number
     mark: Mark
+    topic: string
 }
 
 type Board = {
@@ -25,6 +26,7 @@ type Question = {
     row: number
     column: number
     text: string
+    answer: string
 }
 
 /**
