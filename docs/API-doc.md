@@ -54,6 +54,23 @@ CONNECT /ws/host/{session_id}
 }
 ```
 
+### Board description
+
+В каждом ответе, в качестве одного из поля `payload` присутствует поле `board` с полным описанием доски. 
+Это описание имеет следующую структуру: 
+```json 
+{
+  "board": {
+    "cells": [{
+      "row": "<row num>",
+      "column": "<column num>",
+      "mark": "<X or O or empty>",
+      "topic": "<topic>"
+    }, ...]
+  }
+}
+```
+
 ### Open question
 #### Request
 ```json 
@@ -69,31 +86,101 @@ CONNECT /ws/host/{session_id}
 }
 ```
 
-#### Response
+#### Response to HOST
 ```json 
 {
-  "state": "OPENED_QUESTION",
+  "state": "OPENED_QUESTION_HOST",
   "payload": {
     "question": {
       "row": "<row num>",
       "column": "<column num>",
-      "text": "<question>"
+      "question": "<question text>",
+      "hints": ["<hint1>", "<hint2>", ...],
+      "current_hints_num": "<current hints num>",
+      "answer": "<answer>"
     },
-    "board": {
-      "cells": [{
-        "row": "<row num>",
-        "column": "<column num>",
-        "mark": "<X or O or empty>"
-      }, ...
-      ]
-    }
+    "board": "<board description>"
+  }
+}
+```
+
+При первом открытии `current_hints_num` равно 0.
+
+#### Response to CLIENT
+```json
+{
+  "state": "OPENED_QUESTION_CLIENT",
+  "payload": {
+    "question": {
+      "row": "<row num>",
+      "column": "<column num>",
+      "question": "<question text>",
+      "current_hints": "[<hint1>, <hint2>, ...]"
+    },
+    "board": "<board description>"
+  }
+}
+```
+
+При первом открытии `current_hints` - пустой список.
+
+### Show next hint 
+#### Request
+```json 
+{
+  "session": {
+    "id": "<session_id>"
+  },
+  "type": "SHOW_NEXT_HINT",
+  "payload": {
+    "row": "<row num>",
+    "column": "<column num>",
+    "current_hints_num": "<current hints num>"
+  }
+}
+```
+
+Если `current_hints_num` равно количеству всех подсказок, то сервер не присылает никакого ответа.
+
+#### Response to HOST
+Такой же, как и в случае с [Open question](#response-to-host)
+
+#### Response to CLIENT
+Такой же, как и в случае с [Open question](#response-to-client)
+
+### Show answer 
+#### Request
+```json 
+{
+  "session": {
+    "id": "<session_id>"
+  },
+  "type": "SHOW_ANSWER",
+  "payload": {
+    "row": "<row num>",
+    "column": "<column num>"
+  }
+}
+```
+
+#### Response to (both to HOST and to CLIENT) 
+```json 
+{
+  "state": "OPENED_QUESTION_WITH_ANSWER",
+  "payload": {
+    "question": {
+      "row": "<row num>",
+      "column": "<column num>",
+      "question": "<question text>",
+      "answer": "<answer>"
+    },
+    "board": "<board description>"
   }
 }
 ```
 
 ### Set Field
 #### Request
-
 ```json 
 {
   "session": {
@@ -103,25 +190,18 @@ CONNECT /ws/host/{session_id}
   "payload": { 
     "row": "<row num>",
     "column": "<column num>",
-    "mark": "<X or O>"
+    "mark": "<X or O or EMPTY>"
   }
 }
 ```
 
-#### Response
-
+#### Response (both to HOST and to CLIENT)
 ```json 
 {
   "state": "MAIN_BOARD",
   "payload": {
-    "board": {
-      "cells": [{
-        "row": "<row num>",
-        "column": "<column num>",
-        "mark": "<X or O or empty>"
-      }, ...
-      ]
-    }
+    "win": "<X or O or EMPTY>",
+    "board": "<board description>"
   }
 }
 ```
@@ -130,6 +210,4 @@ CONNECT /ws/host/{session_id}
 ## Game session as board
 CONNECT ws/board/{session_id}
 
-В данном режиме нет запросов, но клиент слушает сообщения от сервера и применяет их. 
-На данный момент все сообщения к хосту применимы и к клиентам, кто смотрит трансляцию. 
-Отрисовка будет отличаться за счет JS.
+В данном режиме нет запросов, но клиент слушает сообщения от сервера и применяет их.
