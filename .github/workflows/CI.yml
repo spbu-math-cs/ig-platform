@@ -52,6 +52,11 @@ jobs:
         run: ./gradlew test
         working-directory: ./tic-tac-toe-back
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   frontend-build:
     name: Frontend Build
     runs-on: ubuntu-latest

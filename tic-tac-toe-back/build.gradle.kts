@@ -1,4 +1,5 @@
 plugins {
+    jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.serialization)
@@ -34,6 +35,14 @@ dependencies {
     testImplementation(libs.jupiter)
 }
 
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = true
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
