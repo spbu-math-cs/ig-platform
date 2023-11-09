@@ -42,7 +42,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
     useEffect(() => {
         const msg = lastJsonMessage as any
         if (msg === null) return
-        if (msg.state === "OPENED_QUESTION") {
+        if (msg.state === "OPENED_QUESTION_HOST" || msg.state === "OPENED_QUESTION_CLIENT") {
             setGameState({
                 state: msg.state,
                 board: msg.payload.board,

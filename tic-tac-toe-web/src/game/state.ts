@@ -25,7 +25,7 @@ type Board = {
 type Question = {
     row: number
     column: number
-    text: string
+    question: string
     answer: string
 }
 
@@ -50,7 +50,14 @@ interface GameStateMainBoard {
  * The game state when a question is opened.
  */
 interface GameStateQuestion {
-    state: "OPENED_QUESTION"
+    state: "OPENED_QUESTION_HOST"
+    board: Board
+    question: Question
+}
+
+// TODO: change this interface (and the above one) to comply with API
+interface GameStateQuestionClient {
+    state: "OPENED_QUESTION_CLIENT"
     board: Board
     question: Question
 }
@@ -58,4 +65,4 @@ interface GameStateQuestion {
 /**
  * Describes the current game state.
  */
-export type GameState = GameStateLoading | GameStateMainBoard | GameStateQuestion
+export type GameState = GameStateLoading | GameStateMainBoard | GameStateQuestion | GameStateQuestionClient

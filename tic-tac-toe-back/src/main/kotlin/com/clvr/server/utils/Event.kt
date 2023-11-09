@@ -1,6 +1,7 @@
 package com.clvr.server.utils
 
 import com.clvr.server.model.CellContent
+import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -43,8 +44,10 @@ data class ResponseEvent<out T: EventPayloadInterface> private constructor (
 @Suppress("UNCHECKED_CAST")
 fun encodeEventToJson(event: ResponseEvent<TicTacToeResponsePayload>): String {
     return when (event.payload) {
-        is QuestionResponse -> Json.encodeToString(event as ResponseEvent<QuestionResponse>)
+        is HostQuestionResponse -> Json.encodeToString(event as ResponseEvent<HostQuestionResponse>)
+        is ClientQuestionResponse -> Json.encodeToString(event as ResponseEvent<ClientQuestionResponse>)
         is SetFieldResponse -> Json.encodeToString(event as ResponseEvent<SetFieldResponse>)
+        is ShowAnswerResponse -> Json.encodeToString(event as ResponseEvent<ShowAnswerResponse>)
     }
 }
 
@@ -85,11 +88,31 @@ data class GameStateView(
 }
 
 @Serializable
-data class QuestionView(
+data class HostQuestionView(
     val row: Int,
     val column: Int,
-    val text: String,
+    val question: String,
+    val hints: List<String>,
+    @SerialName("current_hints_num")
+    val currentHintsNum: Int,
     val answer: String
+)
+
+@Serializable
+data class ClientQuestionView(
+    val row: Int,
+    val column: Int,
+    val question: String,
+    @SerialName("current_hints")
+    val currentHints: List<String>
+)
+
+@Serializable
+data class QuestionWithAnswer(
+    val row: Int,
+    val column: Int,
+    val question: String,
+    val answer: String,
 )
 
 @Serializable
@@ -105,9 +128,9 @@ data class QuestionRequest(
 }
 
 @Serializable
-data class QuestionResponse(
+data class HostQuestionResponse(
     @SerialName("question")
-    val questionView: QuestionView,
+    val questionView: HostQuestionView,
 
     @SerialName("board")
     val gameStateView: GameStateView
@@ -115,7 +138,22 @@ data class QuestionResponse(
     override val type: String = Companion.type
 
     companion object {
-        const val type: String = "OPENED_QUESTION"
+        const val type: String = "OPENED_QUESTION_HOST"
+    }
+}
+
+@Serializable
+data class ClientQuestionResponse(
+    @SerialName("question")
+    val questionView: ClientQuestionView,
+
+    @SerialName("board")
+    val gameStateView: GameStateView
+): TicTacToeResponsePayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "OPENED_QUESTION_CLIENT"
     }
 }
 
@@ -134,6 +172,8 @@ data class SetFieldRequest(
 
 @Serializable
 data class SetFieldResponse(
+    val win: GameResult,
+
     @SerialName("board")
     val gameStateView: GameStateView
 ): TicTacToeResponsePayload {
@@ -141,5 +181,43 @@ data class SetFieldResponse(
 
     companion object {
         const val type: String = "MAIN_BOARD"
+    }
+}
+
+@Serializable
+data class NextHintRequest(
+    val row: Int,
+    val column: Int
+): TicTacToeRequestPayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "SHOW_NEXT_HINT"
+    }
+}
+
+@Serializable
+data class ShowAnswerRequest(
+    val row: Int,
+    val column: Int
+): TicTacToeRequestPayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "SHOW_ANSWER"
+    }
+}
+
+@Serializable
+data class ShowAnswerResponse(
+    val question: QuestionWithAnswer,
+
+    @SerialName("board")
+    val gameStateView: GameStateView
+) : TicTacToeResponsePayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "OPENED_QUESTION_WITH_ANSWER"
     }
 }

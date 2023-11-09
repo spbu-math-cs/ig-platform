@@ -167,7 +167,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                         className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] bg-task rounded-lg flex items-top justify-center`}>
                         <button
                             className={` rounded-xl py-10 px-10 text-3xl md:text-4xl font-extrabold text-txt`}
-                            dangerouslySetInnerHTML={{__html: game.state === "OPENED_QUESTION" ? game.question.text : ""}}>
+                            dangerouslySetInnerHTML={{__html: (game.state === "OPENED_QUESTION_HOST" || game.state === "OPENED_QUESTION_CLIENT") ? game.question.question : ""}}>
                         </button>
                     </div>
                     {isHost ?
@@ -175,7 +175,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                             className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-top justify-center`}>
                             <button
                                 className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}>
-                                { game.state == "OPENED_QUESTION" ? game.question.answer : "" }
+                                { (game.state === "OPENED_QUESTION_HOST" || game.state === "OPENED_QUESTION_CLIENT") ? game.question.answer : "" }
                             </button>
                         </div>
                         : <div></div>
