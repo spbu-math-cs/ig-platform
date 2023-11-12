@@ -3,6 +3,7 @@ package com.clvr.server.plugins
 import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.logger
+import com.clvr.server.model.GameResult
 import com.clvr.server.utils.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -49,7 +50,9 @@ fun Application.configureSockets() {
 
             logger.info { "Host $hostEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
+            val initialEvent = ResponseEvent(
+                SetFieldResponse(GameResult.EMPTY, TicTacToeSessionStorage.getGameStateView(sessionId))
+            )
             outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             coroutineScope {
@@ -99,7 +102,9 @@ fun Application.configureSockets() {
             val clientChannel = sessionManager.registerClient(clientEndpoint)
             logger.info { "Client $clientEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(SetFieldResponse(TicTacToeSessionStorage.getGameStateView(sessionId)))
+            val initialEvent = ResponseEvent(
+                SetFieldResponse(GameResult.EMPTY, TicTacToeSessionStorage.getGameStateView(sessionId))
+            )
             outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
 
             try {

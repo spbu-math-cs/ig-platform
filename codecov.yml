@@ -1,0 +1,16 @@
+github_checks:
+  annotations: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: 70%
+
+    patch:
+      default:
+        target: 70%
+
+ignore:
+  - "**/CitySchema.kt" # Left for example. TODO: delete when redundant
+  - "**/Databases.kt" # Left for example. TODO: delete when redundant

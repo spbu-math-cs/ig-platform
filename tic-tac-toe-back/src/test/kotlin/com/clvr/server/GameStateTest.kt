@@ -63,9 +63,12 @@ class GameStateTest {
     fun testHints() {
         val gameState = GameState(quiz)
 
-        assertEquals(null, gameState.getNextHint(0, 0))
-        assertEquals("hint hint hint", gameState.getNextHint(1, 0))
-        assertEquals(null, gameState.getNextHint(1, 0))
+        assertEquals(false, gameState.openNextHint(0, 0))
+        assertEquals(emptyList<String>(), gameState.getOpenedHints(0, 0))
+        assertEquals(true, gameState.openNextHint(1, 0))
+        assertEquals(listOf("hint hint hint"), gameState.getOpenedHints(1, 0))
+        assertEquals(false, gameState.openNextHint(1, 0))
+        assertEquals(listOf("hint hint hint"), gameState.getOpenedHints(1, 0))
     }
 
     @Test
@@ -79,7 +82,7 @@ class GameStateTest {
     @Test
     fun testGridStateSimple() {
         for (content in listOf(CellContent.X, CellContent.O)) {
-            val result = if (content == CellContent.X) GameResult.X_WIN else GameResult.O_WIN
+            val result = if (content == CellContent.X) GameResult.X else GameResult.O
             for (x in 0..1) {
                 for (y in 0..1) {
                     for (dx in 0..1) {
@@ -91,7 +94,7 @@ class GameStateTest {
                             val gameState = GameState(quiz)
 
                             assertEquals(false, gameState.isGameEnded())
-                            assertEquals(GameResult.UNKNOWN, gameState.currentResult())
+                            assertEquals(GameResult.EMPTY, gameState.currentResult())
                             assertEquals(listOf(
                                 listOf(CellContent.NOT_OPENED, CellContent.NOT_OPENED),
                                 listOf(CellContent.NOT_OPENED, CellContent.NOT_OPENED)
@@ -100,7 +103,7 @@ class GameStateTest {
 
                             gameState.updateCellContent(x, y, content)
                             assertEquals(false, gameState.isGameEnded())
-                            assertEquals(GameResult.UNKNOWN, gameState.currentResult())
+                            assertEquals(GameResult.EMPTY, gameState.currentResult())
 
 
                             val gridContent = gameState.getGridContent()
@@ -141,6 +144,6 @@ class GameStateTest {
         val gameState = GameState(quiz)
         gameState.updateCellContent(0, 1, CellContent.EMPTY)
         gameState.updateCellContent(1, 0, CellContent.X)
-        assertEquals(GameResult.X_WIN, gameState.currentResult())
+        assertEquals(GameResult.X, gameState.currentResult())
     }
 }
