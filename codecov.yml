@@ -10,3 +10,7 @@ coverage:
     patch:
       default:
         target: 70%
+
+ignore:
+  - "**/CitySchema.kt" # Left for example. TODO: delete when redundant
+  - "**/Databases.kt" # Left for example. TODO: delete when redundant
