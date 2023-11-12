@@ -8,18 +8,59 @@ GET /
 *Пока, домен отдающий главную страницу будет отличаться от домена с API. 
 В будущем это будет решаться либо через proxy, либо будет единый сервер, умеющий обрабатывать все запросы.*
 
-## Create game session
+## Main page
+
+### Get quiz list
+
+Запрос списка всех существующих квизов.
 
 #### Request
-POST /api/game-session
 
-```json
+GET /quiz-list
+
+#### Response 
+```json 
 {
-  "quiz": {
-    "id": "<quiz id>"
-  }
+  "quiz-list": [{
+    "name": "<quiz name>",
+    "id": "<quiz id>",
+    "comment": "<some additional information about quiz, e.g. short description>"
+  }, ...]
 }
 ```
+
+### Get quiz description
+
+Запрос полного описания конкретного квиза. 
+
+#### Request 
+
+GET /quiz-list/{quiz-id} 
+
+#### Response
+
+```json 
+{
+  "id": "<quiz id>",
+  "name": "<quiz name>",
+  "comment": "<some additional information about quiz, e.g. short description>",
+  "board": [{
+    "row": "<row>",
+    "column": "<column>",
+    "topic": "<topic>",
+    "question": "<question text>",
+    "hints": ["<hint1>", "<hint2>", ...],
+    "answer": "<answer>"
+  }, ...]
+}
+```
+
+### Create game session
+
+Создание игровой сессии по шаблону с id `quiz-id`.
+
+#### Request
+POST /api/game-session/{quiz-id}
 
 #### Response
 
@@ -30,6 +71,10 @@ POST /api/game-session
   }
 }
 ```
+
+## Quiz constructor
+
+TODO
 
 ## Game session as host
 
