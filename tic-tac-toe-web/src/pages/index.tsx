@@ -35,6 +35,7 @@ const Home: NextPage = () => {
         setIsHost(true)
 
         const session = await createGame(selectedSessionId)
+        console.log(selectedSessionId)
         setNewGame(true)
         setIsJoining(false)
         setSessionId(session.id)
@@ -176,7 +177,6 @@ const Home: NextPage = () => {
                                         </div>
 
                                         <button onClick={handleCreateGame}
-                                                type="submit"
                                                 className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-[#f3b236] hover:bg-panel`}>
                                             START
                                         </button>

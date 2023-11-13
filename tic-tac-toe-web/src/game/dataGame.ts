@@ -2,9 +2,9 @@ import {QuizInfo} from '@/game/types'
 
 export const quizzes: QuizInfo[] = [
     {
-        name: "First Quiz",
-        id: "11",
-        comment: "Super-duper game"
+        name: "Philosophy Quiz",
+        id: "ABCD",
+        comment: "Peter Abelard (1079-1142) was the preeminent philosopher of the twelfth century."
     },
     {
         name: "History",
