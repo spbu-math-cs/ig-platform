@@ -34,7 +34,7 @@ const Home: NextPage = () => {
     const handleCreateGame = async () => {
         setIsHost(true)
 
-        const session = await createGame("ABCD")
+        const session = await createGame(selectedSessionId)
         setNewGame(true)
         setIsJoining(false)
         setSessionId(session.id)
@@ -175,9 +175,7 @@ const Home: NextPage = () => {
 
                                         </div>
 
-                                        <button onClick={e => {
-                                            console.log("Joining game " + joiningGameId)
-                                        }}
+                                        <button onClick={handleCreateGame}
                                                 type="submit"
                                                 className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-[#f3b236] hover:bg-panel`}>
                                             START
