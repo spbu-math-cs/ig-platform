@@ -57,6 +57,8 @@ fun decodeJsonToEvent(jsonString: String): RequestEvent<TicTacToeRequestPayload>
     return when (jsonObject["type"]!!.jsonPrimitive.content) {
         QuestionRequest.type -> Json.decodeFromString<RequestEvent<QuestionRequest>>(jsonString)
         SetFieldRequest.type -> Json.decodeFromString<RequestEvent<SetFieldRequest>>(jsonString)
+        NextHintRequest.type -> Json.decodeFromString<RequestEvent<NextHintRequest>>(jsonString)
+        ShowAnswerRequest.type -> Json.decodeFromString<RequestEvent<ShowAnswerRequest>>(jsonString)
         else -> error("Request expected")
     }
 }
