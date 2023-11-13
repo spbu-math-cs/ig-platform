@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
-export type ThemeClass = "theme-metal" | "theme-2048" | "theme-purple"
+export type ThemeClass = "theme-metal" | "theme-2048" | "theme-purple" | "theme-green" | "theme-tnkf"
 export type ThemeState = {
     value: ThemeClass
 }
@@ -26,6 +26,12 @@ export const themeSlice = createSlice({
                     state.value = "theme-purple"
                     break
                 case "theme-purple":
+                    state.value = "theme-green"
+                    break
+                case "theme-green":
+                    state.value = "theme-tnkf"
+                    break
+                case "theme-tnkf":
                     state.value = "theme-metal"
                     break
             }

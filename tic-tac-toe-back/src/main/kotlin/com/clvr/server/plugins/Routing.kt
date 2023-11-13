@@ -26,8 +26,8 @@ data class QuizRequest(
 
 @Serializable
 data class QuizListResponse (
-        @SerialName("quiz-list")
-        val quizList: List<QuizHeader>
+    @SerialName("quiz-list")
+    val quizList: List<QuizHeader>
 )
 
 fun Application.configureRouting() {
@@ -55,15 +55,15 @@ fun Application.configureRouting() {
 
         get("quiz-list") {
             call.respond(HttpStatusCode.OK, QuizListResponse(
-                    quizDatabase.map { quiz ->
-                        QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
-                    }.toList()
+                quizDatabase.map { quiz ->
+                    QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
+                }.toList()
             ))
         }
 
         get("quiz-list/{quiz-id}") {
             val quizId = QuizId(
-                    call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+                call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
             val quiz = quizDatabase.singleOrNull { it.id == quizId } ?: run {
@@ -72,19 +72,19 @@ fun Application.configureRouting() {
             }
 
             call.respond(HttpStatusCode.OK, QuizCompleteInfo(
-                    quiz.id.id,
-                    quiz.templateTitle ?: "",
-                    "",
-                    quiz.questions.flatMapIndexed { row, data ->
-                        data.mapIndexed { column, question -> QuizCellInfo(
-                                row,
-                                column,
-                                question.topic,
-                                question.statement,
-                                question.hints,
-                                question.answer
-                        )}
-                    }
+                quiz.id.id,
+                quiz.templateTitle ?: "",
+                "",
+                quiz.questions.flatMapIndexed { row, data ->
+                    data.mapIndexed { column, question -> QuizCellInfo(
+                        row,
+                        column,
+                        question.topic,
+                        question.statement,
+                        question.hints,
+                        question.answer
+                    )}
+                }
             ))
         }
     }

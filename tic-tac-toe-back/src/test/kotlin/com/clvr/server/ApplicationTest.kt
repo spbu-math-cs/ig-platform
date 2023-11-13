@@ -177,7 +177,7 @@ class ApplicationTest {
     }
 
     private suspend fun createHostWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
-       return client.webSocketSession("/ws/host/${sessionId.id}")
+        return client.webSocketSession("/ws/host/${sessionId.id}")
     }
 
     private suspend fun createPlayerWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {

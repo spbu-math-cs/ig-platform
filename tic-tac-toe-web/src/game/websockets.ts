@@ -55,7 +55,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     hints: q.hints,
                     currentHintsNum: q["current_hints_num"],
                 },
-            }) // TODO: validate
+            })
         } else if (state === "OPENED_QUESTION_CLIENT") {
             const q = msg.payload.question as any
             setGameState({
@@ -67,7 +67,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     question: q.question,
                     currentHints: q["current_hints"],
                 },
-            }) // TODO: validate
+            })
         } else if (state === "OPENED_QUESTION_WITH_ANSWER") {
             const q = msg.payload.question as any
             setGameState({
@@ -79,12 +79,12 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     question: q.question,
                     answer: q.answer,
                 },
-            }) // TODO: validate
+            })
         } else if (state === "MAIN_BOARD") {
             setGameState({
                 state: state,
                 board: msg.payload.board,
-            }) // TODO: validate
+            })
         }
     }, [lastJsonMessage])
 
@@ -113,7 +113,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
         } else if (action.type == "SHOW_ANSWER") {
             request = {
                 session: session,
-                type: "SET_FIELD",
+                type: "SHOW_ANSWER",
                 payload: {
                     row: action.row,
                     column: action.column,
@@ -122,16 +122,15 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
         } else if (action.type == "SHOW_NEXT_HINT") {
             request = {
                 session: session,
-                type: "SET_FIELD",
+                type: "SHOW_NEXT_HINT",
                 payload: {
                     row: action.row,
                     column: action.column,
-                    "current_hints_num": action.currentHintsNum,
+                    // "current_hints_num": action.currentHintsNum,
                 },
             }
         } else {
-            // check exhaustiveness
-            ((_: never) => _)(action)
+            checkExhausted(action)
         }
 
         sendJsonMessage(request)

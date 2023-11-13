@@ -65,46 +65,23 @@ export type Quiz = QuizInfo & {
 }
 
 /**
- * The game state when the game is connecting, reconnecting, or otherwise not ready.
- *
- * TODO: differentiate between reconnection attempt and failed connection
+ * Describes the current game state.
  */
-interface GameStateLoading {
+export type GameState = {
     state: "_LOADING"
-}
-
-/**
- * The game state where the board is shown.
- */
-interface GameStateMainBoard {
+} | {
     state: "MAIN_BOARD"
     board: Board
-}
-
-interface OpenedQuestionHost {
+} | {
     state: "OPENED_QUESTION_HOST"
     board: Board
     question: HostQuestion
-}
-
-interface OpenedQuestionClient {
+} | {
     state: "OPENED_QUESTION_CLIENT"
     board: Board
     question: ClientQuestion
-}
-
-interface OpenedQuestionWithAnswer {
+} | {
     state: "OPENED_QUESTION_WITH_ANSWER"
     question: QuestionWithAnswer,
     board: Board
 }
-
-/**
- * Describes the current game state.
- */
-export type GameState =
-    GameStateLoading
-    | GameStateMainBoard
-    | OpenedQuestionHost
-    | OpenedQuestionClient
-    | OpenedQuestionWithAnswer
