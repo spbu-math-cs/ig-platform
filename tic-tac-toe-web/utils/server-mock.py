@@ -5,73 +5,109 @@
 
 import asyncio
 import functools
+import json
+import uuid
 
 import aiohttp
+import aiohttp_cors
 from aiohttp import web
 
 
-async def create_game_session(request: web.Request) -> web.Response:
-    data = await request.json()
-    assert data["quiz"]["id"], 1
+with open("../../tic-tac-toe-back/src/main/resources/dumbQuizCollection.json") as quiz_file:
+    quiz_collection = json.load(quiz_file)
 
+
+host_clients: set[web.WebSocketResponse] = set()
+board_clients: set[web.WebSocketResponse] = set()
+sessions: dict[str, ...] = {}
+
+
+def get_quiz_by_id(quiz_id):
+    return next(quiz for quiz in quiz_collection if quiz["id"]["id"] == quiz_id)
+
+
+def board_from_quiz(quiz):
+    return [
+        {
+            "row": row,
+            "column": column,
+            "topic": quiz["questions"][row][column]["topic"],
+            "question": quiz["questions"][row][column]["statement"],
+            "hints": quiz["questions"][row][column]["hints"],
+            "answer": quiz["questions"][row][column]["answer"],
+        }
+        for row in range(quiz["gridSide"])
+        for column in range(quiz["gridSide"])
+    ]
+
+
+def board_description_from_quiz(quiz, session):
+    return {"cells": [
+        {
+            "row": row,
+            "column": column,
+            "topic": quiz["questions"][row][column]["topic"],
+            "mark": session["marks"][row][column],
+        }
+        for row in range(quiz["gridSide"])
+        for column in range(quiz["gridSide"])
+    ]}
+
+
+async def get_quiz_list(_request: web.Request) -> web.Response:
     return web.json_response({
-        "quiz": {
-            "id": "239",
+        "quiz-list": [{
+            "id": quiz["id"]["id"],
+            "name": quiz["templateTitle"],
+            "comment": "Literally anything, some random text, please ignore",
+        } for quiz in quiz_collection]
+    })
+
+
+async def get_quiz(request: web.Request) -> web.Response:
+    quiz_id = request.match_info["quiz_id"]
+    quiz = get_quiz_by_id(quiz_id)
+    return web.json_response({
+        "id": quiz["id"]["id"],
+        "name": quiz["templateTitle"],
+        "comment": "Literally anything, some random text, please ignore",
+        "board": board_from_quiz(quiz),
+    })
+
+
+async def create_game_session(request: web.Request) -> web.Response:
+    quiz_id = request.match_info["quiz_id"]
+    quiz = get_quiz_by_id(quiz_id)
+    session_id = str(uuid.uuid4())
+    sessions[session_id] = {
+        "quiz_id": quiz_id,
+        "currently_shown_hints": 0,
+        "marks": [["EMPTY" for _ in range(quiz["gridSide"])] for _ in range(quiz["gridSide"])]
+    }
+    return web.json_response({
+        "session": {
+            "id": session_id,
         }
     })
 
 
-clients: set[web.WebSocketResponse] = set()
-
-BOARD = {"cells": [{
-    "row": 0,
-    "column": 0,
-    "mark": "<span style=\"font-size: 60pt;\">😈</span>",
-    "questions": ["Опишите значение следующих эмодзи", "🔰😤🆎"]
-}, {
-    "row": 0,
-    "column": 1,
-    "mark": "Языки I",
-    "questions": ["На каком языке написана следующая программа", "<pre>Say hello.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n</pre>", "", "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3c/Whitespace_in_vim2.png\"></img>"]
-}, {
-    "row": 0,
-    "column": 2,
-    "mark": "<div style=\"font-size: 5pt; line-height: 1.2;\">Какая-то рандомная дичь которая парит только меня да и то только потому что я посмотрел про нее видос на ютубе и я скорее всего про нее забуду через пару месяцев но сейчас мне кажется что это очень интересно и я хочу дать на это вопрос</div>",
-    "questions": ["Это фанарт по известному американскому комиксу. Назовите хотя бы одного изображенного персонажа", "<img src=\"https://ibb.co/HgRfTYC\"></img>", "<img src=\"https://i.redd.it/9nhnc6ter3151.jpg\">", "<img src=\"https://assets.amuniversal.com/8b8b6b403ed2013c1aef005056a9545d\"></img>"]
-}, {
-    "row": 1,
-    "column": 0,
-    "mark": "\"матеша\"",
-    "questions": ["Назовите наименьнший первообразный корень числа 998244353"]
-}, {
-    "row": 1,
-    "column": 1,
-    "mark": "Языки II",
-    "questions": ["Заполните пропуск", "https://ibb.co/yy4JjBD"]
-}, {
-    "row": 1,
-    "column": 2,
-    "mark": "Kotlin🥰",
-    "questions": ["Каков результат работы следующей программы?", "<img src=\"https://ibb.co/d7LqDcN\"/>"]
-}, {
-    "row": 2,
-    "column": 0,
-    "mark": "ООП🤮",
-}, {
-    "row": 2,
-    "column": 1,
-    "mark": "<span style=\"font-size: 60pt\">🤔</span>",
-}, {
-    "row": 2,
-    "column": 2,
-    "mark": "<img src=\"https://media.tenor.com/x8v1oNUOmg4AAAAd/rickroll-roll.gif\" width=\"100px\"/>",
-},
-]}
-
-
-async def broadcast_message(json) -> None:
+async def broadcast_message(message_json):
     await asyncio.gather(
-        *[client.send_json(json) for client in clients],
+        *[client.send_json(message_json) for client in board_clients | host_clients],
+        return_exceptions=False
+    )
+
+
+async def broadcast_message_to_board(message_json):
+    await asyncio.gather(
+        *[client.send_json(message_json) for client in board_clients],
+        return_exceptions=False
+    )
+
+
+async def broadcast_message_to_host(message_json):
+    await asyncio.gather(
+        *[client.send_json(message_json) for client in host_clients],
         return_exceptions=False
     )
 
@@ -79,26 +115,72 @@ async def broadcast_message(json) -> None:
 async def handle_host_message(_ws: web.WebSocketResponse, msg: aiohttp.WSMessage):
     if msg.type == aiohttp.WSMsgType.TEXT:
         data = msg.json()
-        assert data["session"]["id"] == "239"
+        row = data["payload"]["row"]
+        column = data["payload"]["column"]
+        session_id = data["session"]["id"]
+        session = sessions[session_id]
+        quiz_id = session["quiz_id"]
+        quiz = get_quiz_by_id(quiz_id)
+        raw_board = board_from_quiz(quiz)
+        board = board_description_from_quiz(quiz, session)
 
         match data["type"]:
-            case "OPEN_QUESTION":
+            case "OPEN_QUESTION" | "SHOW_NEXT_HINT":
+                if data["type"] == "OPEN_QUESTION":
+                    session["currently_shown_hints"] = 0
+                else:
+                    session["currently_shown_hints"] = data["payload"]["current_hints_num"]
+
+                await asyncio.gather(
+                    broadcast_message_to_host({
+                        "state": "OPENED_QUESTION_HOST",
+                        "payload": {
+                            "board": board,
+                            "question": {
+                                "row": row,
+                                "column": column,
+                                "question": raw_board[row * 3 + column]["question"],
+                                "hints": raw_board[row * 3 + column]["hints"],
+                                "answer": raw_board[row * 3 + column]["answer"],
+                                "current_hints_num": session["currently_shown_hints"],
+                            },
+                        }
+                    }),
+                    broadcast_message_to_board({
+                        "state": "OPENED_QUESTION_CLIENT",
+                        "payload": {
+                            "board": board,
+                            "question": {
+                                "row": row,
+                                "column": column,
+                                "question": raw_board[row * 3 + column]["question"],
+                                "current_hints": raw_board[row * 3 + column]["hints"][:session["currently_shown_hints"]],
+                            },
+                        }
+                    }),
+                )
+            case "SHOW_ANSWER":
                 await broadcast_message({
-                    "state": "OPENED_QUESTION",
+                    "state": "OPENED_QUESTION_WITH_ANSWER",
                     "payload": {
+                        "board": board,
                         "question": {
-                            "row": data["payload"]["row"],
-                            "column": data["payload"]["column"],
-                            "text": "<span style=\"color: blue;\">What is the answer to life, the universe and everything?</span>",
+                            "row": row,
+                            "column": column,
+                            "question": raw_board[row * 3 + column]["question"],
+                            # "hints": board[row * 3 + column]["hints"],
+                            "answer": raw_board[row * 3 + column]["answer"],
                         },
-                        "board": BOARD,
                     },
                 })
             case "SET_FIELD":
+                session["marks"][row][column] = data["payload"]["mark"]
+                board["cells"][row * 3 + column]["mark"] = data["payload"]["mark"]
                 await broadcast_message({
                     "state": "MAIN_BOARD",
                     "payload": {
-                        "board": BOARD,
+                        "board": board,
+                        "win": "EMPTY",
                     },
                 })
             case _:
@@ -110,14 +192,25 @@ async def handle_board_message(_msg: aiohttp.WSMessage) -> None:
 
 
 async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocketResponse:
+    session_id = request.match_info["session_id"]
+    session = sessions[session_id]
+    quiz_id = session["quiz_id"]
+    quiz = get_quiz_by_id(quiz_id)
+    board = board_description_from_quiz(quiz, session)
+
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-    clients.add(ws)
+
+    if kind == "host":
+        host_clients.add(ws)
+    else:
+        board_clients.add(ws)
 
     await broadcast_message({
         "state": "MAIN_BOARD",
         "payload": {
-            "board": BOARD,
+            "board": board,
+            "win": "EMPTY",
         },
     })
 
@@ -130,16 +223,33 @@ async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocket
                 case "board":
                     await handle_board_message(msg)
     finally:
-        clients.remove(ws)
+        if kind == "host":
+            host_clients.remove(ws)
+        else:
+            board_clients.remove(ws)
 
     return ws
 
 
 app = web.Application()
+
 app.add_routes([
-    web.post("/api/game-session", create_game_session),
-    web.get("/ws/host/239", functools.partial(handle_ws_connection, "host")),
-    web.get("/ws/board/239", functools.partial(handle_ws_connection, "board")),
+    web.get("/api/quiz-list", get_quiz_list),
+    web.get("/api/quiz-list/{quiz_id}", get_quiz),
+    web.post("/api/game-session/{quiz_id}", create_game_session),
+    web.get("/ws/host/{session_id}", functools.partial(handle_ws_connection, "host")),
+    web.get("/ws/client/{session_id}", functools.partial(handle_ws_connection, "board")),
 ])
+
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+        allow_credentials=True,
+        expose_headers="*",
+        allow_headers="*"
+    )
+})
+
+for route in list(app.router.routes()):
+    cors.add(route)
 
 web.run_app(app, port=8080)

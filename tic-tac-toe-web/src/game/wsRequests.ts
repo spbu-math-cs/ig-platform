@@ -1,4 +1,4 @@
-import {Mark} from "./state"
+import {Mark} from "./types"
 
 /**
  * A host to server request to open a question and show it to the players.
@@ -19,7 +19,24 @@ interface RequestSetField {
     mark: Mark
 }
 
+interface RequestShowAnswer {
+    type: "SHOW_ANSWER"
+    row: number
+    column: number
+}
+
+interface RequestShowNextHint {
+    type: "SHOW_NEXT_HINT"
+    row: number
+    column: number
+    currentHintsNum: number
+}
+
 /**
  * A request to the game server.
  */
-export type Request = RequestOpenQuestion | RequestSetField
+export type Request =
+    RequestOpenQuestion
+    | RequestSetField
+    | RequestShowAnswer
+    | RequestShowNextHint

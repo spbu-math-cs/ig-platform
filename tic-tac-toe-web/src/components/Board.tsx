@@ -32,6 +32,8 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
         }, true)
     }, [])
 
+    console.log(game)
+
     function Square({value, onClick}: SquareProp) {
         return (
             <button
@@ -55,7 +57,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
             value = <XIcon/>
         } else if (board.cells[i].mark === "O") {
             value = <OIcon/>
-        } else if (board.cells[i].mark === "NOT_OPENED") {
+        } else if (board.cells[i].mark === "EMPTY") {
             value =
                 <p className={`text-md text-txt uppercase font-bold text-xl md:text-2xl space-y-12`}
                    dangerouslySetInnerHTML={{__html: board.cells[i].topic}}>
@@ -167,7 +169,11 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                         className={`mt-24 w-[500px] h-[400px] md:[w-400px] px-30 py-[100px] bg-task rounded-lg flex items-top justify-center`}>
                         <button
                             className={` rounded-xl py-10 px-10 text-3xl md:text-4xl font-extrabold text-txt`}
-                            dangerouslySetInnerHTML={{__html: game.state === "OPENED_QUESTION" ? game.question.text : ""}}>
+                            dangerouslySetInnerHTML={{__html:
+                                    game.state === "OPENED_QUESTION_CLIENT"
+                                    || game.state === "OPENED_QUESTION_HOST"
+                                        ? game.question.question
+                                        : ""}}>
                         </button>
                     </div>
                     {isHost ?
@@ -175,7 +181,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                             className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-top justify-center`}>
                             <button
                                 className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}>
-                                { game.state == "OPENED_QUESTION" ? game.question.answer : "" }
+                                { game.state == "OPENED_QUESTION_HOST" ? game.question.answer : "" }
                             </button>
                         </div>
                         : <div></div>

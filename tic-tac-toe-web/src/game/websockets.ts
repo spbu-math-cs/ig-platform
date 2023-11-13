@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {GameState, Session} from "./state"
+import {GameState, Session} from "./types"
 import {Request} from "./wsRequests"
 
 type Role = "host" | "client"
@@ -14,10 +14,6 @@ type Role = "host" | "client"
  * Reconnecting is handled automatically.
  *
  * See app/api-test/page.ts for an example.
- *
- * FIXME: Due to how the API is designed, there is no way to get the indication that the request was
- *  successfully fulfilled. This means that differentiating between request in progress and connection
- *  lost is... annoying.
  *
  * @param role The role being played
  * @param session The session to connect with (returned by POST /api/game-session endpoint)
@@ -42,15 +38,49 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
     useEffect(() => {
         const msg = lastJsonMessage as any
         if (msg === null) return
-        if (msg.state === "OPENED_QUESTION") {
+
+        const state: string = msg.state
+        if (state === "OPENED_QUESTION_HOST") {
+            const q = msg.payload.question as any
             setGameState({
-                state: msg.state,
+                state: state,
                 board: msg.payload.board,
-                question: msg.payload.question,
+                question: {
+                    row: q.row,
+                    column: q.column,
+                    question: q.question,
+                    answer: q.answer,
+                    hints: q.hints,
+                    currentHintsNum: q["current_hints_num"],
+                },
             }) // TODO: validate
-        } else if (msg.state === "MAIN_BOARD") {
+        } else if (state === "OPENED_QUESTION_CLIENT") {
+            const q = msg.payload.question as any
             setGameState({
-                state: msg.state,
+                state: state,
+                board: msg.payload.board,
+                question: {
+                    row: q.row,
+                    column: q.column,
+                    question: q.question,
+                    currentHints: q["current_hints"],
+                },
+            }) // TODO: validate
+        } else if (state === "OPENED_QUESTION_WITH_ANSWER") {
+            const q = msg.payload.question as any
+            setGameState({
+                state: state,
+                board: msg.payload.board,
+                question: {
+                    row: q.row,
+                    column: q.column,
+                    question: q.question,
+                    answer: q.answer,
+                },
+            }) // TODO: validate
+        } else if (state === "MAIN_BOARD") {
+            setGameState({
+                state: state,
                 board: msg.payload.board,
             }) // TODO: validate
         }
@@ -58,6 +88,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
 
     return [gameState, (action: Request) => {
         let request: any
+
         if (action.type == "OPEN_QUESTION") {
             request = {
                 session: session,
@@ -77,6 +108,28 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     mark: action.mark,
                 },
             }
+        } else if (action.type == "SHOW_ANSWER") {
+            request = {
+                session: session,
+                type: "SET_FIELD",
+                payload: {
+                    row: action.row,
+                    column: action.column,
+                },
+            }
+        } else if (action.type == "SHOW_NEXT_HINT") {
+            request = {
+                session: session,
+                type: "SET_FIELD",
+                payload: {
+                    row: action.row,
+                    column: action.column,
+                    "current_hints_num": action.currentHintsNum,
+                },
+            }
+        } else {
+            // check exhaustiveness
+            ((_: never) => _)(action)
         }
 
         sendJsonMessage(request)

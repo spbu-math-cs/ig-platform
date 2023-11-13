@@ -7,6 +7,7 @@ import {nextTheme} from "@/state/themeSlice"
 import {useDispatch} from "react-redux"
 import {XIcon} from "@/components/XIcon"
 import {OIcon} from "@/components/OIcon"
+import {createGame} from "@/game/api"
 
 
 const Home: NextPage = () => {
@@ -26,29 +27,13 @@ const Home: NextPage = () => {
     // let winner = calculateWinner(squares)
     let winner = ""
 
-    const createGame = () => {
+    const handleCreateGame = async () => {
         setIsHost(true)
 
-        fetch("http://0.0.0.0:8080/api/game-session", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                "quiz": {
-                    "id": "ABCD",
-                },
-            }),
-        }).then((response) => {
-            return response.json()
-        }).then((data) => {
-            console.log(data)
-            setNewGame(true)
-            setIsJoining(false)
-            setSessionId(data.session.id)
-        }).catch(e => {
-            console.error(e)
-        })
+        const session = await createGame("ABCD")
+        setNewGame(true)
+        setIsJoining(false)
+        setSessionId(session.id)
     }
 
     const joinGame = () => {
@@ -86,7 +71,7 @@ const Home: NextPage = () => {
                                     <div
                                         className="bg-gray-800 flex items-center justify-evenly h-35 rounded-2xl p-2 ">
                                         <button onClick={() => {
-                                            createGame()
+                                            handleCreateGame()
                                         }}
                                                 className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
                                             CREATE
@@ -193,7 +178,7 @@ const Home: NextPage = () => {
                         setSquares(Array(cols * rows).fill(null))
                         setNewGame(false)
                     }}
-                    handleNewGame={createGame}
+                    handleNewGame={handleCreateGame}
                 />
             }
         </div>
