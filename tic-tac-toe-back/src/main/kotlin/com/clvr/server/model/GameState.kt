@@ -2,7 +2,6 @@ package com.clvr.server.model
 
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.common.Quiz
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,7 +13,8 @@ data class CellState(var hintsUsed: Int, var content: CellContent)
 
 typealias GridState = Array<Array<CellState>>
 
-enum class GameResult { UNKNOWN, X_WIN, O_WIN }
+@Serializable
+enum class GameResult { EMPTY, X, O }
 
 enum class Player { X, O }
 
@@ -29,8 +29,8 @@ private fun getPlayerByContent(content: CellContent): Player =
 
 private fun getResultByContent(content: CellContent): GameResult =
     when (content) {
-        CellContent.X -> GameResult.X_WIN
-        CellContent.O -> GameResult.O_WIN
+        CellContent.X -> GameResult.X
+        CellContent.O -> GameResult.O
         else          -> throw IllegalArgumentException()
     }
 
@@ -44,8 +44,11 @@ class GameState(private val quiz: Quiz) {
     var turn: Player = Player.X
         private set
 
-    private fun getKthHint(row: Int, column: Int, id: Int) = 
-        quiz.questions[row][column].hints.getOrNull(id)
+    fun getOpenedHints(row: Int, column: Int): List<String> =
+        quiz.questions[row][column].hints.take(state[row][column].hintsUsed)
+
+    fun getAllHints(row: Int, column: Int): List<String> =
+        quiz.questions[row][column].hints
 
     fun isCellValid(row: Int, column: Int): Boolean = 
         row >= 0 && row < quiz.gridSide && column >= 0 && column < quiz.gridSide
@@ -82,8 +85,12 @@ class GameState(private val quiz: Quiz) {
         quiz.questions[row][column] = newQuestion
     }
     
-    fun getNextHint(row: Int, column: Int): String? {
-        return getKthHint(row, column, state[row][column].hintsUsed++)
+    fun openNextHint(row: Int, column: Int): Boolean {
+        if (state[row][column].hintsUsed == quiz.questions[row][column].hints.size) {
+            return false
+        }
+        ++state[row][column].hintsUsed
+        return true
     }
 
     fun getGridContent(): List<List<CellContent>> =
@@ -154,11 +161,11 @@ class GameState(private val quiz: Quiz) {
         }
 
         if (cntX + cntO < quiz.gridSide * quiz.gridSide) {
-            return GameResult.UNKNOWN
+            return GameResult.EMPTY
         }
 
-        return if (cntX > cntO) GameResult.X_WIN else GameResult.O_WIN
+        return if (cntX > cntO) GameResult.X else GameResult.O
     }
 
-    fun isGameEnded(): Boolean = currentResult() != GameResult.UNKNOWN
+    fun isGameEnded(): Boolean = currentResult() != GameResult.EMPTY
 }

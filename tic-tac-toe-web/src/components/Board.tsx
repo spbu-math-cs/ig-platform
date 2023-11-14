@@ -32,8 +32,6 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
         }, true)
     }, [])
 
-    console.log(game)
-
     function Square({value, onClick}: SquareProp) {
         return (
             <button

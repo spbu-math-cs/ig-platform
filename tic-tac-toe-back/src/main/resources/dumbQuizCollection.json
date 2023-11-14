@@ -19,7 +19,7 @@
           "statement": "На каком языке написана следующая программа",
           "answer": "Whitespace",
           "hints": [
-            "На каком языке написана следующая программа",
+            "hint: На каком языке написана следующая программа",
             "<pre style=\"font-size: 7pt; line-height: 1.2;\">Say hello.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n</pre>",
             ""
           ]
