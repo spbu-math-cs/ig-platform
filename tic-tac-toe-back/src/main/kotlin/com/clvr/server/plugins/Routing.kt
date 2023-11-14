@@ -1,14 +1,14 @@
 package com.clvr.server.plugins
 
 import com.clvr.server.TicTacToeSessionStorage
-import com.clvr.server.common.Quiz
-import com.clvr.server.common.QuizId
+import com.clvr.server.common.*
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.util.*
@@ -18,6 +18,12 @@ data class SessionResponse(val session: SessionId)
 
 @Serializable
 data class QuizRequest(val quiz: QuizId)
+
+@Serializable
+data class QuizListResponse (
+        @SerialName("quiz-list")
+        val quizList: List<QuizHeader>
+)
 
 typealias QuizDatabase = List<Quiz>
 
@@ -45,6 +51,41 @@ fun Application.configureRouting() {
             val newSession = SessionId(UUID.randomUUID().toString().take(6))
             TicTacToeSessionStorage.startNewGame(newSession, quiz)
             call.respond(HttpStatusCode.OK, SessionResponse(newSession))
+        }
+
+        get("quiz-list") {
+            call.respond(HttpStatusCode.OK, QuizListResponse(
+                    quizDatabase.map { quiz ->
+                        QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
+                    }.toList()
+            ))
+        }
+
+        get("quiz-list/{quiz-id}") {
+            val quizId = QuizId(
+                    call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+            )
+
+            val quiz = quizDatabase.singleOrNull { it.id == quizId } ?: run {
+                call.respond(HttpStatusCode.NotFound)
+                return@get
+            }
+
+            call.respond(HttpStatusCode.OK, QuizCompleteInfo(
+                    quiz.id.id,
+                    quiz.templateTitle ?: "",
+                    "",
+                    quiz.questions.flatMapIndexed { row, data ->
+                        data.mapIndexed { column, question -> QuizCellInfo(
+                                row,
+                                column,
+                                question.topic,
+                                question.statement,
+                                question.hints,
+                                question.answer
+                        )}
+                    }
+            ))
         }
     }
 }
