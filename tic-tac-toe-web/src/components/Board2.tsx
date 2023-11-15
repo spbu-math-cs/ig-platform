@@ -20,7 +20,7 @@ interface SquareProp {
     onClick(): void
 }
 
-export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
+export const Board2 = ({playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
     const [game, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
@@ -188,8 +188,8 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                 </div>
             </div>
             {game.state == "OPENED_QUESTION_HOST" &&
-                <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel">
-                    {
+                <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel text-answerTxt">
+                    game.question.hints && {
                         game.question.hints.map(hint =>
                             <div className="grow" key={hint} dangerouslySetInnerHTML={{__html: hint}}>
                             </div>,
@@ -197,15 +197,27 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                     }
                 </div>
             }
-            {game.state == "OPENED_QUESTION_CLIENT" &&
-                <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel">
-                    {
+            {game.state == "OPENED_QUESTION_CLIENT" && <>
+                <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel text-answerTxt">
+                    game.question.hints && {
                         game.question.currentHints.map(hint =>
                             <div className="grow" key={hint} dangerouslySetInnerHTML={{__html: hint}}>
                             </div>,
                         )
                     }
                 </div>
+                <div
+                    className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-center justify-center`}>
+                    <button
+                        className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}
+                        onClick={() => dispatchEvent({
+                            dispatching: "answer",
+                        } as any)}
+                    >
+                        ANSWER!
+                    </button>
+                </div>
+                </>
             }
         </div>
     )

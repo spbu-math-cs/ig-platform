@@ -1,6 +1,10 @@
 import {useState} from "react";
-import {QuizProps} from "@/game/dataGame"
+import {QuizInfo} from "@/game/types"
 
+interface QuizProps {
+    quiz: QuizInfo
+    handleSelect(id: string): void
+}
 
 export function Quiz({quiz, handleSelect}: QuizProps) {
     const [details, setDetails] = useState(false)

@@ -234,8 +234,8 @@ async def handle_ws_connection(kind: str, request: web.Request) -> web.WebSocket
 app = web.Application()
 
 app.add_routes([
-    web.get("/api/quiz-list", get_quiz_list),
-    web.get("/api/quiz-list/{quiz_id}", get_quiz),
+    web.get("/quiz-list", get_quiz_list),
+    web.get("/quiz-list/{quiz_id}", get_quiz),
     web.post("/api/game-session/{quiz_id}", create_game_session),
     web.get("/ws/host/{session_id}", functools.partial(handle_ws_connection, "host")),
     web.get("/ws/client/{session_id}", functools.partial(handle_ws_connection, "board")),

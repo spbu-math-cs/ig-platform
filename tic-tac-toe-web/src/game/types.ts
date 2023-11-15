@@ -9,7 +9,7 @@ export type Session = {
     id: string
 }
 
-export type Mark = "X" | "O" | "EMPTY"
+export type Mark = "X" | "O" | "EMPTY" | "NOT_OPENED"
 
 type Cell = {
     row: number

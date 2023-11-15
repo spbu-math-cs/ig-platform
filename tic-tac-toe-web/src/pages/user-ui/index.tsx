@@ -10,6 +10,7 @@ import {OIcon} from "@/components/OIcon"
 import {createGame, getQuizList} from "@/game/api"
 import {Quiz} from "@/components/Quiz";
 import {QuizInfo} from "@/game/types"
+import {Board2} from "@/components/Board2"
 
 
 const Home: NextPage = () => {
@@ -207,7 +208,7 @@ const Home: NextPage = () => {
                             }}
                             isHost={isHost}/>
                         :
-                        <Board
+                        <Board2
                             playerX={isX}
                             sessionId={sessionId}
                             handleRestartGame={() => {
