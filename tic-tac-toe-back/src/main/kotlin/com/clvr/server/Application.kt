@@ -33,4 +33,5 @@ fun Application.module() {
     configureDatabases()
     configureSockets()
     configureRouting()
+    configureQuizDatabase()
 }
