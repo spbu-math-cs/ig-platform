@@ -12,6 +12,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import kotlinx.serialization.encodeToString
@@ -20,6 +21,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.io.File
 
 // TODO: add test quiz description to test/resources & read it from file; do not use hard-coded strings for tests
 class ApplicationTest {
@@ -138,8 +140,13 @@ class ApplicationTest {
             configureDatabases()
             configureSockets()
             configureRouting()
+            configureQuizDatabase(testQuizFile)
         }
     }
+
+    private val testQuizFile = File(
+        Application::class.java.classLoader.getResource("applicationTestQuizCollection.json")!!.toURI()
+    )
 
     private fun ApplicationTestBuilder.getClient(): HttpClient {
         return createClient {

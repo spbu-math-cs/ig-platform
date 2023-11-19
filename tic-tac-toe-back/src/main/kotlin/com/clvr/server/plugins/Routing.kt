@@ -2,6 +2,7 @@ package com.clvr.server.plugins
 
 import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.common.*
+import com.clvr.server.quizDatabase
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,7 +11,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.util.*
 
 @Serializable
@@ -24,11 +24,6 @@ data class QuizListResponse (
         @SerialName("quiz-list")
         val quizList: List<QuizHeader>
 )
-
-typealias QuizDatabase = List<Quiz>
-
-private val quizFile = Application::class.java.classLoader.getResource("dumbQuizCollection.json")!!
-private val quizDatabase = Json.decodeFromString<QuizDatabase>(quizFile.readText())
 
 fun Application.configureRouting() {
     routing {
