@@ -65,7 +65,7 @@ const Home: NextPage = () => {
 
 
             <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
-                TIC{" "}<span className="text-[#f3b236]">TAC </span>{" "}TOE
+                TIC{" "}<span className="text-createcol">TAC </span>{" "}TOE
             </h1>
 
             {!newGame
@@ -88,7 +88,7 @@ const Home: NextPage = () => {
                                             // handleCreateGame()
                                             setIsCreating(true)
                                         }}
-                                                className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
+                                                className={`focus:bg-gray-300 hover:bg-[#ffe1a9]  transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
                                             CREATE
                                         </button>
 
@@ -103,7 +103,7 @@ const Home: NextPage = () => {
                             </div>
                             <div className="mt-106 md:mt-106  flex flex-col items-center justify-center mx-auto">
                                 <button onClick={() => dispatch(nextTheme())}
-                                        className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-[#f3b236] hover:bg-panel`}>
+                                        className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-createcol hover:bg-panel`}>
                                     Change Theme
                                 </button>
                             </div>
@@ -128,8 +128,8 @@ const Home: NextPage = () => {
                                         <OIcon/>
                                     </div>
                                     <div
-                                        className={`flex flex-col items-center py-12 w-[700px] md:w-[450px] h-64 md:h-72 rounded-2xl bg-panel mt-4 space-y-8 md:space-y-6`}>
-                                        <p className={`text-md text-hostTxt uppercase font-extrabold  md:text-3xl space-y-12 `}>
+                                        className={`flex flex-col items-center py-12 w-[700px] md:w-[450px] h-64 md:h-72 rounded-2xl bg-panel mt-6 space-y-8 md:space-y-6`}>
+                                        <p className={`text-md text-JoinGameTxt uppercase font-extrabold  md:text-3xl space-y-12 `}>
                                             ENTER GAME ID
                                         </p>
 
@@ -168,13 +168,13 @@ const Home: NextPage = () => {
                                     className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                                     <div
                                         className={`flex flex-col items-center py-10 w-[1000px] md:w-[1000px] md:h-[600px] rounded-2xl bg-panel mt-4 space-y-8 md:space-y-6`}>
-                                        <p className={`text-md text-hostTxt uppercase font-extrabold  md:text-3xl space-y-12 `}>
+                                        <p className={`text-md text-JoinGameTxt uppercase font-extrabold  md:text-3xl space-y-12 `}>
                                             CHOOSE GAME
                                         </p>
 
                                         <div
                                             className="flex flex-col justify-items-start py-10 px-100 rounded mb-2 -scroll-ms-3 overflow-scroll
-                                            text-md text-hostTxt">
+                                            text-md text-JoinGameTxt">
                                             {
                                                 quizInfo === undefined
                                                     ? "Loading..."

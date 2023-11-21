@@ -20,7 +20,7 @@ export function Quiz({quiz, handleSelect}: QuizProps) {
                         </div>
                         : ''}
                 </div>
-                <button className="bg-panel font-extrabold text-xl text-hostTxt space-30-px py-3 flex"
+                <button className="bg-panel font-extrabold text-xl text-JoinGameTxt space-30-px py-3 flex"
                         onClick={() => handleSelect(quiz.id)}
                 >
                     SELECT

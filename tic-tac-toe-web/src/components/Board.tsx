@@ -35,7 +35,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
     function Square({value, onClick}: SquareProp) {
         return (
             <button
-                className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center bg-panel rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
+                className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center bg-square rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
                 onClick={onClick}>
                 {value}
             </button>
@@ -106,13 +106,13 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                             {currentPlayer == "X"
                                 ?
                                 <div
-                                    className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
+                                    className={`text-white bg-square text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
                                 <span className={`text-txt text-2xl font-bold`}>
                                 X </span> {" "} Turn
                                 </div>
                                 :
                                 <div
-                                    className={`text-white bg-panel text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium  uppercase`}>
+                                    className={`text-white bg-square text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium  uppercase`}>
                                 <span className={`text-txt text-2xl  font-bold`}>
                                 O</span>{" "} Turn
                                 </div>

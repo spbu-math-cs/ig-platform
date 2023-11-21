@@ -79,11 +79,14 @@ module.exports = {
                             'quit': '#565584',
                             'txt': '#f3b236',
                             'panel': '#303759',
+                            'square' :  '#303759',
                             'boardHover': '#303759',
                             'answerTxt': '#f3b236',
                             'XO': '#303759',
                             'hostTxt': '#f3b236',
+                            'JoinGameTxt' : '#f3b236',
                             'playerTxt': '#565584',
+                            'createcol' : '#f3b236'
                         }
                     }
                 },
@@ -97,16 +100,19 @@ module.exports = {
                             'X': '#f59563',
                             'task': '#ffe1a9',
                             'answerPanel': '#f59563',
-                            'back': '#ecceb3',
+                            'back': '#ffe1c9',
                             'next': '#edc850',
                             'quit': '#f59563',
                             'txt': '#f67c5f',
                             'panel': '#835c5c',
+                            'square' :  '#835c5c',
                             'boardHover': '#f59563',
                             'answerTxt': '#ffe1a9',
                             'XO': '#303030',
                             'hostTxt': '#edc850',
+                            'JoinGameTxt' : '#edc850',
                             'playerTxt': '#f59563',
+                            'createcol' : '#f3b236'
                         }
                     }
                 },
@@ -120,16 +126,80 @@ module.exports = {
                             'X': '#AE445A',
                             'task': '#eda8ee',
                             'answerPanel': '#f3b236',
-                            'back': '#ffd3ef',
+                            'back': '#f8e2f0',
                             'next': '#f3b236',
                             'quit': '#AE445A',
                             'txt': '#b93f73',
                             'panel': '#571e65',
+                            'square' :  '#571e65',
                             'boardHover': '#f3b236',
                             'answerTxt': '#AE445A',
                             'XO': '#571e65',
                             'hostTxt': '#f3b236',
+                            'JoinGameTxt': '#f3b236',
                             'playerTxt': '#AE445A',
+                            'createcol' : '#f3b236'
+                        },
+                    }
+                },
+                {
+                    name: "green",
+                    selectors: [".theme-green"],
+                    extend: {
+                        colors: {
+                            'primary': '#f8bb4b',
+                            'O': '#186F65',
+                            'X': '#e1836d',
+                            'task': '#fcdda7',
+                            'answerPanel': '#f8bb4b',
+                            'back': '#F2FFE9',
+
+                            'next': '#e17056',
+                            'quit': '#ecceb3',
+                            'txt': '#042f2b',
+                            //   'panel': '#186F65'
+                            'panel': '#1d8377',
+                            'square' :  '#1d8377',
+                            'boardHover': '#e58a77',
+                            'answerTxt': '#330b18',
+                            'XO': '#6e3535',
+                            //   'hostTxt': '#9a7e4a',
+                            // 'hostTxt': '#c9a25f',
+                            'hostTxt': '#f8bb4b',
+                            'JoinGameTxt': '#f8bb4b',
+                            'playerTxt': '#e1836d',
+                            // 'createcol' : '#ec958b'
+                            // 'createcol' : '#d78076'
+                            'createcol': '#e7a481'
+                        },
+                    }
+                },
+
+                {
+                    name: "tnkf",
+                    selectors: [".theme-tnkf"],
+                    extend: {
+                        colors: {
+                            'primary': '#6c6c6c',
+                            'O': '#303030',
+                            'X': '#a0a0a0',
+                            'task': '#fde57d',
+                            'answerPanel': '#3f3f3f',
+                            'back': '#ededed',
+
+                            'next': '#a0a0a0',
+                            'quit': '#ecceb3',
+                            'txt': '#414040',
+
+                            'panel': '#ffdd2d',
+                            'square' :  '#a0a0a0',
+                            'boardHover': '#a0a0a0',
+                            'answerTxt': '#6c6c6c',
+                            'XO': '#6c6c6c',
+                            'hostTxt': '#ffdd2d',
+                            'JoinGameTxt': '#414040',
+                            'playerTxt': '#a0a0a0',
+                            'createcol' : '#b3b3b3'
                         },
                     }
                 },
