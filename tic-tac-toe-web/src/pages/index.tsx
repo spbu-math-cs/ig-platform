@@ -52,7 +52,7 @@ const Home: NextPage = () => {
         setIsJoining(false)
     }
 
-    function handleSelect (id : string) :void {
+    function handleSelect(id: string): void {
         setSelectedSessionId(id)
     }
 
@@ -167,10 +167,19 @@ const Home: NextPage = () => {
                                 <div
                                     className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                                     <div
-                                        className={`flex flex-col items-center py-10 w-[1000px] md:w-[1000px] md:h-[600px] rounded-2xl bg-panel mt-4 space-y-8 md:space-y-6`}>
-                                        <p className={`text-md text-JoinGameTxt uppercase font-extrabold  md:text-3xl space-y-12 `}>
-                                            CHOOSE GAME
-                                        </p>
+                                        className={`flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[600px] rounded-2xl bg-panel`}>
+
+                                        <div
+                                            className={`px-8 flex flex-row items-center w-[1000px] md:w-[1000px] rounded-2xl bg-panel space-x-96`}>
+                                            <p className={`justify-items-start text-md py-6  text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
+                                                CHOOSE EXISTING GAME
+                                            </p>
+
+                                            <button
+                                                className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
+                                                or CREATE NEW GAME
+                                            </button>
+                                        </div>
 
                                         <div
                                             className="flex flex-col justify-items-start py-10 px-100 rounded mb-2 -scroll-ms-3 overflow-scroll
@@ -178,7 +187,8 @@ const Home: NextPage = () => {
                                             {
                                                 quizInfo === undefined
                                                     ? "Loading..."
-                                                    : quizInfo.map(quiz => <Quiz quiz={quiz} key={quiz.id} handleSelect={handleSelect} />)
+                                                    : quizInfo.map(quiz => <Quiz quiz={quiz} key={quiz.id}
+                                                                                 handleSelect={handleSelect}/>)
                                             }
                                         </div>
 
