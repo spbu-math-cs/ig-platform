@@ -3,7 +3,7 @@ import {QuizInfo} from "@/game/types"
 
 interface QuizProps {
     quiz: QuizInfo
-    handleSelect(id: string) :void
+    handleSelect(id: string) : Promise<void>
 }
 
 export function Quiz({quiz, handleSelect}: QuizProps) {

@@ -26,7 +26,6 @@ const Home: NextPage = () => {
     const [joiningGameId, setJoiningGameId] = useState('')
     const [selectedSessionId, setSelectedSessionId] = useState<string>("239")
     const [quizInfo, setQuizInfo] = useState<QuizInfo[] | undefined>()
-    const [isGameSelected, setGameIsSelected] = useState<boolean>(false)
 
     const dispatch = useDispatch()
 
@@ -37,12 +36,10 @@ const Home: NextPage = () => {
     let winner = ""
 
     const handleCreateGame = async (id : string) => {
-        setSelectedSessionId(id)
-        setGameIsSelected(true)
         setIsHost(true)
 
-        const session = await createGame(selectedSessionId)
-        console.log(selectedSessionId)
+        const session = await createGame(id)
+        console.log(id)
         setNewGame(true)
         setIsJoining(false)
         setSessionId(session.id)
@@ -56,7 +53,6 @@ const Home: NextPage = () => {
 
     function handleSelect(id: string): void {
         setSelectedSessionId(id)
-        setGameIsSelected(true)
     }
 
     return (
