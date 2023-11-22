@@ -26,6 +26,7 @@ const Home: NextPage = () => {
     const [joiningGameId, setJoiningGameId] = useState('')
     const [selectedSessionId, setSelectedSessionId] = useState<string>("239")
     const [quizInfo, setQuizInfo] = useState<QuizInfo[] | undefined>()
+    const [isGameSelected, setGameIsSelected] = useState<boolean>(false)
 
     const dispatch = useDispatch()
 
@@ -33,10 +34,11 @@ const Home: NextPage = () => {
         getQuizList().then(quizInfo => setQuizInfo(quizInfo))
     }, [])
 
-    // let winner = calculateWinner(squares)
     let winner = ""
 
-    const handleCreateGame = async () => {
+    const handleCreateGame = async (id : string) => {
+        setSelectedSessionId(id)
+        setGameIsSelected(true)
         setIsHost(true)
 
         const session = await createGame(selectedSessionId)
@@ -54,6 +56,7 @@ const Home: NextPage = () => {
 
     function handleSelect(id: string): void {
         setSelectedSessionId(id)
+        setGameIsSelected(true)
     }
 
     return (
@@ -167,7 +170,7 @@ const Home: NextPage = () => {
                                 <div
                                     className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                                     <div
-                                        className={`flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[600px] rounded-2xl bg-panel`}>
+                                        className={`flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel`}>
 
                                         <div
                                             className={`px-8 flex flex-row items-center w-[1000px] md:w-[1000px] rounded-2xl bg-panel space-x-96`}>
@@ -188,14 +191,8 @@ const Home: NextPage = () => {
                                                 quizInfo === undefined
                                                     ? "Loading..."
                                                     : quizInfo.map(quiz => <Quiz quiz={quiz} key={quiz.id}
-                                                                                 handleSelect={handleSelect}/>)
-                                            }
+                                                                                 handleSelect={handleCreateGame}/>)}
                                         </div>
-
-                                        <button onClick={handleCreateGame}
-                                                className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-[#f3b236] hover:bg-panel`}>
-                                            START
-                                        </button>
                                     </div>
                                 </div>
                             </div>)
@@ -225,18 +222,6 @@ const Home: NextPage = () => {
                             isHost={isHost}
                         />)}
                 </div>
-            }
-            {
-                winner &&
-                <WinnerModal
-                    winner={winner}
-                    handleQuitGame={() => {
-                        setIsX(true)
-                        setSquares(Array(cols * rows).fill(null))
-                        setNewGame(false)
-                    }}
-                    handleNewGame={handleCreateGame}
-                />
             }
         </div>
     )

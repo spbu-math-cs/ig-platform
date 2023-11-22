@@ -3,7 +3,7 @@ import {QuizInfo} from "@/game/types"
 
 interface QuizProps {
     quiz: QuizInfo
-    handleSelect(id: string): void
+    handleSelect(id: string) :void
 }
 
 export function Quiz({quiz, handleSelect}: QuizProps) {
@@ -20,7 +20,7 @@ export function Quiz({quiz, handleSelect}: QuizProps) {
                         </div>
                         : ''}
                 </div>
-                <button className="bg-panel font-extrabold text-xl text-JoinGameTxt space-30-px py-3 flex"
+                <button className="bg-panel mt-3 rounded-l font-extrabold text-xl text-JoinGameTxt space-30-px py-2 px-2 flex"
                         onClick={() => handleSelect(quiz.id)}
                 >
                     SELECT
@@ -28,7 +28,7 @@ export function Quiz({quiz, handleSelect}: QuizProps) {
             </div>
 
             <button
-                className="px-4 bg-panel font-bold text-s text-back"
+                className="px-4 bg-selectPanel font-bold rounded-l text-s text-back"
                 onClick={() => setDetails(prev => !prev)}
             >
                 {details ? 'HIDE DETAILS' : 'SHOW DETAILS'}
