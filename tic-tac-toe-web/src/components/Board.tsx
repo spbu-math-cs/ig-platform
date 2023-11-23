@@ -57,7 +57,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
             value = <OIcon/>
         } else if (board.cells[i].mark === "EMPTY" || board.cells[i].mark === "NOT_OPENED") {
             value =
-                <p className={`text-md text-txt uppercase font-bold text-xl md:text-2xl space-y-12`}
+                <p className={`text-md text-txt uppercase  hyphens-auto break-all font-bold text-xl md:text-2xl space-y-12`}
                    dangerouslySetInnerHTML={{__html: board.cells[i].topic}}>
                 </p>
         } else {
