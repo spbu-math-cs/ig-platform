@@ -69,7 +69,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                     CREATE
                 </button>
                 <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
-                    <div className="board mt-2 ">
+                    <div className=" mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
                         <div className="board-row">
                             {renderSquare(0)}
                             {renderSquare(1)}
