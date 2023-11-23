@@ -37,8 +37,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
             <button
                 className={`flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]`}
                 onClick={onClick}>
-                <p className="place-items-start text-left text-txt  h-[50px] w-[170px]  text-clip overflow-hidden"> {tsk} </p>
-                <p className="place-items-start text-left text-txt   h-[50px] w-[170px]  text-clip overflow-hidden"> {ans} </p>
+                <p className="place-items-start text-left text-txt  h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-all"> {tsk} </p>
+                <p className="place-items-start text-left text-txt   h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-all"> {ans} </p>
             </button>
         )
     }
