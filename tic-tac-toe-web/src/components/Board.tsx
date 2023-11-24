@@ -179,7 +179,12 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                         <div
                             className={`w-[500px] h-[100px] bg-answerPanel rounded-lg flex items-top justify-center`}>
                             <button
-                                className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}>
+                                className={`px-4 rounded-2xl text-3xl md:text-3xl font-extrabold justify-center text-answerTxt`}
+                                onClick={() => sendMessage({
+                                    type: "SHOW_ANSWER",
+                                    row: game.question.row,
+                                    column: game.question.column,
+                                })}>
                                 {game.question.answer}
                             </button>
                         </div>
@@ -188,14 +193,28 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                 </div>
             </div>
             {game.state == "OPENED_QUESTION_HOST" &&
-                <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel">
+                <>
                     {
-                        game.question.hints.map(hint =>
-                            <div className="grow" key={hint} dangerouslySetInnerHTML={{__html: hint}}>
+                        game.question.hints.map((hint, i) =>
+                            <div key={i}  className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel">
+                                <div className="grow" dangerouslySetInnerHTML={{__html: hint}}></div>
+                                {
+                                    game.question.currentHintsNum == i &&
+                                    <button
+                                        className="text-answerTxt"
+                                        onClick={() => sendMessage({
+                                            type: "SHOW_NEXT_HINT",
+                                            currentHintsNum: i,
+                                            row: game.question.row,
+                                            column: game.question.column,
+                                        })}>
+                                        Open
+                                    </button>
+                                }
                             </div>,
                         )
                     }
-                </div>
+                </>
             }
             {game.state == "OPENED_QUESTION_CLIENT" &&
                 <div className="px-4 p-3 rounded-2xl text-3xl md:text-3xl font-extrabold bg-answerPanel">
