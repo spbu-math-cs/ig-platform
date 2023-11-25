@@ -124,7 +124,7 @@ CONNECT /ws/host/{session_id}
 {
   "state": "ERROR",
   "payload": {
-    "message": <message with details about error>,
+    "message": "<message with details about error>",
     "board": "<board description>"
   }
 }
