@@ -2,6 +2,7 @@ package com.clvr.server.plugins
 
 import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.common.*
+import com.clvr.server.quizDatabase
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,7 +11,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.util.*
 
 @Serializable
@@ -21,14 +21,9 @@ data class QuizRequest(val quiz: QuizId)
 
 @Serializable
 data class QuizListResponse (
-        @SerialName("quiz-list")
-        val quizList: List<QuizHeader>
+    @SerialName("quiz-list")
+    val quizList: List<QuizHeader>
 )
-
-typealias QuizDatabase = List<Quiz>
-
-private val quizFile = Application::class.java.classLoader.getResource("dumbQuizCollection.json")!!
-private val quizDatabase = Json.decodeFromString<QuizDatabase>(quizFile.readText())
 
 fun Application.configureRouting() {
     routing {
@@ -55,15 +50,15 @@ fun Application.configureRouting() {
 
         get("quiz-list") {
             call.respond(HttpStatusCode.OK, QuizListResponse(
-                    quizDatabase.map { quiz ->
-                        QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
-                    }.toList()
+                quizDatabase.map { quiz ->
+                    QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
+                }.toList()
             ))
         }
 
         get("quiz-list/{quiz-id}") {
             val quizId = QuizId(
-                    call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+                call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
             val quiz = quizDatabase.singleOrNull { it.id == quizId } ?: run {
@@ -72,19 +67,19 @@ fun Application.configureRouting() {
             }
 
             call.respond(HttpStatusCode.OK, QuizCompleteInfo(
-                    quiz.id.id,
-                    quiz.templateTitle ?: "",
-                    "",
-                    quiz.questions.flatMapIndexed { row, data ->
-                        data.mapIndexed { column, question -> QuizCellInfo(
-                                row,
-                                column,
-                                question.topic,
-                                question.statement,
-                                question.hints,
-                                question.answer
-                        )}
-                    }
+                quiz.id.id,
+                quiz.templateTitle ?: "",
+                "",
+                quiz.questions.flatMapIndexed { row, data ->
+                    data.mapIndexed { column, question -> QuizCellInfo(
+                        row,
+                        column,
+                        question.topic,
+                        question.statement,
+                        question.hints,
+                        question.answer
+                    )}
+                }
             ))
         }
     }
