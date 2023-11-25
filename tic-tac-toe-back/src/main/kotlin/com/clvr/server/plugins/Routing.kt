@@ -17,7 +17,12 @@ import java.util.*
 data class SessionResponse(val session: SessionId)
 
 @Serializable
-data class QuizRequest(val quiz: QuizId)
+data class QuizRequest(
+    val quiz: QuizId,
+
+    @SerialName("game_configuration")
+    val config: Config
+)
 
 @Serializable
 data class QuizListResponse (
@@ -44,7 +49,7 @@ fun Application.configureRouting() {
             }
 
             val newSession = SessionId(UUID.randomUUID().toString().take(6))
-            TicTacToeSessionStorage.startNewGame(newSession, quiz)
+            TicTacToeSessionStorage.startNewGame(newSession, quiz, quizRequest.config)
             call.respond(HttpStatusCode.OK, SessionResponse(newSession))
         }
 

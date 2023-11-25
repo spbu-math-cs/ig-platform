@@ -1,5 +1,6 @@
 package com.clvr.server
 
+import com.clvr.server.common.Config
 import com.clvr.server.common.QuizId
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
@@ -27,10 +28,12 @@ import java.io.File
 class ApplicationTest {
     @Test
     fun `test events simple`() = testApplication {
+        val config = Config(replaceMarks = true, openMultipleQuestions = true)
+
         setupServer()
         val hostClient = getClient()
         val playerClient = getClient()
-        val sessionId = SessionId(createGameSession(hostClient))
+        val sessionId = SessionId(createGameSession(hostClient, config))
         val hostSession = createHostWebSocketSession(hostClient, sessionId)
 
         // Check initial event for host
@@ -110,12 +113,52 @@ class ApplicationTest {
         assertEquals(GameResult.X, finalPlayerResponseEvent.payload.win)
     }
 
+    @Test
+    fun `test errors`() = testApplication {
+        val config = Config(replaceMarks = false, openMultipleQuestions = false)
 
+        setupServer()
+        val hostClient = getClient()
+        val playerClient = getClient()
+        val sessionId = SessionId(createGameSession(hostClient, config))
+        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val playerSession = createPlayerWebSocketSession(playerClient, sessionId)
 
-    private suspend fun createGameSession(client: HttpClient): String {
+        hostSession.receiveResponse<SetFieldResponse>()
+        playerSession.receiveResponse<SetFieldResponse>()
+
+        // Open question
+        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.receiveResponse<HostQuestionResponse>()
+        playerSession.receiveResponse<ClientQuestionResponse>()
+
+        // Set other cell => error
+        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
+        assertEquals(
+            "Set mark in the opened cell before opening the next one",
+            hostSession.receiveResponse<GameError>().payload.message
+        )
+        assertTrue(playerSession.incoming.isEmpty)
+
+        // Set correct cell
+        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.X)))
+        hostSession.receiveResponse<SetFieldResponse>()
+        playerSession.receiveResponse<SetFieldResponse>()
+
+        // Set that cell again => error
+        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.O)))
+        assertEquals(
+            "Changing result in the cell is forbidden",
+            hostSession.receiveResponse<GameError>().payload.message
+        )
+
+        assertTrue(playerSession.incoming.isEmpty)
+    }
+
+    private suspend fun createGameSession(client: HttpClient, config: Config): String {
         client.post("/api/game-session") {
             contentType(ContentType.Application.Json)
-            setBody(QuizRequest(QuizId("ABCD")))
+            setBody(QuizRequest(QuizId("ABCD"), config))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
@@ -188,6 +231,7 @@ class ApplicationTest {
             ClientQuestionResponse.type -> Json.decodeFromString<ResponseEvent<ClientQuestionResponse>>(jsonString)
             SetFieldResponse.type -> Json.decodeFromString<ResponseEvent<SetFieldResponse>>(jsonString)
             ShowAnswerResponse.type -> Json.decodeFromString<ResponseEvent<ShowAnswerResponse>>(jsonString)
+            GameError.type -> Json.decodeFromString<ResponseEvent<GameError>>(jsonString)
             else -> error("Response expected")
         }
     }
