@@ -29,6 +29,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
     const [gameName, setGameName] = useState<string>('')
     const [gameDetails, setGameDetails] = useState<string>('')
 
+
+
     //TODO: когда-нибудь, когда появятся аккаунты, добавить плашку private
 
 
@@ -37,8 +39,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
             <button
                 className={`flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]`}
                 onClick={onClick}>
-                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-all"> {tsk} </p>
-                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-all"> {ans} </p>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-words"> {tsk} </p>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-words"> {ans} </p>
             </button>
         )
     }
@@ -46,7 +48,12 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
     function pressSquare(i: number) {
         setEditingNum(i)
         setEditedTxt((EditedTextType + 1) % 3);
-        //TODO: сейчас не очищается вывод при переключении режимов/ячеек, пока не знаю, как это исправить
+        var elements = document.getElementsByTagName("input");
+        for (var ii=0; ii < elements.length; ii++) {
+            if (elements[ii].type == "text") {
+                elements[ii].value = "";
+            }
+        }
     }
 
 
