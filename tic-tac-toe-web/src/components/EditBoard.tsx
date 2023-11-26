@@ -48,11 +48,9 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
     function pressSquare(i: number) {
         setEditingNum(i)
         setEditedTxt((EditedTextType + 1) % 3);
-        var elements = document.getElementsByTagName("input");
+        var elements = document.getElementsByTagName("textarea");
         for (var ii=0; ii < elements.length; ii++) {
-            if (elements[ii].type == "text") {
-                elements[ii].value = "";
-            }
+            elements[ii].value = "";
         }
     }
 
@@ -101,10 +99,9 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> COVER</p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border w-[500px]  rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt min-h-[150px] h-auto hyphens-auto break-all resize-y outline-none `}
+                                <textarea
+                                    className={`py-6 h-auto hyphens-auto break-all border w-[500px]  rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt min-h-[150px] resize-y outline-none `}
                                     onChange={e => {
                                         squaresCover[editingNum] = (e.currentTarget.value)
                                     }}
@@ -116,9 +113,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> TASK </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
+                                <textarea
+                                    className={`py-6 border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresTask[editingNum] = (e.currentTarget.value)
@@ -131,9 +127,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[600px] h-[150px] flex flex-col items-center justify-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> ANSWER</p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
+                                <textarea
+                                    className={`py-6  breakWord break-words border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresAns[editingNum] = (e.currentTarget.value)
@@ -146,9 +141,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[600px] h-[100px] flex flex-col items-center justify-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT1 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
+                                <textarea
+                                    className={`py-6  border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint1[editingNum] = (e.currentTarget.value)
@@ -161,9 +155,9 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[600px] h-[100px] flex flex-col items-center justify-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT2 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
+                                <textarea
+
+                                    className={`py-6 breakWord break-words border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint2[editingNum] = (e.currentTarget.value)
@@ -176,9 +170,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         }}>
                             <div className=" w-[600px] h-[100px] flex flex-col items-center justofy-center mx-auto">
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT3 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord border w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y  rounded-xl px-3 bg-panel outline-0
+                                <textarea
+                                    className={`py-6 breakWord border w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y  rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center break-words text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint3[editingNum] = (e.currentTarget.value)
@@ -202,9 +195,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                             className=" w-[300px] min-h-[150px] h-auto flex flex-col items-center justofy-center space-y-4 mx-auto">
                             <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
                                 NAME </p>
-                            <input
-                                type="text"
-                                className={`breakWord border w-[500px] min-h-[150px] hyphens-auto break-all h-auto rounded-xl px-2 bg-panel outline-0
+                            <textarea
+                                className={`breakWord border py-6 w-[500px] min-h-[150px] hyphens-auto break-all h-auto rounded-xl px-2 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                 onChange={e => {
                                     setGameName(e.currentTarget.value)
@@ -217,14 +209,13 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         e.preventDefault()
                     }}>
                         <div
-                            className=" w-[300px] min-h-[200px] h-auto flex flex-col items-center justofy-center mx-auto space-y-4">
+                            className=" w-[300px] min-h-[150px] h-auto flex flex-col items-center justofy-center mx-auto space-y-4">
                             <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
                                 GAME
                                 DESCRIPTION </p>
-                            <input
-                                type="text"
-                                className={`border w-[500px] min-h-[200px] h-auto hyphens-auto break-all rounded-xl px-2 bg-panel outline-0
-                                    text-2xl font-bold text-center text-txt outline-none `}
+                            <textarea
+                                className={`border w-[500px] min-h-[150px] py-6 h-auto hyphens-auto break-all rounded-xl px-2 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
                                 onChange={e => {
                                     setGameDetails(e.currentTarget.value)
                                 }}

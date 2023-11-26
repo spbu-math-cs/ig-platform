@@ -136,9 +136,8 @@ const Home: NextPage = () => {
                                         ENTER GAME ID
                                     </p>
 
-                                    <input
-                                        type="text"
-                                        className={`mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0
+                                    <textarea
+                                        className={`mt-1 border w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0
                                     text-3xl md:text-4xl font-bold  text-center text-txt outline-none `}
                                         value={joiningGameId}
                                         onChange={e => {
