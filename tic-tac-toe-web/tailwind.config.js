@@ -163,9 +163,9 @@ module.exports = {
                             'quit': '#ecceb3',
                             'txt': '#042f2b',
                             //   'panel': '#186F65'
-                            'panel': '#1d8377',
-                            'selectPanel': '#1d8377',
-                            'square' :  '#1d8377',
+                            'panel': '#219488',
+                            'selectPanel': '#219488',
+                            'square' :  '#219488',
                             'boardHover': '#e58a77',
                             'answerTxt': '#330b18',
                             'XO': '#6e3535',
