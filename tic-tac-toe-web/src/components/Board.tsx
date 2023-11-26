@@ -197,7 +197,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                                 {
                                     game.question.hints.map((hint, i) =>
                                         <div key={i}
-                                             className="w-[500px] pt-3  min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel">
+                                             className="w-[500px] py-3  min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel">
                                             <div className="grow px-4" dangerouslySetInnerHTML={{__html: hint}}></div>
                                             {
                                                 game.question.currentHintsNum == i &&
@@ -208,7 +208,7 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                                                         row: game.question.row,
                                                         column: game.question.column,
                                                     })}
-                                                    className="flex ml-3 px-3 mt-1 hover:ring-4 hover:ring-cyan-300 hover:bg-answerPanel text-answerTxt rounded-xl py-1 outline outline-offset-2 outline-1 ">
+                                                    className="flex ml-3 px-3 mt-2 hover:ring-4 hover:ring-cyan-300 hover:bg-answerPanel text-answerTxt rounded-xl py-1 outline outline-offset-2 outline-1 ">
                                                     SHOW
                                                 </button>
                                             }
