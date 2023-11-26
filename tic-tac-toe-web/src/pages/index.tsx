@@ -196,7 +196,7 @@ const Home: NextPage = () => {
                                         </div>
                                     </div>
                                 </div>)
-                                : <div className="mt-10 w-[1000px] items-center justify-center ">
+                                : <div className="mt-6 w-[1000px] items-center justify-center ">
                                     <EditBoard
                                         handleGameIsConstructed={() => {
                                             setGameConstructor(false)

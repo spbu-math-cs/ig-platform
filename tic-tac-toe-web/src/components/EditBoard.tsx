@@ -37,8 +37,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
             <button
                 className={`flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]`}
                 onClick={onClick}>
-                <p className="place-items-start text-left text-txt  h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-all"> {tsk} </p>
-                <p className="place-items-start text-left text-txt   h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-all"> {ans} </p>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-all"> {tsk} </p>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-all"> {ans} </p>
             </button>
         )
     }
@@ -88,7 +88,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                             {renderSquare(8)}
                         </div>
                     </div>
-                    <div className="flex-col h-[600px] overflow-y-scroll space-y-5 w-[600px] rounded-lg flex items-center">
+                    <div className="flex-col h-[600px] overflow-y-scroll space-y-10 mt-4 py-10 w-[600px] rounded-lg flex items-center">
                         <form onChange={e => {
                             e.preventDefault()
                         }}>
@@ -96,8 +96,8 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> COVER</p>
                                 <input
                                     type="text"
-                                    className={`breakWord break-words border w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
+                                    className={`breakWord break-words border w-[500px]  rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt min-h-[150px] h-auto hyphens-auto break-all resize-y outline-none `}
                                     onChange={e => {
                                         squaresCover[editingNum] = (e.currentTarget.value)
                                     }}
@@ -111,7 +111,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> TASK </p>
                                 <input
                                     type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
+                                    className={`breakWord break-words border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresTask[editingNum] = (e.currentTarget.value)
@@ -126,7 +126,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> ANSWER</p>
                                 <input
                                     type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
+                                    className={`breakWord break-words border  w-[500px] min-h-[150px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresAns[editingNum] = (e.currentTarget.value)
@@ -141,7 +141,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT1 </p>
                                 <input
                                     type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[100px] rounded-xl px-3 bg-panel outline-0
+                                    className={`breakWord break-words border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint1[editingNum] = (e.currentTarget.value)
@@ -156,7 +156,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT2 </p>
                                 <input
                                     type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[100px] rounded-xl px-3 bg-panel outline-0
+                                    className={`breakWord break-words border  w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint2[editingNum] = (e.currentTarget.value)
@@ -171,7 +171,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                                 <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT3 </p>
                                 <input
                                     type="text"
-                                    className={`breakWord border w-[500px] h-[100px]  rounded-xl px-3 bg-panel outline-0
+                                    className={`breakWord border w-[500px] min-h-[100px] h-auto hyphens-auto break-all resize-y  rounded-xl px-3 bg-panel outline-0
                                     text-3xl font-bold text-center break-words text-txt outline-none `}
                                     onChange={e => {
                                         squaresHint3[editingNum] = (e.currentTarget.value)
@@ -186,19 +186,19 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
 
 
             (<div>
-                <div className="flex-col space-y-10 w-[1000px] rounded-lg flex items-center justify-center">
+                <div className="flex-col space-y-16 w-[1000px] rounded-lg flex items-center justify-center">
 
                     <form onChange={e => {
                         e.preventDefault()
                     }}>
                         <div
-                            className=" w-[300px] h-[150px] flex flex-col items-center justofy-center space-y-4 mx-auto">
+                            className=" w-[300px] min-h-[150px] h-auto flex flex-col items-center justofy-center space-y-4 mx-auto">
                             <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
                                 NAME </p>
                             <input
                                 type="text"
-                                className={`breakWord border w-[500px] h-[150px] rounded-xl px-2 bg-panel outline-0
-                                    text-3xl font-bold text-center break-words text-txt outline-none `}
+                                className={`breakWord border w-[500px] min-h-[150px] hyphens-auto break-all h-auto rounded-xl px-2 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
                                 onChange={e => {
                                     setGameName(e.currentTarget.value)
 
@@ -210,14 +210,14 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
                         e.preventDefault()
                     }}>
                         <div
-                            className=" w-[300px] h-[200px] flex flex-col items-center justofy-center mx-auto space-y-4">
+                            className=" w-[300px] min-h-[200px] h-auto flex flex-col items-center justofy-center mx-auto space-y-4">
                             <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
                                 GAME
                                 DESCRIPTION </p>
                             <input
                                 type="text"
-                                className={`breakWord border w-[500px] h-[200px] rounded-xl px-2 bg-panel outline-0
-                                    text-2xl font-bold text-center break-words text-txt outline-none `}
+                                className={`border w-[500px] min-h-[200px] h-auto hyphens-auto break-all rounded-xl px-2 bg-panel outline-0
+                                    text-2xl font-bold text-center text-txt outline-none `}
                                 onChange={e => {
                                     setGameDetails(e.currentTarget.value)
                                 }}
