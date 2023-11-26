@@ -6,12 +6,9 @@ import {useServerState} from "@/game/websockets"
 const rows = 3
 const cols = 3
 
-interface PlayerProp {
-    playerX: boolean
+interface BoardProps {
     isHost: boolean
     sessionId: string
-
-    handleRestartGame(): void
 }
 
 interface SquareProp {
@@ -20,7 +17,7 @@ interface SquareProp {
     onClick(): void
 }
 
-export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerProp) => {
+export const Board = ({isHost, sessionId}: BoardProps) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
     const [game, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
@@ -129,18 +126,6 @@ export const Board = ({playerX, handleRestartGame, isHost, sessionId}: PlayerPro
                                 <button onClick={setO}
                                         className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 hover:bg-boardHover`}>
                                     <span className={`text-XO text-2xl  font-bold`}> O </span>
-                                </button>
-
-
-                                <button onClick={handleRestartGame}
-                                        className={`group button px-4 py-2 hover:ring-4 hover:ring-cyan-300 rounded-md bg-[#f3b236] space-y-16 hover:bg-boardHover`}>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         className="h-8 w-8 group-hover:rotate-180 transition duration-300 eas-in space-y-10  "
-                                         fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                        <path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                    </svg>
                                 </button>
                             </div>
                         </div>

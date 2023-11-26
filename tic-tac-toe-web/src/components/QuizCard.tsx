@@ -6,7 +6,7 @@ interface QuizProps {
     handleSelect(id: string) : Promise<void>
 }
 
-export function Quiz({quiz, handleSelect}: QuizProps) {
+export function QuizCard({quiz, handleSelect}: QuizProps) {
     const [details, setDetails] = useState(false)
 
     return (

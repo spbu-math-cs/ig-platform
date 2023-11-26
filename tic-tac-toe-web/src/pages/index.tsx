@@ -7,24 +7,19 @@ import {useDispatch} from "react-redux"
 import {XIcon} from "@/components/XIcon"
 import {OIcon} from "@/components/OIcon"
 import {createGame, getQuizList} from "@/game/api"
-import {Quiz} from "@/components/Quiz";
+import {QuizCard} from "@/components/QuizCard"
 import {QuizInfo} from "@/game/types"
-import {EditBoard} from "@/components/EditBoard";
+import {EditBoard} from "@/components/EditBoard"
 
 
 const Home: NextPage = () => {
-    const rows = 3
-    const cols = 3
-    const [isX, setIsX] = useState<boolean>(true)
     const [sessionId, setSessionId] = useState<string>("239")
     const [newGame, setNewGame] = useState<boolean>(false)
-    const [squares, setSquares] = useState<Array<any>>(Array(cols * rows).fill(null))
     const [isHost, setIsHost] = useState<boolean>(true)
     const [isJoining, setIsJoining] = useState<boolean>(false)
     const [isCreating, setIsCreating] = useState<boolean>(false)
     const [isError, setIsError] = useState<boolean>(false)
     const [joiningGameId, setJoiningGameId] = useState('')
-    const [selectedSessionId, setSelectedSessionId] = useState<string>("239")
     const [quizInfo, setQuizInfo] = useState<QuizInfo[] | undefined>()
     const [isConstructor, setGameConstructor] = useState<boolean>(false)
 
@@ -33,33 +28,6 @@ const Home: NextPage = () => {
     useEffect(() => {
         getQuizList().then(quizInfo => setQuizInfo(quizInfo))
     }, [])
-
-    let winner = ""
-
-    const handleCreateGame = async (id: string) => {
-        setIsHost(true)
-
-        const session = await createGame(id)
-        console.log(id)
-        setNewGame(true)
-        setIsJoining(false)
-        setSessionId(session.id)
-    }
-
-    const joinGame = () => {
-        setSessionId(joiningGameId)
-        setNewGame(true)
-        setIsJoining(false)
-    }
-
-    function handleGameConstructor(): void {
-        setGameConstructor(true);
-    }
-
-    function handleGameIsConstructed(): void {
-        setGameConstructor(false)
-        setNewGame(true)
-    }
 
     return (
         <div className={`flex min-h-screen bg-back flex-col items-center  justify-items-center   py-2`}>
@@ -120,7 +88,9 @@ const Home: NextPage = () => {
                                 setIsJoining(true)
                             } else {
                                 setIsHost(false)
-                                joinGame()
+                                setSessionId(joiningGameId)
+                                setNewGame(true)
+                                setIsJoining(false)
                             }
                             e.preventDefault()
                         }}>
@@ -142,8 +112,8 @@ const Home: NextPage = () => {
                                     text-3xl md:text-4xl font-bold  text-center text-txt outline-none `}
                                         value={joiningGameId}
                                         onChange={e => {
-                                            console.log(e.currentTarget.value);
-                                            return setJoiningGameId(e.currentTarget.value);
+                                            console.log(e.currentTarget.value)
+                                            return setJoiningGameId(e.currentTarget.value)
                                         }}
                                     />
 
@@ -178,7 +148,7 @@ const Home: NextPage = () => {
                                                     CHOOSE EXISTING GAME
                                                 </p>
 
-                                                <button onClick={handleGameConstructor}
+                                                <button onClick={() => setGameConstructor(true)}
                                                         className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
                                                     or CREATE NEW GAME
                                                 </button>
@@ -190,8 +160,18 @@ const Home: NextPage = () => {
                                                 {
                                                     quizInfo === undefined
                                                         ? "Loading..."
-                                                        : quizInfo.map(quiz => <Quiz quiz={quiz} key={quiz.id}
-                                                                                     handleSelect={handleCreateGame}/>)}
+                                                        : quizInfo.map(quiz =>
+                                                            <QuizCard quiz={quiz} key={quiz.id}
+                                                                      handleSelect={async (id: string) => {
+                                                                      setIsHost(true)
+
+                                                                      const session = await createGame(id)
+                                                                      console.log(id)
+                                                                      setNewGame(true)
+                                                                      setIsJoining(false)
+                                                                      setSessionId(session.id)
+                                                                  }}/>,
+                                                        )}
                                             </div>
                                         </div>
                                     </div>
@@ -217,19 +197,11 @@ const Home: NextPage = () => {
                         {
                             (isHost ?
                                 <Board
-                                    playerX={isX}
                                     sessionId={sessionId}
-                                    handleRestartGame={() => {
-                                        setIsX(true)
-                                        setSquares(Array(cols * rows).fill(null))
-                                    }}
                                     isHost={isHost}/>
                                 :
                                 <Board
-                                    playerX={isX}
                                     sessionId={sessionId}
-                                    handleRestartGame={() => {
-                                    }}
                                     isHost={isHost}
                                 />)
                         }
