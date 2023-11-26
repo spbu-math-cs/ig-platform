@@ -23,7 +23,7 @@ export function QuizCard({quiz, handleSelect}: QuizProps) {
                 <button className="bg-panel mt-3 rounded-l font-extrabold text-xl text-JoinGameTxt space-30-px py-2 px-2 flex"
                         onClick={() => handleSelect(quiz.id)}
                 >
-                    SELECT
+                    PLAY!
                 </button>
             </div>
 
