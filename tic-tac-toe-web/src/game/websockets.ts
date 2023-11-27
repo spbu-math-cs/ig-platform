@@ -26,8 +26,6 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
         shouldReconnect: () => true,
     })
 
-    console.log(lastJsonMessage);
-
     const [gameState, setGameState] =
         useState<GameState>({state: "_LOADING"})
 

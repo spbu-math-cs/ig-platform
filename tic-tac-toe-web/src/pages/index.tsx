@@ -37,6 +37,9 @@ const Home: NextPage = () => {
 
     useEffect(() => {
         getQuizList().then(quizInfo => setQuizInfo(quizInfo))
+        // TODO: do proper updates
+        const handle = setInterval(() => getQuizList().then(quizInfo => setQuizInfo(quizInfo)), 10000)
+        return () => clearInterval(handle)
     }, [])
 
     let content
@@ -147,6 +150,7 @@ const Home: NextPage = () => {
         content = <div className="mt-10 w-[1000px] items-center justify-center ">
             <EditBoard
                 handleGameIsConstructed={() => {
+                    getQuizList().then(quizInfo => setQuizInfo(quizInfo))
                     setState({kind: "choosing_game"})
                 }}/>
         </div>

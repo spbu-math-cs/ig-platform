@@ -64,6 +64,12 @@ export type Quiz = QuizInfo & {
     board: Question[]
 }
 
+export type ProtoQuiz = {
+    name: string
+    comment: string
+    board: Question[]
+}
+
 /**
  * Describes the current game state.
  */

@@ -1,9 +1,6 @@
 package com.clvr.server
 
-import com.clvr.server.common.Config
-import com.clvr.server.common.OpenMultipleQuestions
-import com.clvr.server.common.QuizId
-import com.clvr.server.common.ReplaceMarks
+import com.clvr.server.common.*
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.plugins.*
@@ -161,6 +158,50 @@ class ApplicationTest {
         )
 
         assertTrue(playerSession.incoming.isEmpty)
+    }
+
+    @Test
+    fun `quizzes storage api tests`() = testApplication {
+                setupServer()
+        val client = getClient()
+
+        val quizId = createQuiz(client)
+        val quiz = getQuizById(quizId) ?: throw IllegalStateException("quiz cannot be null")
+
+        assertEquals(quizId, quiz.id)
+        assertEquals("template name", quiz.templateTitle)
+        assertEquals("template comment", quiz.templateComment)
+        val expectedQuestions = createTemplate.board.map { cell ->
+            QuizQuestion(
+                cell.topic,
+                cell.question,
+                cell.answer,
+                cell.hints
+            )
+        }
+        assertEquals(expectedQuestions, quiz.questions.flatten().toList())
+
+        deleteQuiz(client, quizId)
+        assertNull(getQuizById(quizId))
+    }
+
+    private suspend fun createQuiz(client: HttpClient): QuizId {
+        client.post("/api/quiz") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createTemplate))
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+
+            val jsonObject: JsonObject = Json.decodeFromString(bodyAsText())
+            val quiz = jsonObject["quiz-id"] as JsonObject
+            return QuizId(quiz["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null"))
+        }
+    }
+
+    private suspend fun deleteQuiz(client: HttpClient, quizId: QuizId) {
+        client.delete("/api/quiz/${quizId.id}").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
     }
 
     private suspend fun createGameSession(client: HttpClient, config: Config): String {
