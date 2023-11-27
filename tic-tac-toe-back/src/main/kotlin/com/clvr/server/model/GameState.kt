@@ -58,6 +58,10 @@ class GameState(private val quiz: Quiz, private val config: Config) {
             }
         }
 
+        if (state[row][column].content != CellContent.NOT_OPENED) {
+            throw OpenAlreadyMarkedQuestionException()
+        }
+
         // TODO: maybe we should do
         //   state[row][column].content = CellContent.EMPTY
         //  here?
