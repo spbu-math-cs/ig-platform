@@ -53,7 +53,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     hints: q.hints,
                     currentHintsNum: q["current_hints_num"],
                 },
-            }) // TODO: validate
+            })
         } else if (state === "OPENED_QUESTION_CLIENT") {
             const q = msg.payload.question as any
             setGameState({
@@ -65,7 +65,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     question: q.question,
                     currentHints: q["current_hints"],
                 },
-            }) // TODO: validate
+            })
         } else if (state === "OPENED_QUESTION_WITH_ANSWER") {
             const q = msg.payload.question as any
             setGameState({
@@ -77,12 +77,12 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
                     question: q.question,
                     answer: q.answer,
                 },
-            }) // TODO: validate
+            })
         } else if (state === "MAIN_BOARD") {
             setGameState({
                 state: state,
                 board: msg.payload.board,
-            }) // TODO: validate
+            })
         }
     }, [lastJsonMessage])
 
