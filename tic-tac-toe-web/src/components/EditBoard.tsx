@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react'
-import Head from "next/head";
+import React, {useState} from 'react'
+import {createQuiz} from "@/game/api"
 
 
 interface SquareProp {
-    tsk: any
-    ans: any
+    tsk: string
+    ans: string
+    topic: string
 
     onClick(): void
 }
@@ -13,226 +14,259 @@ interface EditorProp {
     handleGameIsConstructed(): void
 }
 
+type SquareState = {
+    question: string
+    answer: string
+    hints: string[]
+    topic: string
+    ok: boolean
+}
+
+type BoardState = {
+    squares: SquareState[]
+    gameName: string
+    gameDetails: string
+}
+
 export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
+    const [state, setState] = useState<BoardState>({
+        squares: Array(9).fill({
+            question: '',
+            answer: '',
+            hints: ['', ''],
+            topic: '',
+        }),
+        gameName: '',
+        gameDetails: '',
+    })
 
-    const [txt, setTxt] = useState('AA')
-    const [EditedTextType, setEditedTxt] = useState(0)
-    const [editingNum, setEditingNum] = useState(10)
-    const [squaresTask, setSquaresTask] = useState<Array<any>>(Array(9).fill('  '))
-    const [squaresHint1, setSquaresHist1] = useState<Array<any>>(Array(9).fill('  '))
-    const [squaresHint2, setSquaresHist2] = useState<Array<any>>(Array(9).fill('  '))
-    const [squaresHint3, setSquaresHist3] = useState<Array<any>>(Array(9).fill('  '))
-    const [squaresCover, setSquaresCover] = useState<Array<any>>(Array(9).fill('  '))
+    const [editingNum, setEditingNum] = useState<number | undefined>(undefined)
 
-    const [squaresAns, setSquaresAns] = useState<Array<any>>(Array(9).fill('  '))
-    const [isConstructing, setGameIsConstructing] = useState<boolean>(true)
-    const [gameName, setGameName] = useState<string>('')
-    const [gameDetails, setGameDetails] = useState<string>('')
-
-    //TODO: когда-нибудь, когда появятся аккаунты, добавить плашку private
-
-
-    function Square({tsk, ans, onClick}: SquareProp) {
+    function Square({tsk, ans, topic, onClick}: SquareProp) {
         return (
             <button
-                className={`flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]`}
+                className="flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]"
                 onClick={onClick}>
-                <p className="place-items-start text-left text-txt  h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto break-all"> {tsk} </p>
-                <p className="place-items-start text-left text-txt   h-[80px] w-[170px]  text-clip overflow-hidden hyphens-auto  break-all"> {ans} </p>
+                <div className="w-full text-center h-5">{topic}</div>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {tsk} </p>
+                <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {ans} </p>
             </button>
         )
     }
 
-    function pressSquare(i: number) {
-        setEditingNum(i)
-        setEditedTxt((EditedTextType + 1) % 3);
-        //TODO: сейчас не очищается вывод при переключении режимов/ячеек, пока не знаю, как это исправить
-    }
-
-
     const renderSquare = (i: number) => {
+        // TODO: adaptivity
         return <Square
-            onClick={() => {
-                pressSquare(i)
-            }}
-            tsk={'Q ' + squaresTask[i] + `\n`}
-            ans={'A ' + squaresAns[i] + `\n`}
+            onClick={() => setEditingNum(i)}
+            topic={state.squares[i].topic}
+            tsk={'Q ' + state.squares[i].question}
+            ans={'A ' + state.squares[i].answer}
         />
     }
-    return (
-        isConstructing ?
-            (<div>
-                <button onClick={() => {
-                    setGameIsConstructing(false)
-                }}
-                        className={`px-6 button hover:ring-4 py-2  mx-auto  text-center rounded-xl bg-[#f3b236] hover:bg-panel`}>
-                    CREATE
-                </button>
-                <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
-                    <div className=" mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
-                        <div className="board-row">
-                            {renderSquare(0)}
-                            {renderSquare(1)}
-                            {renderSquare(2)}
-                        </div>
-
-                        <div className="board-row">
-                            {renderSquare(3)}
-                            {renderSquare(4)}
-                            {renderSquare(5)}
-                        </div>
-
-                        <div className="board-row">
-                            {renderSquare(6)}
-                            {renderSquare(7)}
-                            {renderSquare(8)}
-                        </div>
-                    </div>
-                    <div className="flex-col h-[600px] overflow-y-scroll space-y-5 w-[600px] rounded-lg flex items-center">
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> COVER</p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresCover[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> TASK </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresTask[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[600px] h-[150px] flex flex-col items-center justify-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> ANSWER</p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresAns[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[600px] h-[100px] flex flex-col items-center justify-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT1 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[100px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresHint1[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[600px] h-[100px] flex flex-col items-center justify-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT2 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord break-words border  w-[500px] h-[100px] rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresHint2[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                        <form onChange={e => {
-                            e.preventDefault()
-                        }}>
-                            <div className=" w-[600px] h-[100px] flex flex-col items-center justofy-center mx-auto">
-                                <p className="md:text-2xl font-bold text-center text-createcol outline-none"> HINT3 </p>
-                                <input
-                                    type="text"
-                                    className={`breakWord border w-[500px] h-[100px]  rounded-xl px-3 bg-panel outline-0
-                                    text-3xl font-bold text-center break-words text-txt outline-none `}
-                                    onChange={e => {
-                                        squaresHint3[editingNum] = (e.currentTarget.value)
-                                    }}
-                                />
-                            </div>
-                        </form>
-                    </div>
+    return <div>
+        <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
+            <div
+                className="mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
+                <div className="board-row">
+                    {renderSquare(0)}
+                    {renderSquare(1)}
+                    {renderSquare(2)}
                 </div>
-            </div>)
-            :
 
+                <div className="board-row">
+                    {renderSquare(3)}
+                    {renderSquare(4)}
+                    {renderSquare(5)}
+                </div>
 
-            (<div>
-                <div className="flex-col space-y-10 w-[1000px] rounded-lg flex items-center justify-center">
-
-                    <form onChange={e => {
-                        e.preventDefault()
-                    }}>
+                <div className="board-row">
+                    {renderSquare(6)}
+                    {renderSquare(7)}
+                    {renderSquare(8)}
+                </div>
+            </div>
+            <div className="flex-col h-[600px] overflow-y-auto space-y-5 w-[650px] rounded-lg flex items-center">
+                <form
+                    onChange={e => e.preventDefault()}
+                    onSubmit={e => e.preventDefault()}>
+                    <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
+                        <p className="md:text-2xl font-bold text-center text-createcol outline-none">TOPIC</p>
+                        <input
+                            type="text"
+                            value={editingNum === undefined ? "" : state.squares[editingNum].topic}
+                            className={`breakWord break-words border w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
+                            onChange={e => {
+                                setState({
+                                    ...state,
+                                    squares: state.squares.map((square, index) =>
+                                        index === editingNum
+                                            ? {...square, topic: e.currentTarget.value}
+                                            : square),
+                                })
+                            }}
+                        />
+                    </div>
+                    <div className=" w-[500px] h-[150px] flex flex-col items-center justify-center mx-auto">
+                        <p className="md:text-2xl font-bold text-center text-createcol outline-none">QUESTION</p>
+                        <input
+                            type="text"
+                            className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
+                            value={editingNum === undefined ? "" : state.squares[editingNum].question}
+                            onChange={e => {
+                                setState({
+                                    ...state,
+                                    squares: state.squares.map((square, index) =>
+                                        index === editingNum
+                                            ? {...square, question: e.currentTarget.value}
+                                            : square),
+                                })
+                            }}
+                        />
+                    </div>
+                    <div className=" w-[600px] h-[150px] flex flex-col items-center justify-center mx-auto">
+                        <p className="md:text-2xl font-bold text-center text-createcol outline-none">ANSWER</p>
+                        <input
+                            type="text"
+                            className={`breakWord break-words border  w-[500px] h-[150px] rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
+                            value={editingNum === undefined ? "" : state.squares[editingNum].answer}
+                            onChange={e => {
+                                setState({
+                                    ...state,
+                                    squares: state.squares.map((square, index) =>
+                                        index === editingNum
+                                            ? {...square, answer: e.currentTarget.value}
+                                            : square),
+                                })
+                            }}
+                        />
+                    </div>
+                    {editingNum != undefined && state.squares[editingNum]?.hints.map((hint, index) =>
                         <div
-                            className=" w-[300px] h-[150px] flex flex-col items-center justofy-center space-y-4 mx-auto">
-                            <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
-                                NAME </p>
+                            className=" w-[600px] h-[100px] flex flex-col items-center justify-center mx-auto"
+                            key={index}>
+                            <p className="md:text-2xl font-bold text-center text-createcol outline-none">
+                                HINT {index + 1}
+                                <span>
+                                    <button
+                                        className="text-xs align-super"
+                                        onClick={() => {
+                                            setState({
+                                                ...state,
+                                                squares: state.squares.map((square, squareIndex) =>
+                                                    squareIndex === editingNum
+                                                        ? {
+                                                            ...square,
+                                                            hints: square.hints.filter((_, hintIndex) =>
+                                                                hintIndex !== index),
+                                                        }
+                                                        : square),
+                                            })
+                                        }}
+                                    >
+                                        delete
+                                    </button>
+                                </span>
+                            </p>
                             <input
                                 type="text"
-                                className={`breakWord border w-[500px] h-[150px] rounded-xl px-2 bg-panel outline-0
-                                    text-3xl font-bold text-center break-words text-txt outline-none `}
+                                value={hint}
+                                className={`breakWord break-words border  w-[500px] h-[100px] rounded-xl px-3 bg-panel outline-0
+                                    text-3xl font-bold text-center text-txt outline-none `}
                                 onChange={e => {
-                                    setGameName(e.currentTarget.value)
-
+                                    setState({
+                                        ...state,
+                                        squares: state.squares.map((square, squareIndex) =>
+                                            squareIndex === editingNum
+                                                ? {
+                                                    ...square,
+                                                    hints: square.hints.map((hint, hintIndex) =>
+                                                        hintIndex === index
+                                                            ? e.currentTarget.value
+                                                            : hint),
+                                                }
+                                                : square),
+                                    })
                                 }}
                             />
-                        </div>
-                    </form>
-                    <form onChange={e => {
-                        e.preventDefault()
-                    }}>
-                        <div
-                            className=" w-[300px] h-[200px] flex flex-col items-center justofy-center mx-auto space-y-4">
-                            <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
-                                GAME
-                                DESCRIPTION </p>
-                            <input
-                                type="text"
-                                className={`breakWord border w-[500px] h-[200px] rounded-xl px-2 bg-panel outline-0
+                        </div>,
+                    )}
+                    {editingNum !== undefined && state.squares[editingNum].hints.length < 10
+                        && <div className="flex justify-center py-4">
+                            <button
+                                className="px-8 button hover:ring-4 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel"
+                                onClick={() => setState({
+                                    ...state,
+                                    squares: state.squares.map((square, index) =>
+                                        index === editingNum
+                                            ? {...square, hints: [...square.hints, ""]}
+                                            : square),
+                                })}>
+                                ADD HINT
+                            </button>
+                        </div>}
+                </form>
+            </div>
+        </div>
+        <div className="pt-8 flex-col space-y-10 w-[1000px] rounded-lg flex items-center justify-center">
+            <form
+                onChange={e => e.preventDefault()}
+                onSubmit={e => e.preventDefault()}>
+                <div
+                    className=" w-[300px] h-[150px] flex flex-col items-center justofy-center space-y-4 mx-auto">
+                    <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
+                        NAME </p>
+                    <input
+                        type="text"
+                        className={`breakWord border w-[500px] h-[150px] rounded-xl px-2 bg-panel outline-0
+                                    text-3xl font-bold text-center break-words text-txt outline-none `}
+                        onChange={e => {
+                            setState({
+                                ...state,
+                                gameName: e.currentTarget.value,
+                            })
+                        }}
+                    />
+                </div>
+                <div
+                    className=" w-[300px] h-[200px] flex flex-col items-center justofy-center mx-auto space-y-4">
+                    <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
+                        GAME
+                        DESCRIPTION </p>
+                    <textarea
+                        className={`breakWord border w-[500px] h-[200px] rounded-xl p-2 bg-panel outline-0
                                     text-2xl font-bold text-center break-words text-txt outline-none `}
-                                onChange={e => {
-                                    setGameDetails(e.currentTarget.value)
-                                }}
-                            />
-                        </div>
-                    </form>
-
-                    <button onClick={() => {
-                        handleGameIsConstructed()
-                    }}
-                            className={`px-8 button hover:ring-4 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
-                        CREATE GAME
-                    </button>
+                        onChange={e => {
+                            setState({
+                                ...state,
+                                gameDetails: e.currentTarget.value,
+                            })
+                        }}
+                    />
                 </div>
-            </div>)
+            </form>
 
-    )
+            <button onClick={() => {
+                handleGameIsConstructed()
+
+                createQuiz({
+                    name: state.gameName,
+                    comment: state.gameDetails,
+                    board: state.squares.map((square, index) => ({
+                        row: Math.floor(index / 3),
+                        column: index % 3,
+                        question: square.question,
+                        answer: square.answer,
+                        hints: square.hints,
+                        topic: square.topic,
+                    })),
+                }).then()
+            }}
+                    className={`px-8 button hover:ring-4 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
+                CREATE GAME
+            </button>
+        </div>
+    </div>
 }

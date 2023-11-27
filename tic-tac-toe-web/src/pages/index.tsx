@@ -147,6 +147,7 @@ const Home: NextPage = () => {
         content = <div className="mt-10 w-[1000px] items-center justify-center ">
             <EditBoard
                 handleGameIsConstructed={() => {
+                    getQuizList().then(quizInfo => setQuizInfo(quizInfo))
                     setState({kind: "choosing_game"})
                 }}/>
         </div>
