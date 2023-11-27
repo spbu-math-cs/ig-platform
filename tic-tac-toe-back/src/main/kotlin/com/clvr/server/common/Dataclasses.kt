@@ -19,6 +19,7 @@ data class Quiz(
     val questions: Array<Array<QuizQuestion>>,
     val gridSide: Int,
     val templateTitle: String?,
+    val templateComment: String?,
     val templateAuthor: String?
 )
 
