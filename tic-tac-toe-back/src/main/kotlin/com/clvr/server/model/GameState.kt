@@ -83,6 +83,8 @@ class GameState(private val quiz: Quiz, private val config: Config) {
 
     fun getTemplateTitle(): String? = quiz.templateTitle
 
+    fun getTemplateComment(): String? = quiz.templateComment
+
     fun getQuestionTopic(row: Int, column: Int) =
         quiz.questions[row][column].topic
 

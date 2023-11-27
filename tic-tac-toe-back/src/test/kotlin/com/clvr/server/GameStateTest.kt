@@ -54,6 +54,7 @@ class GameStateTest {
         assertEquals(2, gameState.getSide())
         assertEquals("unstoppablechillmachine", gameState.getTemplateAuthor())
         assertEquals(null, gameState.getTemplateTitle())
+        assertEquals("template comment", gameState.getTemplateComment())
         assertEquals("kek", gameState.getQuestionTopic(1, 1))
         assertEquals("s1", gameState.getQuestionStatement(0, 0))
         assertEquals("a2", gameState.getQuestionAnswer(0, 1))
