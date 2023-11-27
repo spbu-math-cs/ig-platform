@@ -5,7 +5,6 @@ import com.clvr.server.common.QuizId
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.plugins.QuizCreateRequest
 import io.ktor.server.application.*
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
@@ -19,7 +18,7 @@ var quizDatabase: QuizDatabase = emptyList()
     private set
 
 fun Application.configureQuizDatabase(files: List<File> = defaultQuizFiles) {
-    quizDatabase = defaultQuizFiles.map { file -> Json.decodeFromString<QuizDatabase>(file.readText()) }.flatten()
+    quizDatabase = files.map { file -> Json.decodeFromString<QuizDatabase>(file.readText()) }.flatten()
 }
 
 fun addQuiz(quiz: QuizCreateRequest): QuizId {
