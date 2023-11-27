@@ -119,13 +119,14 @@ fun Application.configureRouting() {
                     call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
-            val quiz = getQuizById(quizId) ?: run {
-                call.respond(HttpStatusCode.NotFound)
-                return@delete
-            }
+            val quiz = getQuizById(quizId)
 
-            removeQuizById(quiz.id)
-            call.respond(HttpStatusCode.OK)
+            if (quiz != null) {
+                removeQuizById(quizId)
+                call.respond(HttpStatusCode.OK)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
     }
 }
