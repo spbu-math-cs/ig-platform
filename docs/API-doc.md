@@ -60,7 +60,30 @@ GET /quiz-list/{quiz-id}
 Создание игровой сессии по шаблону с id `quiz-id`.
 
 #### Request
-POST /api/game-session/{quiz-id}
+POST /api/game-session
+
+```json 
+{
+  "quiz_id": "<quiz id>",
+  "game_configuration": {
+    "replace_marks": "<ENABLED or DISABLED>",
+    "open_multiple_questions": "<ENABLED or DISABLED>"
+  }
+}
+```
+
+В данном json'е, все поля внутри `game_configuration` опциональны. Если не присутствует какая-то опция, то выставляется ее дефолтное значение на стороне сервера. 
+Список всех возможных опций с их дефолтными значениями:
+```json
+{
+  "replace_marks": "ENABLED",
+  "open_multiple_questions": "ENABLED"
+}
+```
+
+Описание опций: 
+* `replace_marks` - можно ли заменять уже проставленные X и O 
+* `open_multiple_questions` - можно ли открывать следующий вопрос, пока не разобран текущий (не проставлен ни X, ни O, ни EMPTY)
 
 #### Response
 
@@ -136,9 +159,23 @@ CONNECT /ws/host/{session_id}
 }
 ```
 
+### Error notification
+В любой момент сервер может отправить сообщение с ошибкой. 
+Оно может прийтий как вместо ответа на какой-то запрос (если он некорректен и выполнить его невозможно), так и само по себе, без привязки к конкретному запросу.
+Формат сообщения об ошибке:
+
+```json 
+{
+  "state": "ERROR",
+  "payload": {
+    "message": "<message with details about error>",
+  }
+}
+```
+
 ### Board description
 
-В каждом ответе, в качестве одного из поля `payload` присутствует поле `board` с полным описанием доски.
+В каждом ответе (кроме сообщения об ошибке), в качестве одного из поля `payload` присутствует поле `board` с полным описанием доски. 
 Это описание имеет следующую структуру:
 ```json 
 {
@@ -146,12 +183,13 @@ CONNECT /ws/host/{session_id}
     "cells": [{
       "row": "<row num>",
       "column": "<column num>",
-      "mark": "<X or O or empty>",
+      "mark": "<X or O or EMPTY>",
       "topic": "<topic>"
     }, ...]
   }
 }
 ```
+
 
 ### Open question
 #### Request
@@ -272,7 +310,7 @@ CONNECT /ws/host/{session_id}
   "payload": {
     "row": "<row num>",
     "column": "<column num>",
-    "mark": "<X or O or EMPTY>"
+    "mark": "<X or O or EMPTY or NOT_OPENED>"
   }
 }
 ```
