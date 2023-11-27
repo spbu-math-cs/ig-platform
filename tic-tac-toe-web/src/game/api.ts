@@ -22,6 +22,7 @@ export async function createGame(quizId: string): Promise<Session> {
             quiz: {
                 id: quizId,
             },
+            "game_configuration": {},
         }),
         headers: {
             "Content-Type": "application/json",
