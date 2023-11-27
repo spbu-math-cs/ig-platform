@@ -60,7 +60,30 @@ GET /quiz-list/{quiz-id}
 Создание игровой сессии по шаблону с id `quiz-id`.
 
 #### Request
-POST /api/game-session/{quiz-id}
+POST /api/game-session
+
+```json 
+{
+  "quiz_id": "<quiz id>",
+  "game_configuration": {
+    "replace_marks": "<ENABLED or DISABLED>",
+    "open_multiple_questions": "<ENABLED or DISABLED>"
+  }
+}
+```
+
+В данном json'е, все поля внутри `game_configuration` опциональны. Если не присутствует какая-то опция, то выставляется ее дефолтное значение на стороне сервера. 
+Список всех возможных опций с их дефолтными значениями:
+```json
+{
+  "replace_marks": "ENABLED",
+  "open_multiple_questions": "ENABLED"
+}
+```
+
+Описание опций: 
+* `replace_marks` - можно ли заменять уже проставленные X и O 
+* `open_multiple_questions` - можно ли открывать следующий вопрос, пока не разобран текущий (не проставлен ни X, ни O, ни EMPTY)
 
 #### Response
 
@@ -109,7 +132,7 @@ CONNECT /ws/host/{session_id}
     "cells": [{
       "row": "<row num>",
       "column": "<column num>",
-      "mark": "<X or O or empty>",
+      "mark": "<X or O or EMPTY>",
       "topic": "<topic>"
     }, ...]
   }
@@ -235,7 +258,7 @@ CONNECT /ws/host/{session_id}
   "payload": { 
     "row": "<row num>",
     "column": "<column num>",
-    "mark": "<X or O or EMPTY>"
+    "mark": "<X or O or EMPTY or NOT_OPENED>"
   }
 }
 ```
