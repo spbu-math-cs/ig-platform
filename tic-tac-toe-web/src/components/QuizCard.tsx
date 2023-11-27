@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {QuizInfo} from "@/game/types"
+import {GameConfig, QuizInfo} from "@/game/types"
 
 interface QuizProps {
     quiz: QuizInfo
