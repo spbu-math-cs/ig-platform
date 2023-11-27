@@ -111,7 +111,7 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
         } else if (action.type == "SHOW_ANSWER") {
             request = {
                 session: session,
-                type: "SET_FIELD",
+                type: "SHOW_ANSWER",
                 payload: {
                     row: action.row,
                     column: action.column,
@@ -120,16 +120,15 @@ export function useServerState(role: Role, session: Session): [GameState, (actio
         } else if (action.type == "SHOW_NEXT_HINT") {
             request = {
                 session: session,
-                type: "SET_FIELD",
+                type: "SHOW_NEXT_HINT",
                 payload: {
                     row: action.row,
                     column: action.column,
-                    "current_hints_num": action.currentHintsNum,
+                    // "current_hints_num": action.currentHintsNum,
                 },
             }
         } else {
-            // check exhaustiveness
-            ((_: never) => _)(action)
+            checkExhausted(action)
         }
 
         sendJsonMessage(request)
