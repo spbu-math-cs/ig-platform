@@ -37,6 +37,9 @@ const Home: NextPage = () => {
 
     useEffect(() => {
         getQuizList().then(quizInfo => setQuizInfo(quizInfo))
+        // TODO: do proper updates
+        const handle = setInterval(() => getQuizList().then(quizInfo => setQuizInfo(quizInfo)), 10000)
+        return () => clearInterval(handle)
     }, [])
 
     let content
