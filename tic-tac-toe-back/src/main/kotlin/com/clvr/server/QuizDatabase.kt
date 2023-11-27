@@ -11,15 +11,14 @@ import java.util.*
 
 typealias QuizDatabase = List<Quiz>
 
-private val mainQuizFile = File(
-    Application::class.java.classLoader.getResource("dumbQuizCollection.json")!!.toURI()
-)
+private val defaultQuizFiles = listOf("dumbQuizCollection.json", "samples.json")
+    .map { fileName -> File(Application::class.java.classLoader.getResource(fileName)!!.toURI()) }
 
 var quizDatabase: QuizDatabase = emptyList()
     private set
 
-fun Application.configureQuizDatabase(file: File = mainQuizFile) {
-    quizDatabase = Json.decodeFromString<QuizDatabase>(file.readText())
+fun Application.configureQuizDatabase(files: List<File> = defaultQuizFiles) {
+    quizDatabase = files.map { file -> Json.decodeFromString<QuizDatabase>(file.readText()) }.flatten()
 }
 
 fun addQuiz(quiz: QuizCreateRequest): QuizId {

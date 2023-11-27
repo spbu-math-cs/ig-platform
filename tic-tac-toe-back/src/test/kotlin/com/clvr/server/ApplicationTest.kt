@@ -231,7 +231,7 @@ class ApplicationTest {
             configureSerialization()
             configureSockets()
             configureRouting()
-            configureQuizDatabase(testQuizFile)
+            configureQuizDatabase(listOf(testQuizFile))
         }
     }
 
