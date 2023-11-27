@@ -1,8 +1,10 @@
 package com.clvr.server
 
 import com.clvr.server.common.Quiz
+import com.clvr.server.common.QuizCellInfo
 import com.clvr.server.common.QuizId
 import com.clvr.server.common.QuizQuestion
+import com.clvr.server.plugins.QuizCreateRequest
 
 val basicTestQuiz = Quiz(
     QuizId("random id"),
@@ -13,4 +15,21 @@ val basicTestQuiz = Quiz(
     null,
     "template comment",
     "unstoppablechillmachine"
+)
+
+val createTemplate = QuizCreateRequest(
+    "template name",
+    "template comment",
+    List(3) { row ->
+        List(3) { col ->
+            QuizCellInfo(
+                row,
+                col,
+                "topic $row $col",
+                "question $row $col",
+                listOf("hint $row $col 1", "hint $row $col 2"),
+                "answer $row $col"
+            )
+        }
+    }.flatten()
 )
