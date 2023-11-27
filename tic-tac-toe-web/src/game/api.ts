@@ -19,9 +19,8 @@ export async function createGame(quizId: string): Promise<Session> {
     const response = await fetch(new URL(`api/game-session`, API_ENDPOINT), {
         method: "POST",
         body: JSON.stringify({
-            quiz: {
-                id: quizId,
-            },
+            quiz_id: quizId,
+            game_configuration: {}
         }),
         headers: {
             "Content-Type": "application/json",

@@ -18,7 +18,8 @@ data class SessionResponse(val session: SessionId)
 
 @Serializable
 data class QuizRequest(
-    val quiz: QuizId,
+    @SerialName("quiz_id")
+    val quiz: String,
 
     @SerialName("game_configuration")
     val config: Config
@@ -43,7 +44,7 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val quiz = quizDatabase.singleOrNull { it.id == quizRequest.quiz } ?: run {
+            val quiz = quizDatabase.singleOrNull { it.id.id == quizRequest.quiz } ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@post
             }
@@ -63,7 +64,7 @@ fun Application.configureRouting() {
 
         get("quiz-list/{quiz-id}") {
             val quizId = QuizId(
-                call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+                call.parameters["quiz_id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
             val quiz = quizDatabase.singleOrNull { it.id == quizId } ?: run {
