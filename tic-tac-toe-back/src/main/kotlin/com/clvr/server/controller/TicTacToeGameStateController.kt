@@ -64,7 +64,7 @@ class TicTacToeGameStateController(private val game: GameState) : TicTacToeEvent
         }
     } catch (e: IllegalGameActionException) {
         manager.sendToHost(ResponseEvent(
-            GameError(e.message ?: "Unknown error occurred!", GameStateView.fromGameState(game))
+            GameError(e.message ?: "Unknown error occurred!")
         ))
     }
 }

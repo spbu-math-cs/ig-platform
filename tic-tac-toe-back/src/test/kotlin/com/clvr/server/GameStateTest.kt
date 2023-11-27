@@ -1,7 +1,9 @@
 package com.clvr.server
 
 import com.clvr.server.common.Config
+import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizQuestion
+import com.clvr.server.common.ReplaceMarks
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
@@ -15,7 +17,10 @@ import org.junit.jupiter.api.assertDoesNotThrow
 
 class GameStateTest {
     private val quiz = basicTestQuiz
-    private val config = Config(replaceMarks = true, openMultipleQuestions = true)
+    private val config = Config(
+        replaceMarks = ReplaceMarks.ENABLED,
+        openMultipleQuestions = OpenMultipleQuestions.ENABLED
+    )
 
     @Test
     fun testTurn() {

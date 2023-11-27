@@ -1,8 +1,10 @@
 package com.clvr.server.model
 
 import com.clvr.server.common.Config
+import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.common.Quiz
+import com.clvr.server.common.ReplaceMarks
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -50,7 +52,7 @@ class GameState(private val quiz: Quiz, private val config: Config) {
     private fun ensureCellIsOpened(row: Int, column: Int) {
         val prevPosition = currentQuestionPosition ?: Pair(row, column)
 
-        if (state[row][column].content == CellContent.NOT_OPENED && !config.openMultipleQuestions) {
+        if (state[row][column].content == CellContent.NOT_OPENED && config.openMultipleQuestions == OpenMultipleQuestions.DISABLED) {
             if (prevPosition.first != row || prevPosition.second != column) {
                 throw MultipleQuestionsOpeningException()
             }
@@ -130,7 +132,7 @@ class GameState(private val quiz: Quiz, private val config: Config) {
     fun updateCellContent(row: Int, column: Int, newContent: CellContent): GameResult {
         require(newContent != CellContent.NOT_OPENED)
 
-        if (!config.replaceMarks) {
+        if (config.replaceMarks == ReplaceMarks.DISABLED) {
             if (state[row][column].content != CellContent.NOT_OPENED) {
                 throw IllegalCellContentException()
             }

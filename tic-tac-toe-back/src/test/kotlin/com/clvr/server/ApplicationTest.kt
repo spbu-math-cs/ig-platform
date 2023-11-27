@@ -1,7 +1,9 @@
 package com.clvr.server
 
 import com.clvr.server.common.Config
+import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizId
+import com.clvr.server.common.ReplaceMarks
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.plugins.*
@@ -28,7 +30,10 @@ import java.io.File
 class ApplicationTest {
     @Test
     fun `test events simple`() = testApplication {
-        val config = Config(replaceMarks = true, openMultipleQuestions = true)
+        val config = Config(
+            replaceMarks = ReplaceMarks.ENABLED,
+            openMultipleQuestions = OpenMultipleQuestions.ENABLED
+        )
 
         setupServer()
         val hostClient = getClient()
@@ -115,7 +120,10 @@ class ApplicationTest {
 
     @Test
     fun `test errors`() = testApplication {
-        val config = Config(replaceMarks = false, openMultipleQuestions = false)
+        val config = Config(
+            replaceMarks = ReplaceMarks.DISABLED,
+            openMultipleQuestions = OpenMultipleQuestions.DISABLED
+        )
 
         setupServer()
         val hostClient = getClient()

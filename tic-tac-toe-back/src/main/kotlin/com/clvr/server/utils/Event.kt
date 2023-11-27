@@ -226,12 +226,7 @@ data class ShowAnswerResponse(
 }
 
 @Serializable
-data class GameError(
-    val message: String,
-
-    @SerialName("board")
-    val gameStateView: GameStateView
-) : TicTacToeResponsePayload {
+data class GameError(val message: String) : TicTacToeResponsePayload {
     override val type: String = Companion.type
 
     companion object {
