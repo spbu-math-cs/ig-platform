@@ -207,7 +207,7 @@ class ApplicationTest {
     private suspend fun createGameSession(client: HttpClient, config: Config): String {
         client.post("/api/game-session") {
             contentType(ContentType.Application.Json)
-            setBody(QuizRequest(QuizId("ABCD"), config))
+            setBody(QuizRequest("ABCD", config))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
