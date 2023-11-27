@@ -209,8 +209,3 @@ class GameState(private val quiz: Quiz, private val config: Config) {
 
     fun isGameEnded(): Boolean = currentResult() != GameResult.EMPTY
 }
-
-sealed class  IllegalGameActionException(message: String): IllegalArgumentException(message)
-
-class IllegalCellContentException: IllegalGameActionException("Changing result in the cell is forbidden")
-class MultipleQuestionsOpeningException: IllegalGameActionException("Set mark in the opened cell before opening the next one")
