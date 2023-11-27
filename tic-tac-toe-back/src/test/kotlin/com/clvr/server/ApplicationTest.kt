@@ -188,7 +188,6 @@ class ApplicationTest {
         application {
             configureCallLogging()
             configureSerialization()
-            configureDatabases()
             configureSockets()
             configureRouting()
             configureQuizDatabase(testQuizFile)
