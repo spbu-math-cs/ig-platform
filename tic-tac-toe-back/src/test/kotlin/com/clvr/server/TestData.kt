@@ -11,5 +11,6 @@ val basicTestQuiz = Quiz(
         arrayOf(QuizQuestion("t3", "s3", "a3", listOf("hint hint hint")), QuizQuestion("kek", "what?", "kek!", listOf("kek1", "kek2", "kek3")))),
     2,
     null,
+    "template comment",
     "unstoppablechillmachine"
 )
