@@ -76,7 +76,7 @@ fun Application.configureRouting() {
 
         get("quiz-list/{quiz-id}") {
             val quizId = QuizId(
-                call.parameters["quiz_id"] ?: throw IllegalArgumentException("failed to get quiz id")
+                call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
             val quiz = getQuizById(quizId) ?: run {

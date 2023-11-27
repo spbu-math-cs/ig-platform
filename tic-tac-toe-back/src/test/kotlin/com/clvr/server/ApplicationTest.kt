@@ -6,6 +6,7 @@ import com.clvr.server.model.GameResult
 import com.clvr.server.plugins.*
 import com.clvr.server.utils.*
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
@@ -183,6 +184,37 @@ class ApplicationTest {
 
         deleteQuiz(client, quizId)
         assertNull(getQuizById(quizId))
+    }
+
+    @Test
+    fun `test main page`() = testApplication {
+        setupServer()
+        val client = getClient()
+
+        val quizList = client.get("quiz-list").body<QuizListResponse>().quizList
+        assertEquals(1, quizList.size)
+        assertEquals("Random template", quizList[0].name)
+        assertEquals("ABCD", quizList[0].id)
+        assertEquals("", quizList[0].comment)
+
+        assertEquals(HttpStatusCode.NotFound, client.get("quiz-list/KEK").status)
+        assertEquals(HttpStatusCode.OK, client.get("quiz-list/ABCD").status)
+
+        val quizInfo = client.get("quiz-list/ABCD").body<QuizCompleteInfo>()
+        assertEquals("ABCD", quizInfo.id)
+
+        val addedId = createQuiz(client).id
+
+        assertEquals(2, client.get("quiz-list").body<QuizListResponse>().quizList.size)
+
+        deleteQuiz(client, QuizId("ABCD"))
+
+        val quizListAfterUpdates = client.get("quiz-list").body<QuizListResponse>().quizList
+        assertEquals(1, quizListAfterUpdates.size)
+        assertEquals(addedId, quizListAfterUpdates[0].id)
+
+        assertEquals(HttpStatusCode.OK, client.get("quiz-list/$addedId").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("quiz-list/ABCD").status)
     }
 
     private suspend fun createQuiz(client: HttpClient): QuizId {
