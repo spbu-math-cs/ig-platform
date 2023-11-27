@@ -56,7 +56,7 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val quiz = getQuizById(quizRequest.quiz) ?: run {
+            val quiz = quizDatabase.singleOrNull { it.id.id == quizRequest.quiz } ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@post
             }

@@ -11,6 +11,10 @@ export type Session = {
 
 export type Mark = "X" | "O" | "EMPTY" | "NOT_OPENED"
 
+export type Error = {
+    error_message: string
+}
+
 type Cell = {
     row: number
     column: number

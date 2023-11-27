@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 import {useServerState} from "@/game/websockets"
+import {ErrorBadge} from '@/components/Errors'
 
 const rows = 3
 const cols = 3
@@ -19,7 +20,7 @@ interface SquareProp {
 
 export const Board = ({isHost, sessionId}: BoardProps) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
+    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
     useEffect(() => {
         let k = new Audio("/LobbyMusic.mp3")
@@ -215,6 +216,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                     </div>
                 </div>
             </div>
+            <ErrorBadge errors={errors}/>
         </div>
     )
 }
