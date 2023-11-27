@@ -1,19 +1,30 @@
 package com.clvr.server
 
+import com.clvr.server.common.Config
+import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizQuestion
+import com.clvr.server.common.ReplaceMarks
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
+import com.clvr.server.model.IllegalCellContentException
+import com.clvr.server.model.MultipleQuestionsOpeningException
 import com.clvr.server.model.Player
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class GameStateTest {
     private val quiz = basicTestQuiz
+    private val config = Config(
+        replaceMarks = ReplaceMarks.ENABLED,
+        openMultipleQuestions = OpenMultipleQuestions.ENABLED
+    )
 
     @Test
     fun testTurn() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
         
         assertEquals(Player.X, gameState.turn)
         gameState.updateCellContent(0, 0, CellContent.X)
@@ -26,7 +37,7 @@ class GameStateTest {
 
     @Test 
     fun testCellValidation() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
 
         assertEquals(true, gameState.isCellValid(0, 0))
         assertEquals(true, gameState.isCellValid(1, 1))
@@ -38,7 +49,7 @@ class GameStateTest {
 
     @Test
     fun testGetters() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
 
         assertEquals(2, gameState.getSide())
         assertEquals("unstoppablechillmachine", gameState.getTemplateAuthor())
@@ -51,7 +62,7 @@ class GameStateTest {
 
     @Test 
     fun testHints() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
 
         assertEquals(false, gameState.openNextHint(0, 0))
         assertEquals(emptyList<String>(), gameState.getOpenedHints(0, 0))
@@ -63,7 +74,7 @@ class GameStateTest {
 
     @Test
     fun testChangeQuestion() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
         
         gameState.changeQuestion(1, 1, QuizQuestion("a", "a", "a", listOf()))
         assertEquals("a", gameState.getQuestionAnswer(1, 1))
@@ -81,7 +92,7 @@ class GameStateTest {
                                 continue
                             }
 
-                            val gameState = GameState(quiz)
+                            val gameState = GameState(quiz, config)
 
                             assertEquals(false, gameState.isGameEnded())
                             assertEquals(GameResult.EMPTY, gameState.currentResult())
@@ -131,9 +142,48 @@ class GameStateTest {
 
     @Test 
     fun testGridStateHard() {
-        val gameState = GameState(quiz)
+        val gameState = GameState(quiz, config)
         gameState.updateCellContent(0, 1, CellContent.EMPTY)
         gameState.updateCellContent(1, 0, CellContent.X)
         assertEquals(GameResult.X, gameState.currentResult())
+    }
+
+    @Test
+    fun `open multiple questions`() {
+        val gameState = GameState(quiz, Config())
+
+        gameState.getQuestionStatement(0, 0)
+
+        assertThrows(MultipleQuestionsOpeningException::class.java) {
+            gameState.getQuestionStatement(1, 1)
+        }
+    }
+
+    @Test
+    fun `revisit played question`() {
+        val gameState = GameState(quiz, Config())
+
+        gameState.getQuestionStatement(0, 0)
+        gameState.updateCellContent(0, 0, CellContent.X)
+        gameState.getQuestionStatement(1, 1)
+
+        assertDoesNotThrow {
+            gameState.getQuestionStatement(0, 0)
+        }
+    }
+
+    @Test
+    fun `change result in non-empty cell`() {
+        val gameState = GameState(quiz, Config())
+
+        gameState.updateCellContent(0, 0, CellContent.X)
+
+        assertDoesNotThrow {
+            gameState.updateCellContent(1, 1, CellContent.O)
+        }
+
+        assertThrows(IllegalCellContentException::class.java) {
+            gameState.updateCellContent(1, 1, CellContent.X)
+        }
     }
 }

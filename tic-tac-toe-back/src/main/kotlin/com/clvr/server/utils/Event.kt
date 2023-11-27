@@ -48,6 +48,7 @@ fun encodeEventToJson(event: ResponseEvent<TicTacToeResponsePayload>): String {
         is ClientQuestionResponse -> Json.encodeToString(event as ResponseEvent<ClientQuestionResponse>)
         is SetFieldResponse -> Json.encodeToString(event as ResponseEvent<SetFieldResponse>)
         is ShowAnswerResponse -> Json.encodeToString(event as ResponseEvent<ShowAnswerResponse>)
+        is GameError -> Json.encodeToString(event as ResponseEvent<GameError>)
     }
 }
 
@@ -221,5 +222,14 @@ data class ShowAnswerResponse(
 
     companion object {
         const val type: String = "OPENED_QUESTION_WITH_ANSWER"
+    }
+}
+
+@Serializable
+data class GameError(val message: String) : TicTacToeResponsePayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "ERROR"
     }
 }

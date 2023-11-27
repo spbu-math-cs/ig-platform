@@ -2,6 +2,7 @@ package com.clvr.server.controller
 
 import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.basicTestQuiz
+import com.clvr.server.common.Config
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
@@ -19,6 +20,7 @@ import kotlin.streams.asStream
 
 class TicTacToeGameStateControllerTest {
     private val quiz = basicTestQuiz
+    private val config = Config()
 
     companion object {
         @JvmStatic
@@ -60,7 +62,7 @@ class TicTacToeGameStateControllerTest {
     @ParameterizedTest
     @MethodSource("provideCells")
     fun `question request`(row: Int, column: Int) = runBlocking {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
         val initialContent = game.getGridContent()
         val (hostEventPayloads, clientEventPayloads) = makeRequest(game, QuestionRequest(row, column))
 
@@ -102,7 +104,7 @@ class TicTacToeGameStateControllerTest {
     @ParameterizedTest
     @MethodSource("provideCells")
     fun `question request after opened hint`(row: Int, column: Int) = runBlocking {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
         game.openNextHint(row, column)
 
         val (hostEventPayloads, clientEventPayloads) = makeRequest(game, QuestionRequest(row, column))
@@ -143,7 +145,7 @@ class TicTacToeGameStateControllerTest {
     @ParameterizedTest
     @MethodSource("provideCells")
     fun `next hint request`(row: Int, column: Int) = runBlocking {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
 
         repeat(5) {
             val (hostEventPayloads, clientEventPayloads) = makeRequest(game, NextHintRequest(row, column))
@@ -185,7 +187,7 @@ class TicTacToeGameStateControllerTest {
     @ParameterizedTest
     @MethodSource("provideCells")
     fun `show answer request`(row: Int, column: Int) = runBlocking {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
         val initialContent = game.getGridContent()
 
         val (hostEventPayloads, clientEventPayloads) = makeRequest(game, ShowAnswerRequest(row, column))
@@ -212,7 +214,7 @@ class TicTacToeGameStateControllerTest {
 
     @Test
     fun `set first cell`() = runBlocking {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
         val row = 0
         val column = 0
 
@@ -234,7 +236,7 @@ class TicTacToeGameStateControllerTest {
 
     @Test
     fun `set cell and win`() {
-        val game = GameState(quiz)
+        val game = GameState(quiz, config)
         game.updateCellContent(0, 0, CellContent.X)
         val row = 1
         val column = 1

@@ -5,7 +5,7 @@ GET /
 
 Возвращает все необходимые скрипты, HTML и т.д., чтобы далее frontend правильно работал.
 
-*Пока, домен отдающий главную страницу будет отличаться от домена с API. 
+*Пока, домен отдающий главную страницу будет отличаться от домена с API.
 В будущем это будет решаться либо через proxy, либо будет единый сервер, умеющий обрабатывать все запросы.*
 
 ## Main page
@@ -18,7 +18,7 @@ GET /
 
 GET /quiz-list
 
-#### Response 
+#### Response
 ```json 
 {
   "quiz-list": [{
@@ -31,11 +31,11 @@ GET /quiz-list
 
 ### Get quiz description
 
-Запрос полного описания конкретного квиза. 
+Запрос полного описания конкретного квиза.
 
-#### Request 
+#### Request
 
-GET /quiz-list/{quiz-id} 
+GET /quiz-list/{quiz-id}
 
 #### Response
 
@@ -60,7 +60,30 @@ GET /quiz-list/{quiz-id}
 Создание игровой сессии по шаблону с id `quiz-id`.
 
 #### Request
-POST /api/game-session/{quiz-id}
+POST /api/game-session
+
+```json 
+{
+  "quiz_id": "<quiz id>",
+  "game_configuration": {
+    "replace_marks": "<ENABLED or DISABLED>",
+    "open_multiple_questions": "<ENABLED or DISABLED>"
+  }
+}
+```
+
+В данном json'е, все поля внутри `game_configuration` опциональны. Если не присутствует какая-то опция, то выставляется ее дефолтное значение на стороне сервера. 
+Список всех возможных опций с их дефолтными значениями:
+```json
+{
+  "replace_marks": "ENABLED",
+  "open_multiple_questions": "ENABLED"
+}
+```
+
+Описание опций: 
+* `replace_marks` - можно ли заменять уже проставленные X и O 
+* `open_multiple_questions` - можно ли открывать следующий вопрос, пока не разобран текущий (не проставлен ни X, ни O, ни EMPTY)
 
 #### Response
 
@@ -74,7 +97,44 @@ POST /api/game-session/{quiz-id}
 
 ## Quiz constructor
 
-TODO
+### Create quiz
+
+Создание нового квиза.
+
+#### Request
+
+POST /api/quiz
+
+```json 
+{
+  "name": "<quiz name>",
+  "comment": "<some additional information about quiz, e.g. short description>",
+  "board": [{
+    "row": "<row>",
+    "column": "<column>",
+    "topic": "<topic>",
+    "question": "<question text>",
+    "hints": ["<hint1>", "<hint2>", ...],
+    "answer": "<answer>"
+  }, ...]
+}
+```
+
+#### Response
+
+```json 
+{
+  "id": "<quiz id>"
+}
+```
+
+### Delete quiz
+
+Удаление квиза.
+
+#### Request
+
+DELETE /api/quiz/{quiz-id}
 
 ## Game session as host
 
@@ -93,28 +153,43 @@ CONNECT /ws/host/{session_id}
 
 Все ответы по WebSocket имеют следующую структуру:
 ```json 
-{ 
+{
   "state": "<client state during this event>",
   "payload": "<json with additional information>"
 }
 ```
 
+### Error notification
+В любой момент сервер может отправить сообщение с ошибкой. 
+Оно может прийтий как вместо ответа на какой-то запрос (если он некорректен и выполнить его невозможно), так и само по себе, без привязки к конкретному запросу.
+Формат сообщения об ошибке:
+
+```json 
+{
+  "state": "ERROR",
+  "payload": {
+    "message": "<message with details about error>",
+  }
+}
+```
+
 ### Board description
 
-В каждом ответе, в качестве одного из поля `payload` присутствует поле `board` с полным описанием доски. 
-Это описание имеет следующую структуру: 
+В каждом ответе (кроме сообщения об ошибке), в качестве одного из поля `payload` присутствует поле `board` с полным описанием доски. 
+Это описание имеет следующую структуру:
 ```json 
 {
   "board": {
     "cells": [{
       "row": "<row num>",
       "column": "<column num>",
-      "mark": "<X or O or empty>",
+      "mark": "<X or O or EMPTY>",
       "topic": "<topic>"
     }, ...]
   }
 }
 ```
+
 
 ### Open question
 #### Request
@@ -124,7 +199,7 @@ CONNECT /ws/host/{session_id}
     "id": "<session_id>"
   },
   "type": "OPEN_QUESTION",
-  "payload": { 
+  "payload": {
     "row": "<row num>",
     "column": "<column num>"
   }
@@ -169,7 +244,7 @@ CONNECT /ws/host/{session_id}
 
 При первом открытии `current_hints` - пустой список.
 
-### Show next hint 
+### Show next hint
 #### Request
 ```json 
 {
@@ -193,7 +268,7 @@ CONNECT /ws/host/{session_id}
 #### Response to CLIENT
 Такой же, как и в случае с [Open question](#response-to-client)
 
-### Show answer 
+### Show answer
 #### Request
 ```json 
 {
@@ -208,7 +283,7 @@ CONNECT /ws/host/{session_id}
 }
 ```
 
-#### Response to (both to HOST and to CLIENT) 
+#### Response to (both to HOST and to CLIENT)
 ```json 
 {
   "state": "OPENED_QUESTION_WITH_ANSWER",
@@ -232,10 +307,10 @@ CONNECT /ws/host/{session_id}
     "id": "<session_id>"
   },
   "type": "SET_FIELD",
-  "payload": { 
+  "payload": {
     "row": "<row num>",
     "column": "<column num>",
-    "mark": "<X or O or EMPTY>"
+    "mark": "<X or O or EMPTY or NOT_OPENED>"
   }
 }
 ```
