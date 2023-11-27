@@ -8,7 +8,7 @@ import {XIcon} from "@/components/XIcon"
 import {OIcon} from "@/components/OIcon"
 import {createGame, getQuizList} from "@/game/api"
 import {QuizCard} from "@/components/QuizCard"
-import {QuizInfo} from "@/game/types"
+import {GameConfig, QuizInfo} from "@/game/types"
 import {EditBoard} from "@/components/EditBoard"
 
 type AppState = {
@@ -32,6 +32,8 @@ type AppState = {
 const Home: NextPage = () => {
     const [state, setState] = useState<AppState>({kind: "main_page"})
     const [quizInfo, setQuizInfo] = useState<QuizInfo[] | undefined>()
+    const [replaceMarksChecked, setReplaceMarks] = useState(false);
+    const [openMultipleQuestionsChecked, setOpenMultipleQuestions] = useState(false);
 
     const dispatch = useDispatch()
 
@@ -115,7 +117,6 @@ const Home: NextPage = () => {
                 className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                 <div
                     className={`flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel`}>
-
                     <div
                         className={`px-8 flex flex-row items-center w-[1000px] md:w-[1000px] rounded-2xl bg-panel space-x-96`}>
                         <p className={`justify-items-start text-md py-6  text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
@@ -138,10 +139,34 @@ const Home: NextPage = () => {
                                     <QuizCard
                                         quiz={quiz} key={quiz.id}
                                         handleSelect={async (id: string) => {
-                                            const sessionId = (await createGame(id)).id
+                                            const sessionId = (await createGame(id, {
+                                                replaceMarks: replaceMarksChecked ? "ENABLED" : "DISABLED",
+                                                openMultipleQuestions: openMultipleQuestionsChecked ? "ENABLED" : "DISABLED"
+                                            })).id
                                             setState({kind: "playing", sessionId: sessionId, role: "host"})
                                         }}/>,
                                 )}
+                    </div>
+
+                    <div style={{alignContent: "left", transform: "scale(1.5)"}}>
+                        <ul>
+                            <li>
+                                <input 
+                                    type="checkbox"
+                                    checked={replaceMarksChecked}
+                                    onChange={() => setReplaceMarks(!replaceMarksChecked)}
+                                />
+                                <span style={{color:"orange"}}>Enable replace marks</span>
+                            </li>
+                            <li>
+                                <input 
+                                    type="checkbox"
+                                    checked={openMultipleQuestionsChecked}
+                                    onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
+                                />
+                                <span style={{color:"orange"}}>Enable open multiple questions</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

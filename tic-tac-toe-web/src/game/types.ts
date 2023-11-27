@@ -10,6 +10,7 @@ export type Session = {
 }
 
 export type Mark = "X" | "O" | "EMPTY" | "NOT_OPENED"
+export type EnabledDisabled = "ENABLED" | "DISABLED"
 
 export type Error = {
     error_message: string
@@ -72,6 +73,11 @@ export type ProtoQuiz = {
     name: string
     comment: string
     board: Question[]
+}
+
+export type GameConfig = {
+    replaceMarks: EnabledDisabled
+    openMultipleQuestions: EnabledDisabled
 }
 
 /**
