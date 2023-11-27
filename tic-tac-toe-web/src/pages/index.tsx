@@ -155,9 +155,15 @@ const Home: NextPage = () => {
                 }}/>
         </div>
     } else if (state.kind == "playing") {
-        content = <Board
-            sessionId={state.sessionId}
-            isHost={state.role == "host"}/>
+        content = 
+        <div>
+            <center>
+                <h1 className={`text-100xl md:text-10000xl font-extrabold text-primary`}>
+                    {"session: " + state.sessionId}
+                </h1>
+            </center>
+            <Board sessionId={state.sessionId} isHost={state.role == "host"}/>
+        </div>
     } else if (state.kind == "fatal") {
         content = <div>TODO</div>
     } else {
