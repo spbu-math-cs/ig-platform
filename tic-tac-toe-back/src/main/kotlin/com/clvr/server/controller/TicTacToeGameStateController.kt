@@ -3,6 +3,7 @@ package com.clvr.server.controller
 import com.clvr.server.TicTacToeEventHandler
 import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.model.GameState
+import com.clvr.server.model.IllegalGameActionException
 import com.clvr.server.utils.*
 
 class TicTacToeGameStateController(private val game: GameState) : TicTacToeEventHandler {
@@ -29,7 +30,7 @@ class TicTacToeGameStateController(private val game: GameState) : TicTacToeEvent
         manager.sendToClients(clientResponse)
     }
 
-    override fun handle(manager: TicTacToeSessionManager, event: RequestEvent<TicTacToeRequestPayload>) {
+    override fun handle(manager: TicTacToeSessionManager, event: RequestEvent<TicTacToeRequestPayload>) = try {
         when (event.payload) {
             is QuestionRequest -> {
                 val (row, column) = event.payload
@@ -61,5 +62,9 @@ class TicTacToeGameStateController(private val game: GameState) : TicTacToeEvent
                 manager.sendToClients(response)
             }
         }
+    } catch (e: IllegalGameActionException) {
+        manager.sendToHost(ResponseEvent(
+            GameError(e.message ?: "Unknown error occurred!")
+        ))
     }
 }

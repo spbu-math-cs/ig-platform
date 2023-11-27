@@ -1,7 +1,10 @@
 package com.clvr.server.model
 
+import com.clvr.server.common.Config
+import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.common.Quiz
+import com.clvr.server.common.ReplaceMarks
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,7 +37,7 @@ private fun getResultByContent(content: CellContent): GameResult =
         else          -> throw IllegalArgumentException()
     }
 
-class GameState(private val quiz: Quiz) {
+class GameState(private val quiz: Quiz, private val config: Config) {
     private val state: GridState = Array(quiz.gridSide) {
         Array(quiz.gridSide) {
             CellState(0, CellContent.NOT_OPENED)
@@ -44,11 +47,32 @@ class GameState(private val quiz: Quiz) {
     var turn: Player = Player.X
         private set
 
-    fun getOpenedHints(row: Int, column: Int): List<String> =
-        quiz.questions[row][column].hints.take(state[row][column].hintsUsed)
+    private var currentQuestionPosition: Pair<Int, Int>? = null
 
-    fun getAllHints(row: Int, column: Int): List<String> =
-        quiz.questions[row][column].hints
+    private fun ensureCellIsOpened(row: Int, column: Int) {
+        val prevPosition = currentQuestionPosition ?: Pair(row, column)
+
+        if (state[row][column].content == CellContent.NOT_OPENED && config.openMultipleQuestions == OpenMultipleQuestions.DISABLED) {
+            if (prevPosition.first != row || prevPosition.second != column) {
+                throw MultipleQuestionsOpeningException()
+            }
+        }
+
+        // TODO: maybe we should do
+        //   state[row][column].content = CellContent.EMPTY
+        //  here?
+        currentQuestionPosition = Pair(row, column)
+    }
+
+    fun getOpenedHints(row: Int, column: Int): List<String> {
+        ensureCellIsOpened(row, column)
+        return quiz.questions[row][column].hints.take(state[row][column].hintsUsed)
+    }
+
+    fun getAllHints(row: Int, column: Int): List<String> {
+        ensureCellIsOpened(row, column)
+        return quiz.questions[row][column].hints
+    }
 
     fun isCellValid(row: Int, column: Int): Boolean = 
         row >= 0 && row < quiz.gridSide && column >= 0 && column < quiz.gridSide
@@ -63,6 +87,7 @@ class GameState(private val quiz: Quiz) {
         quiz.questions[row][column].topic
 
     fun getQuestionStatement(row: Int, column: Int): String {
+        ensureCellIsOpened(row, column)
         return quiz.questions[row][column].statement
 //        if (state[row][column].hintsUsed == 0) {
 //            state[row][column].hintsUsed++
@@ -78,14 +103,18 @@ class GameState(private val quiz: Quiz) {
 //        }
     }
 
-    fun getQuestionAnswer(row: Int, column: Int) = 
-        quiz.questions[row][column].answer
+    fun getQuestionAnswer(row: Int, column: Int): String {
+        ensureCellIsOpened(row, column)
+        return quiz.questions[row][column].answer
+    }
 
     fun changeQuestion(row: Int, column: Int, newQuestion: QuizQuestion) {
         quiz.questions[row][column] = newQuestion
     }
     
     fun openNextHint(row: Int, column: Int): Boolean {
+        ensureCellIsOpened(row, column)
+
         if (state[row][column].hintsUsed == quiz.questions[row][column].hints.size) {
             return false
         }
@@ -101,6 +130,17 @@ class GameState(private val quiz: Quiz) {
         }
 
     fun updateCellContent(row: Int, column: Int, newContent: CellContent): GameResult {
+        require(newContent != CellContent.NOT_OPENED)
+
+        if (config.replaceMarks == ReplaceMarks.DISABLED) {
+            if (state[row][column].content != CellContent.NOT_OPENED) {
+                throw IllegalCellContentException()
+            }
+        }
+
+        ensureCellIsOpened(row, column)
+        currentQuestionPosition = null
+
         state[row][column].content = newContent
         if (newContent == CellContent.EMPTY) {
             turn = oppositePlayer(turn)
