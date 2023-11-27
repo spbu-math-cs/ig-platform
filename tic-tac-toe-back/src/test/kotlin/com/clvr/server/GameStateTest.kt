@@ -4,12 +4,7 @@ import com.clvr.server.common.Config
 import com.clvr.server.common.OpenMultipleQuestions
 import com.clvr.server.common.QuizQuestion
 import com.clvr.server.common.ReplaceMarks
-import com.clvr.server.model.CellContent
-import com.clvr.server.model.GameResult
-import com.clvr.server.model.GameState
-import com.clvr.server.model.IllegalCellContentException
-import com.clvr.server.model.MultipleQuestionsOpeningException
-import com.clvr.server.model.Player
+import com.clvr.server.model.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -168,7 +163,7 @@ class GameStateTest {
         gameState.updateCellContent(0, 0, CellContent.X)
         gameState.getQuestionStatement(1, 1)
 
-        assertDoesNotThrow {
+        assertThrows(OpenAlreadyMarkedQuestionException::class.java) {
             gameState.getQuestionStatement(0, 0)
         }
     }
