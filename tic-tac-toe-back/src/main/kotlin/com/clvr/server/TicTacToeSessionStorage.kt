@@ -3,6 +3,7 @@ package com.clvr.server
 import com.clvr.server.common.Config
 import com.clvr.server.common.Quiz
 import com.clvr.server.controller.TicTacToeGameStateController
+import com.clvr.server.model.GameResult
 import com.clvr.server.model.GameState
 import com.clvr.server.utils.*
 import java.util.concurrent.ConcurrentHashMap
@@ -31,5 +32,17 @@ object TicTacToeSessionStorage {
 
     fun getGameStateView(session: SessionId): GameStateView {
         return GameStateView.fromGameState(games[session]!!.gameState)
+    }
+
+    fun getGameResult(session: SessionId): GameResult {
+        return games[session]!!.gameState.currentResult()
+    }
+
+    fun getLastQuestionView(session: SessionId): Pair<HostQuestionView, ClientQuestionView>? {
+        val game = games[session]?.gameState ?: return null
+        val (row, column) = game.currentQuestionPosition ?: return null
+        val hostQuestionView = HostQuestionView.fromGameState(game, row, column)
+        val clientQuestionView = ClientQuestionView.fromGameState(game, row, column)
+        return hostQuestionView to clientQuestionView
     }
 }

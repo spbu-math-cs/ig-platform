@@ -99,7 +99,18 @@ data class HostQuestionView(
     @SerialName("current_hints_num")
     val currentHintsNum: Int,
     val answer: String
-)
+) {
+    companion object {
+        fun fromGameState(game: GameState, row: Int, column: Int): HostQuestionView {
+            val statement = game.getQuestionStatement(row, column)
+            val answer = game.getQuestionAnswer(row, column)
+            val allHints = game.getAllHints(row, column)
+            val openedHints = game.getOpenedHints(row, column)
+
+            return HostQuestionView(row, column, statement, allHints, openedHints.size, answer)
+        }
+    }
+}
 
 @Serializable
 data class ClientQuestionView(
@@ -108,7 +119,16 @@ data class ClientQuestionView(
     val question: String,
     @SerialName("current_hints")
     val currentHints: List<String>
-)
+) {
+    companion object {
+        fun fromGameState(game: GameState, row: Int, column: Int): ClientQuestionView {
+            val statement = game.getQuestionStatement(row, column)
+            val openedHints = game.getOpenedHints(row, column)
+
+            return ClientQuestionView(row, column, statement, openedHints)
+        }
+    }
+}
 
 @Serializable
 data class QuestionWithAnswer(

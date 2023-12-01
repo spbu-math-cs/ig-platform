@@ -50,10 +50,9 @@ fun Application.configureSockets() {
 
             logger.info { "Host $hostEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(
-                SetFieldResponse(GameResult.EMPTY, TicTacToeSessionStorage.getGameStateView(sessionId))
-            )
-            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
+            getNewHostInitialEvents(sessionId).forEach { initialEvent ->
+                outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
+            }
 
             coroutineScope {
                 launch {
@@ -102,10 +101,9 @@ fun Application.configureSockets() {
             val clientChannel = sessionManager.registerClient(clientEndpoint)
             logger.info { "Client $clientEndpoint connected to game $sessionId" }
 
-            val initialEvent = ResponseEvent(
-                SetFieldResponse(GameResult.EMPTY, TicTacToeSessionStorage.getGameStateView(sessionId))
-            )
-            outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
+            getNewClientInitialEvents(sessionId).forEach { initialEvent ->
+                outgoing.send(Frame.Text(encodeEventToJson(initialEvent)))
+            }
 
             try {
                 coroutineScope {
@@ -133,3 +131,37 @@ fun Application.configureSockets() {
 }
 
 private fun endpoint(endpoint: RequestConnectionPoint): String = endpoint.remoteAddress + ":" + endpoint.remotePort
+
+private fun getNewHostInitialEvents(sessionId: SessionId): List<ResponseEvent<TicTacToeResponsePayload>> {
+    val gameResult = TicTacToeSessionStorage.getGameResult(sessionId)
+    val gameStateView = TicTacToeSessionStorage.getGameStateView(sessionId)
+    val boardStateEvent = ResponseEvent(
+        SetFieldResponse(gameResult, gameStateView)
+    )
+
+    val (lastQuestionView, _) = TicTacToeSessionStorage.getLastQuestionView(sessionId)
+        ?: return listOf(boardStateEvent)
+
+    val lastQuestionViewEvent = ResponseEvent(
+        HostQuestionResponse(lastQuestionView, gameStateView)
+    )
+
+    return listOf(boardStateEvent, lastQuestionViewEvent)
+}
+
+private fun getNewClientInitialEvents(sessionId: SessionId): List<ResponseEvent<TicTacToeResponsePayload>> {
+    val gameResult = TicTacToeSessionStorage.getGameResult(sessionId)
+    val gameStateView = TicTacToeSessionStorage.getGameStateView(sessionId)
+    val boardStateEvent = ResponseEvent(
+        SetFieldResponse(gameResult, gameStateView)
+    )
+
+    val (_, lastQuestionView) = TicTacToeSessionStorage.getLastQuestionView(sessionId)
+        ?: return listOf(boardStateEvent)
+
+    val lastQuestionViewEvent = ResponseEvent(
+        ClientQuestionResponse(lastQuestionView, gameStateView)
+    )
+
+    return listOf(boardStateEvent, lastQuestionViewEvent)
+}
