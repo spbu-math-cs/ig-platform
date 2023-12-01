@@ -42,23 +42,23 @@ class ApplicationTest {
         // Check initial event for host
         val initialEvent = hostSession.receiveResponse<SetFieldResponse>()
         assertEquals(GameResult.EMPTY, initialEvent.payload.win)
-        assertEquals(9, initialEvent.payload.gameStateView.cellStateViews.size)
-        (0..8).forEach { assertEquals(CellContent.NOT_OPENED, initialEvent.payload.gameStateView.cellStateViews[it].mark) }
+        assertEquals(9, initialEvent.payload.boardView.cellStateViews.size)
+        (0..8).forEach { assertEquals(CellContent.NOT_OPENED, initialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Set field event
         hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
         val setFieldEvent = hostSession.receiveResponse<SetFieldResponse>()
         assertEquals(GameResult.EMPTY, setFieldEvent.payload.win)
-        assertEquals(CellContent.X, setFieldEvent.payload.gameStateView.cellStateViews[4].mark)
-        (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, setFieldEvent.payload.gameStateView.cellStateViews[it].mark) }
+        assertEquals(CellContent.X, setFieldEvent.payload.boardView.cellStateViews[4].mark)
+        (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, setFieldEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Check player initial event
         val playerSession = createPlayerWebSocketSession(playerClient, sessionId)
         val playerInitialEvent = playerSession.receiveResponse<SetFieldResponse>()
         assertEquals(GameResult.EMPTY, playerInitialEvent.payload.win)
-        assertEquals(9, playerInitialEvent.payload.gameStateView.cellStateViews.size)
-        assertEquals(CellContent.X, playerInitialEvent.payload.gameStateView.cellStateViews[4].mark)
-        (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, playerInitialEvent.payload.gameStateView.cellStateViews[it].mark) }
+        assertEquals(9, playerInitialEvent.payload.boardView.cellStateViews.size)
+        assertEquals(CellContent.X, playerInitialEvent.payload.boardView.cellStateViews[4].mark)
+        (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, playerInitialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Open question
         hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 1)))
@@ -67,7 +67,7 @@ class ApplicationTest {
         assertEquals(1, openedQuestionHostEvent.payload.questionView.column)
         assertEquals(0, openedQuestionHostEvent.payload.questionView.currentHintsNum)
         assertEquals("На каком языке написана следующая программа", openedQuestionHostEvent.payload.questionView.question)
-        assertEquals("Языки I", openedQuestionHostEvent.payload.gameStateView.cellStateViews[1].topic)
+        assertEquals("Языки I", openedQuestionHostEvent.payload.boardView.cellStateViews[1].topic)
         assertEquals("Whitespace", openedQuestionHostEvent.payload.questionView.answer)
 
         // Check player receives open question event broadcast

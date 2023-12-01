@@ -3,7 +3,6 @@ package com.clvr.server.plugins
 import com.clvr.server.TicTacToeSessionStorage
 import com.clvr.server.TicTacToeSessionManager
 import com.clvr.server.logger
-import com.clvr.server.model.GameResult
 import com.clvr.server.utils.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -132,35 +131,32 @@ fun Application.configureSockets() {
 
 private fun endpoint(endpoint: RequestConnectionPoint): String = endpoint.remoteAddress + ":" + endpoint.remotePort
 
+// TODO: handle the case when last question was already answered
 private fun getNewHostInitialEvents(sessionId: SessionId): List<ResponseEvent<TicTacToeResponsePayload>> {
-    val gameResult = TicTacToeSessionStorage.getGameResult(sessionId)
     val gameStateView = TicTacToeSessionStorage.getGameStateView(sessionId)
     val boardStateEvent = ResponseEvent(
-        SetFieldResponse(gameResult, gameStateView)
+        SetFieldResponse(gameStateView.gameResult, gameStateView.boardView)
     )
 
-    val (lastQuestionView, _) = TicTacToeSessionStorage.getLastQuestionView(sessionId)
-        ?: return listOf(boardStateEvent)
+    val (lastQuestionView, _) = gameStateView.lastQuestionView ?: return listOf(boardStateEvent)
 
     val lastQuestionViewEvent = ResponseEvent(
-        HostQuestionResponse(lastQuestionView, gameStateView)
+        HostQuestionResponse(lastQuestionView, gameStateView.boardView)
     )
 
     return listOf(boardStateEvent, lastQuestionViewEvent)
 }
 
 private fun getNewClientInitialEvents(sessionId: SessionId): List<ResponseEvent<TicTacToeResponsePayload>> {
-    val gameResult = TicTacToeSessionStorage.getGameResult(sessionId)
     val gameStateView = TicTacToeSessionStorage.getGameStateView(sessionId)
     val boardStateEvent = ResponseEvent(
-        SetFieldResponse(gameResult, gameStateView)
+        SetFieldResponse(gameStateView.gameResult, gameStateView.boardView)
     )
 
-    val (_, lastQuestionView) = TicTacToeSessionStorage.getLastQuestionView(sessionId)
-        ?: return listOf(boardStateEvent)
+    val (_, lastQuestionView) = gameStateView.lastQuestionView ?: return listOf(boardStateEvent)
 
     val lastQuestionViewEvent = ResponseEvent(
-        ClientQuestionResponse(lastQuestionView, gameStateView)
+        ClientQuestionResponse(lastQuestionView, gameStateView.boardView)
     )
 
     return listOf(boardStateEvent, lastQuestionViewEvent)

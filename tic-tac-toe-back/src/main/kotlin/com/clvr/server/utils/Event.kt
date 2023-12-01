@@ -73,13 +73,13 @@ data class CellStateView(
 )
 
 @Serializable
-data class GameStateView(
+data class BoardView(
     @SerialName("cells")
     val cellStateViews: List<CellStateView>
 ) {
     companion object {
-        fun fromGameState(gameState: GameState): GameStateView {
-            return GameStateView(
+        fun fromGameState(gameState: GameState): BoardView {
+            return BoardView(
                 gameState.getGridContent().mapIndexed { i, row ->
                     row.mapIndexed { j, cellContent ->
                         CellStateView(i, j, cellContent, gameState.getQuestionTopic(i, j))
@@ -156,7 +156,7 @@ data class HostQuestionResponse(
     val questionView: HostQuestionView,
 
     @SerialName("board")
-    val gameStateView: GameStateView
+    val boardView: BoardView
 ): TicTacToeResponsePayload {
     override val type: String = Companion.type
 
@@ -171,7 +171,7 @@ data class ClientQuestionResponse(
     val questionView: ClientQuestionView,
 
     @SerialName("board")
-    val gameStateView: GameStateView
+    val boardView: BoardView
 ): TicTacToeResponsePayload {
     override val type: String = Companion.type
 
@@ -198,7 +198,7 @@ data class SetFieldResponse(
     val win: GameResult,
 
     @SerialName("board")
-    val gameStateView: GameStateView
+    val boardView: BoardView
 ): TicTacToeResponsePayload {
     override val type: String = Companion.type
 
@@ -236,7 +236,7 @@ data class ShowAnswerResponse(
     val question: QuestionWithAnswer,
 
     @SerialName("board")
-    val gameStateView: GameStateView
+    val boardView: BoardView
 ) : TicTacToeResponsePayload {
     override val type: String = Companion.type
 
