@@ -1,8 +1,15 @@
 package com.clvr.server.plugins
 
 import com.clvr.server.TicTacToeSessionStorage
-import com.clvr.server.common.*
+import com.clvr.server.addQuiz
+import com.clvr.server.common.Config
+import com.clvr.server.common.QuizCellInfo
+import com.clvr.server.common.QuizCompleteInfo
+import com.clvr.server.common.QuizHeader
+import com.clvr.server.common.QuizId
+import com.clvr.server.getQuizById
 import com.clvr.server.quizDatabase
+import com.clvr.server.removeQuizById
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -18,7 +25,8 @@ data class SessionResponse(val session: SessionId)
 
 @Serializable
 data class QuizRequest(
-    val quiz: QuizId,
+    @SerialName("quiz_id")
+    val quiz: String,
 
     @SerialName("game_configuration")
     val config: Config
@@ -26,8 +34,21 @@ data class QuizRequest(
 
 @Serializable
 data class QuizListResponse (
-        @SerialName("quiz-list")
-        val quizList: List<QuizHeader>
+    @SerialName("quiz-list")
+    val quizList: List<QuizHeader>
+)
+
+@Serializable
+data class QuizCreateRequest(
+    val name: String,
+    val comment: String,
+    val board: List<QuizCellInfo>
+)
+
+@Serializable
+data class QuizIdResponse(
+    @SerialName("quiz-id")
+    val quizId: QuizId
 )
 
 fun Application.configureRouting() {
@@ -43,7 +64,7 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val quiz = quizDatabase.singleOrNull { it.id == quizRequest.quiz } ?: run {
+            val quiz = quizDatabase.singleOrNull { it.id.id == quizRequest.quiz } ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@post
             }
@@ -55,37 +76,63 @@ fun Application.configureRouting() {
 
         get("quiz-list") {
             call.respond(HttpStatusCode.OK, QuizListResponse(
-                    quizDatabase.map { quiz ->
-                        QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
-                    }.toList()
+                quizDatabase.map { quiz ->
+                    QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
+                }.toList()
             ))
         }
 
         get("quiz-list/{quiz-id}") {
             val quizId = QuizId(
-                    call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+                call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
-            val quiz = quizDatabase.singleOrNull { it.id == quizId } ?: run {
+            val quiz = getQuizById(quizId) ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }
 
             call.respond(HttpStatusCode.OK, QuizCompleteInfo(
-                    quiz.id.id,
-                    quiz.templateTitle ?: "",
-                    "",
-                    quiz.questions.flatMapIndexed { row, data ->
-                        data.mapIndexed { column, question -> QuizCellInfo(
-                                row,
-                                column,
-                                question.topic,
-                                question.statement,
-                                question.hints,
-                                question.answer
-                        )}
-                    }
+                quiz.id.id,
+                quiz.templateTitle ?: "",
+                quiz.templateComment ?:"",
+                quiz.questions.flatMapIndexed { row, data ->
+                    data.mapIndexed { column, question -> QuizCellInfo(
+                        row,
+                        column,
+                        question.topic,
+                        question.statement,
+                        question.hints,
+                        question.answer
+                    )}
+                }
             ))
         }
-    }
-}
+
+        post("api/quiz") {
+            val quiz = try {
+                call.receive<QuizCreateRequest>()
+            } catch (_: ContentTransformationException) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+
+            // TODO: check if row and column are valid
+            val quizId = addQuiz(quiz)
+
+            call.respond(HttpStatusCode.OK, QuizIdResponse(quizId))
+        }
+
+        delete("api/quiz/{quiz-id}") {
+            val quizId = QuizId(
+                    call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+            )
+
+            val quiz = getQuizById(quizId) ?: run {
+                call.respond(HttpStatusCode.NotFound)
+                return@delete
+            }
+
+            removeQuizById(quiz.id)
+            call.respond(HttpStatusCode.OK)    }
+}}

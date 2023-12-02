@@ -1,14 +1,12 @@
 package com.clvr.server
 
-import com.clvr.server.common.Config
-import com.clvr.server.common.OpenMultipleQuestions
-import com.clvr.server.common.QuizId
-import com.clvr.server.common.ReplaceMarks
+import com.clvr.server.common.*
 import com.clvr.server.model.CellContent
 import com.clvr.server.model.GameResult
 import com.clvr.server.plugins.*
 import com.clvr.server.utils.*
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
@@ -163,10 +161,85 @@ class ApplicationTest {
         assertTrue(playerSession.incoming.isEmpty)
     }
 
+    @Test
+    fun `quizzes storage api tests`() = testApplication {
+                setupServer()
+        val client = getClient()
+
+        val quizId = createQuiz(client)
+        val quiz = getQuizById(quizId) ?: throw IllegalStateException("quiz cannot be null")
+
+        assertEquals(quizId, quiz.id)
+        assertEquals("template name", quiz.templateTitle)
+        assertEquals("template comment", quiz.templateComment)
+        val expectedQuestions = createTemplate.board.map { cell ->
+            QuizQuestion(
+                cell.topic,
+                cell.question,
+                cell.answer,
+                cell.hints
+            )
+        }
+        assertEquals(expectedQuestions, quiz.questions.flatten().toList())
+
+        deleteQuiz(client, quizId)
+        assertNull(getQuizById(quizId))
+    }
+
+    @Test
+    fun `test main page`() = testApplication {
+        setupServer()
+        val client = getClient()
+
+        val quizList = client.get("quiz-list").body<QuizListResponse>().quizList
+        assertEquals(1, quizList.size)
+        assertEquals("Random template", quizList[0].name)
+        assertEquals("ABCD", quizList[0].id)
+        assertEquals("", quizList[0].comment)
+
+        assertEquals(HttpStatusCode.NotFound, client.get("quiz-list/KEK").status)
+        assertEquals(HttpStatusCode.OK, client.get("quiz-list/ABCD").status)
+
+        val quizInfo = client.get("quiz-list/ABCD").body<QuizCompleteInfo>()
+        assertEquals("ABCD", quizInfo.id)
+
+        val addedId = createQuiz(client).id
+
+        assertEquals(2, client.get("quiz-list").body<QuizListResponse>().quizList.size)
+
+        deleteQuiz(client, QuizId("ABCD"))
+
+        val quizListAfterUpdates = client.get("quiz-list").body<QuizListResponse>().quizList
+        assertEquals(1, quizListAfterUpdates.size)
+        assertEquals(addedId, quizListAfterUpdates[0].id)
+
+        assertEquals(HttpStatusCode.OK, client.get("quiz-list/$addedId").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("quiz-list/ABCD").status)
+    }
+
+    private suspend fun createQuiz(client: HttpClient): QuizId {
+        client.post("/api/quiz") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createTemplate))
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+
+            val jsonObject: JsonObject = Json.decodeFromString(bodyAsText())
+            val quiz = jsonObject["quiz-id"] as JsonObject
+            return QuizId(quiz["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null"))
+        }
+    }
+
+    private suspend fun deleteQuiz(client: HttpClient, quizId: QuizId) {
+        client.delete("/api/quiz/${quizId.id}").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
     private suspend fun createGameSession(client: HttpClient, config: Config): String {
         client.post("/api/game-session") {
             contentType(ContentType.Application.Json)
-            setBody(QuizRequest(QuizId("ABCD"), config))
+            setBody(QuizRequest("ABCD", config))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
@@ -177,7 +250,7 @@ class ApplicationTest {
     }
 
     private suspend fun createHostWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
-       return client.webSocketSession("/ws/host/${sessionId.id}")
+        return client.webSocketSession("/ws/host/${sessionId.id}")
     }
 
     private suspend fun createPlayerWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
@@ -190,7 +263,7 @@ class ApplicationTest {
             configureSerialization()
             configureSockets()
             configureRouting()
-            configureQuizDatabase(testQuizFile)
+            configureQuizDatabase(listOf(testQuizFile))
         }
     }
 

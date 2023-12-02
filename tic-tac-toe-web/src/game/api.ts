@@ -1,4 +1,4 @@
-import {Session, QuizInfo, Quiz} from "@/game/types"
+import {GameConfig, ProtoQuiz, Quiz, QuizInfo, Session} from "@/game/types"
 
 const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
 
@@ -15,13 +15,15 @@ export async function getQuiz(quizId: string): Promise<Quiz> {
     return json as Quiz
 }
 
-export async function createGame(quizId: string): Promise<Session> {
+export async function createGame(quizId: string, config: GameConfig): Promise<Session> {
     const response = await fetch(new URL(`api/game-session`, API_ENDPOINT), {
         method: "POST",
         body: JSON.stringify({
-            quiz: {
-                id: quizId,
-            },
+            quiz_id: quizId,
+            game_configuration: {
+                replace_marks: config.replaceMarks,
+                open_multiple_questions: config.openMultipleQuestions
+            }
         }),
         headers: {
             "Content-Type": "application/json",
@@ -31,4 +33,16 @@ export async function createGame(quizId: string): Promise<Session> {
     const json = await response.json()
 
     return json.session
+}
+
+export async function createQuiz(quiz: ProtoQuiz): Promise<string> {
+    const response = await fetch(new URL(`api/quiz`, API_ENDPOINT), {
+        method: "POST",
+        body: JSON.stringify(quiz),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+
+    return (await response.json()).id as string
 }

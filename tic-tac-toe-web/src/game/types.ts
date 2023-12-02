@@ -10,6 +10,11 @@ export type Session = {
 }
 
 export type Mark = "X" | "O" | "EMPTY" | "NOT_OPENED"
+export type EnabledDisabled = "ENABLED" | "DISABLED"
+
+export type Error = {
+    error_message: string
+}
 
 type Cell = {
     row: number
@@ -64,47 +69,35 @@ export type Quiz = QuizInfo & {
     board: Question[]
 }
 
-/**
- * The game state when the game is connecting, reconnecting, or otherwise not ready.
- *
- * TODO: differentiate between reconnection attempt and failed connection
- */
-interface GameStateLoading {
-    state: "_LOADING"
+export type ProtoQuiz = {
+    name: string
+    comment: string
+    board: Question[]
 }
 
-/**
- * The game state where the board is shown.
- */
-interface GameStateMainBoard {
-    state: "MAIN_BOARD"
-    board: Board
-}
-
-interface OpenedQuestionHost {
-    state: "OPENED_QUESTION_HOST"
-    board: Board
-    question: HostQuestion
-}
-
-interface OpenedQuestionClient {
-    state: "OPENED_QUESTION_CLIENT"
-    board: Board
-    question: ClientQuestion
-}
-
-interface OpenedQuestionWithAnswer {
-    state: "OPENED_QUESTION_WITH_ANSWER"
-    question: QuestionWithAnswer,
-    board: Board
+export type GameConfig = {
+    replaceMarks: EnabledDisabled
+    openMultipleQuestions: EnabledDisabled
 }
 
 /**
  * Describes the current game state.
  */
-export type GameState =
-    GameStateLoading
-    | GameStateMainBoard
-    | OpenedQuestionHost
-    | OpenedQuestionClient
-    | OpenedQuestionWithAnswer
+export type GameState = {
+    state: "_LOADING"
+} | {
+    state: "MAIN_BOARD"
+    board: Board
+} | {
+    state: "OPENED_QUESTION_HOST"
+    board: Board
+    question: HostQuestion
+} | {
+    state: "OPENED_QUESTION_CLIENT"
+    board: Board
+    question: ClientQuestion
+} | {
+    state: "OPENED_QUESTION_WITH_ANSWER"
+    question: QuestionWithAnswer,
+    board: Board
+}
