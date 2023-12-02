@@ -58,7 +58,21 @@ module.exports = {
             yellow: colors.yellow,
             pink: colors.pink,
         },
-        extend: {},
+        extend: {
+            animation: {
+                appear: 'appear 0.2s'
+            },
+            keyframes: {
+                appear: {
+                    '0%': {
+                        transform: "scale(0%)"
+                    },
+                    '100%': {
+                        transform: "scale(100%)"
+                    }
+                }
+            }
+        },
     },
     plugins: [
         require('tailwindcss-themer')({

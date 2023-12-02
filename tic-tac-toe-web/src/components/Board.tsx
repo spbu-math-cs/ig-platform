@@ -14,8 +14,24 @@ interface BoardProps {
 
 interface SquareProp {
     value: any
+    selected: boolean
 
     onClick(): void
+}
+
+function Square({value, onClick, selected}: SquareProp) {
+    return (
+        <button
+            className={`
+                flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center bg-square rounded-2xl
+                shadow-md active:scale-125 hover:bg-[#18272e] shadow-gray-400/30
+                transition-all duration-200 ease-in
+                ${selected && 'bg-[#18272e] scale-110'}
+            `}
+            onClick={onClick}>
+            {value}
+        </button>
+    )
 }
 
 export const Board = ({isHost, sessionId}: BoardProps) => {
@@ -29,16 +45,6 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
             k.play().then()
         }, true)
     }, [])
-
-    function Square({value, onClick}: SquareProp) {
-        return (
-            <button
-                className={`flex h-[190px] w-[190px] md:h-[160px] md:w-[160px] items-center justify-center bg-square rounded-2xl shadow-md active:scale-125 transition duration-200 ease-in hover:bg-[#18272e] shadow-gray-400/30`}
-                onClick={onClick}>
-                {value}
-            </button>
-        )
-    }
 
     function value(i: number) {
         let value
@@ -66,24 +72,32 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
     }
 
     const renderSquare = (i: number) => {
-        return <Square value={value(i)} onClick={() => {
-            if (!isHost) return
-            if (currentPlayer !== undefined) {
-                sendMessage({
-                    type: "SET_FIELD",
-                    mark: currentPlayer,
-                    row: Math.floor(i / rows),
-                    column: i % cols,
-                })
-            } else {
-                sendMessage({
-                    type: "OPEN_QUESTION",
-                    row: Math.floor(i / rows),
-                    column: i % cols,
-                })
+        return <Square
+            value={value(i)}
+            selected={
+                (game.state == "OPENED_QUESTION_CLIENT"
+                    || game.state == "OPENED_QUESTION_HOST"
+                    || game.state == "OPENED_QUESTION_WITH_ANSWER")
+                && i == game.question.row * 3 + game.question.column
             }
-            setCurrentPlayer(undefined)
-        }}/>
+            onClick={() => {
+                if (!isHost) return
+                if (currentPlayer !== undefined) {
+                    sendMessage({
+                        type: "SET_FIELD",
+                        mark: currentPlayer,
+                        row: Math.floor(i / rows),
+                        column: i % cols,
+                    })
+                } else {
+                    sendMessage({
+                        type: "OPEN_QUESTION",
+                        row: Math.floor(i / rows),
+                        column: i % cols,
+                    })
+                }
+                setCurrentPlayer(undefined)
+            }}/>
     }
 
     function setX() {
@@ -99,25 +113,10 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
             <div className="w-[800px] md:[w-300px] rounded-lg flex items-center justify-center space-y-10  space-x-36">
                 <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
 
-                    <div className=" mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
-
+                    <div
+                        className=" mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
+                        <div className="grow"></div>
                         <div className="w-[700px] md:[w-500px] rounded-lg flex items-center justify-center space-x-40">
-                            <div>
-                                {currentPlayer == "X" ?
-                                    <div
-                                        className={`text-white bg-square text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium uppercase`}>
-                                <span className={`text-txt text-2xl font-bold`}>
-                                X </span> {" "} Turn
-                                    </div>
-                                    :
-                                    <div
-                                        className={`text-white bg-square text-2xl px-6 py-1.5 w-36 space-y-8 rounded-lg font-medium  uppercase`}>
-                                <span className={`text-txt text-2xl  font-bold`}>
-                                O</span>{" "} Turn
-                                    </div>
-                                }
-                            </div>
-
                             <div
                                 className="md:[w-400px] rounded-lg flex items-center justify-center space-x-4 ml-4">
                                 <button onClick={setX}
@@ -151,15 +150,16 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                     </div>
 
                     <div className="flex-col space-y-5 w-[600px] rounded-lg flex items-center">
-                        <div className={`mt-24 w-[500px] min-h-[400px] h-auto md:[w-400px] px-30 py-30 bg-task rounded-lg flex items-top justify-center`}>
+                        <div
+                            className={`mt-24 w-[500px] min-h-[400px] h-auto md:[w-400px] px-30 py-30 bg-task rounded-lg flex items-top justify-center`}>
                             <button className={`rounded-xl py-10 px-10 text-3xl font-extrabold text-txt`}
-                                dangerouslySetInnerHTML={{
-                                    __html:
-                                        game.state === "OPENED_QUESTION_CLIENT"
-                                        || game.state === "OPENED_QUESTION_HOST"
-                                            ? game.question.question
-                                            : "",
-                                }}>
+                                    dangerouslySetInnerHTML={{
+                                        __html:
+                                            game.state === "OPENED_QUESTION_CLIENT"
+                                            || game.state === "OPENED_QUESTION_HOST"
+                                                ? game.question.question
+                                                : "",
+                                    }}>
                             </button>
                         </div>
                         {game.state == "OPENED_QUESTION_HOST" || game.state == "OPENED_QUESTION_WITH_ANSWER" ?
@@ -204,7 +204,8 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                             </>
                         }
                         {game.state == "OPENED_QUESTION_CLIENT" &&
-                            <div className="px-4 p-3 rounded-2xl w-[500px] min-h-[100px] py-3 font-extrabold h-auto text-xl  text-answerTxt bg-answerPanel">
+                            <div
+                                className="px-4 p-3 rounded-2xl w-[500px] min-h-[100px] py-3 font-extrabold h-auto text-xl  text-answerTxt bg-answerPanel">
                                 {
                                     game.question.currentHints.map(hint =>
                                         <div className="grow" key={hint} dangerouslySetInnerHTML={{__html: hint}}>
