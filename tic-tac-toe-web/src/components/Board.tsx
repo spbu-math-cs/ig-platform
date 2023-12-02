@@ -183,7 +183,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                                 {
                                     game.question.hints.map((hint, i) =>
                                         <div key={i}
-                                             className="w-[500px] pt-3  min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel">
+                                             className="w-[500px] pt-3  min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel pb-2">
                                             <div className="grow px-4" dangerouslySetInnerHTML={{__html: hint}}></div>
                                             {
                                                 game.question.currentHintsNum == i &&

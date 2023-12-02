@@ -116,7 +116,7 @@ const Home: NextPage = () => {
             <div
                 className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                 <div
-                    className={`flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel`}>
+                    className="flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel p-6">
                     <div
                         className={`px-8 flex flex-row items-center w-[1000px] md:w-[1000px] rounded-2xl bg-panel space-x-96`}>
                         <p className={`justify-items-start text-md py-6  text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
@@ -125,7 +125,7 @@ const Home: NextPage = () => {
 
                         <button onClick={() => setState({kind: "constructor"})}
                                 className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
-                            CREATE NEW GAME
+                            CREATE NEW QUIZ
                         </button>
                     </div>
 

@@ -20,7 +20,7 @@ export function QuizCard({quiz, handleSelect}: QuizProps) {
                         </div>
                         : ''}
                 </div>
-                <button className="bg-panel mt-3 rounded-l font-extrabold text-xl text-JoinGameTxt space-30-px py-2 px-2 flex"
+                <button className="mt-3 font-extrabold text-xl text-JoinGameTxt space-30-px flex button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel"
                         onClick={() => handleSelect(quiz.id)}
                 >
                     PLAY!

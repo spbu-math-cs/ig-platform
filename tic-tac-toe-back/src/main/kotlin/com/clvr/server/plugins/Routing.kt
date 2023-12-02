@@ -1,7 +1,15 @@
 package com.clvr.server.plugins
 
-import com.clvr.server.*
-import com.clvr.server.common.*
+import com.clvr.server.TicTacToeSessionStorage
+import com.clvr.server.addQuiz
+import com.clvr.server.common.Config
+import com.clvr.server.common.QuizCellInfo
+import com.clvr.server.common.QuizCompleteInfo
+import com.clvr.server.common.QuizHeader
+import com.clvr.server.common.QuizId
+import com.clvr.server.getQuizById
+import com.clvr.server.quizDatabase
+import com.clvr.server.removeQuizById
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
