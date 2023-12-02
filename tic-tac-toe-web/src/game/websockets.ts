@@ -36,6 +36,7 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
     }, [readyState])
 
     const [errors, setErrors] = useState<Error[]>([])
+    const [nextErrorId, setNextErrorId] = useState(0)
 
     useEffect(() => {
         const msg = lastJsonMessage as any
@@ -89,7 +90,8 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
             console.log("ERROR: " + msg.payload.message)
 
             const newErrors = [...errors]
-            newErrors.push({error_message: msg.payload.message})
+            newErrors.push({error_message: msg.payload.message, id: nextErrorId})
+            setNextErrorId(nextErrorId + 1)
             setErrors(newErrors)
             setTimeout(() => {
                 setErrors(errors => {

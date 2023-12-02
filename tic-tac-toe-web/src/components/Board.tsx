@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 import {useServerState} from "@/game/websockets"
-import {ErrorBadge} from '@/components/Errors'
+import {ErrorSnackbar} from '@/components/Errors'
 
 const rows = 3
 const cols = 3
@@ -216,7 +216,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                     </div>
                 </div>
             </div>
-            <ErrorBadge errors={errors}/>
+            <ErrorSnackbar errors={errors}/>
         </div>
     )
 }

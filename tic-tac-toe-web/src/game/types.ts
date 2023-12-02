@@ -14,6 +14,7 @@ export type EnabledDisabled = "ENABLED" | "DISABLED"
 
 export type Error = {
     error_message: string
+    id: number
 }
 
 type Cell = {
