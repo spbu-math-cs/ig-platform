@@ -6,6 +6,7 @@ import {nextTheme} from "@/state/themeSlice"
 import {useDispatch} from "react-redux"
 import {XIcon} from "@/components/XIcon"
 import {OIcon} from "@/components/OIcon"
+import {LogIn} from "@/components/LogIn"
 import {createGame, getQuizList} from "@/game/api"
 import {QuizCard} from "@/components/QuizCard"
 import {GameConfig, QuizInfo} from "@/game/types"
@@ -24,6 +25,8 @@ type AppState = {
     kind: "choosing_game"
 } | {
     kind: "constructor"
+} | {
+    kind: "logging"
 } | {
     kind: "fatal"
     error: Node | string
@@ -75,10 +78,15 @@ const Home: NextPage = () => {
                     </div>
                 </div>
             </div>
-            <div className="mt-106 md:mt-106  flex flex-col items-center justify-center mx-auto">
+            <div className="mt-106 md:mt-106 flex flex-row items-center justify-center mx-auto space-x-6">
                 <button onClick={() => dispatch(nextTheme())}
-                        className={`button hover:ring-4 hover:ring-cyan-300 rounded-xl mt-8 px-6 py-3 bg-createcol hover:bg-panel`}>
+                        className={"flex items-center lg:order-2 button hover:ring-4 hover:ring-cyan-300 mt-8 rounded-xl px-6 py-3 bg-createcol hover:bg-panel"}>
                     Change Theme
+                </button>
+                <button
+                    className="flex items-center lg:order-2 button hover:ring-4 hover:ring-cyan-300 mt-8 rounded-xl px-6 py-3 bg-createcol hover:bg-panel"
+                    onClick={() => setState({kind: "logging"})}>
+                    Log in
                 </button>
             </div>
         </div>
@@ -116,7 +124,7 @@ const Home: NextPage = () => {
             <div
                 className="mt-10 w-[1000px] flex flex-col items-center justify-center">
                 <div
-                    className="flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel p-6">
+                    className="flex flex-col items-center w-[1000px] md:w-[1000px] md:h-[650px] rounded-2xl bg-selectPanel">
                     <div
                         className={`px-8 flex flex-row items-center w-[1000px] md:w-[1000px] rounded-2xl bg-panel space-x-96`}>
                         <p className={`justify-items-start text-md py-6  text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
@@ -125,7 +133,7 @@ const Home: NextPage = () => {
 
                         <button onClick={() => setState({kind: "constructor"})}
                                 className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
-                            CREATE NEW QUIZ
+                            or CREATE NEW QUIZ
                         </button>
                     </div>
 
@@ -151,20 +159,20 @@ const Home: NextPage = () => {
                     <div style={{alignContent: "left", transform: "scale(1.5)"}}>
                         <ul>
                             <li>
-                                <input 
+                                <input
                                     type="checkbox"
                                     checked={replaceMarksChecked}
                                     onChange={() => setReplaceMarks(!replaceMarksChecked)}
                                 />
-                                <span style={{color:"orange"}}>Enable replace marks</span>
+                                <span style={{color: "orange"}}>Enable replace marks</span>
                             </li>
                             <li>
-                                <input 
+                                <input
                                     type="checkbox"
                                     checked={openMultipleQuestionsChecked}
                                     onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                                 />
-                                <span style={{color:"orange"}}>Enable open multiple questions</span>
+                                <span style={{color: "orange"}}>Enable open multiple questions</span>
                             </li>
                         </ul>
                     </div>
@@ -180,31 +188,43 @@ const Home: NextPage = () => {
                 }}/>
         </div>
     } else if (state.kind == "playing") {
-        content = 
-        <div>
-            <center>
-                <h1 className={`text-100xl md:text-10000xl font-extrabold text-primary`}>
-                    {"session: " + state.sessionId}
-                </h1>
-            </center>
-            <Board sessionId={state.sessionId} isHost={state.role == "host"}/>
-        </div>
+        content =
+            <div>
+                <center>
+                    <h1 className={`text-100xl md:text-10000xl font-extrabold text-primary`}>
+                        {"session: " + state.sessionId}
+                    </h1>
+                </center>
+                <Board sessionId={state.sessionId} isHost={state.role == "host"}/>
+            </div>
+    } else if (state.kind == "logging") {
+        content =
+            <LogIn></LogIn>
     } else if (state.kind == "fatal") {
         content = <div>TODO</div>
     } else {
         checkExhausted(state)
     }
 
-    return <div className={`flex min-h-screen bg-back flex-col items-center  justify-items-center   py-2`}>
+    return <div className={`flex min-h-screen bg-back flex-col items-center  justify-items-center`}>
         <Head>
             <title>Tic-Tac-Toe Game</title>
             <link rel="icon" href="/tictactoe.ico"/>
         </Head>
 
+        <header>
+            <nav className=" w-screen py-2.5">
+                <div className="flex flex-row items-center justify-center mx-auto max-w-screen-xl">
+                    <a href="/tictactoe.ico" className="flex items-center">
+                        <img src="/tictactoe.ico" className=" mt-4 mr-3 h-10 sm:h-10" alt={""}/>
+                    </a>
+                    <text className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
+                        TIC{" "}<span className="text-createcol">TAC </span>{" "}TOE
+                    </text>
+                </div>
+            </nav>
+        </header>
 
-        <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
-            TIC{" "}<span className="text-createcol">TAC </span>{" "}TOE
-        </h1>
 
         {content}
     </div>
