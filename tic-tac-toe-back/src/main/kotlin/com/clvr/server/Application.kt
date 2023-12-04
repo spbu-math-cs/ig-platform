@@ -28,10 +28,11 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
         anyHost()
     }
+    install(MonitoringPlugin)
+
     configureCallLogging()
     configureSerialization()
-    configureDatabases()
+    configureQuizDatabase()
     configureSockets()
     configureRouting()
-    configureQuizDatabase()
 }

@@ -84,10 +84,7 @@ class DBQueryExecutorTest {
     @Test
     fun `test nonexistent element`() {
         db.update(CREATE_SIMPLE_TABLE_QUERY) { }
-
-        assertThrowsExactly(NoSuchElementException::class.java) {
-            db.queryObject(SELECT_ROW_FROM_SIMPLE_TABLE, { setInt(1, 1) }) { getInt(1) }
-        }
+        assertNull(db.queryObject(SELECT_ROW_FROM_SIMPLE_TABLE, { setInt(1, 1) }) { getInt(1) })
     }
 
     private data class TableRow(val a: Int, val b: String, val c: UUID)
