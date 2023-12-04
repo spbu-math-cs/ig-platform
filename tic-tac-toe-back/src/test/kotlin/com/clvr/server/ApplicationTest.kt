@@ -162,6 +162,37 @@ class ApplicationTest {
     }
 
     @Test
+    fun `test client mid-question connection`() = testApplication {
+        val config = Config(
+            replaceMarks = ReplaceMarks.DISABLED,
+            openMultipleQuestions = OpenMultipleQuestions.DISABLED
+        )
+
+        setupServer()
+        val hostClient = getClient()
+        val sessionId = SessionId(createGameSession(hostClient, config))
+        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+
+        hostSession.receiveResponse<SetFieldResponse>()
+
+        // Open question
+        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.receiveResponse<HostQuestionResponse>()
+
+        // New client connects
+        val playerClient = getClient()
+        val playerSession = createPlayerWebSocketSession(playerClient, sessionId)
+
+        playerSession.receiveResponse<SetFieldResponse>().payload.boardView
+        assertEquals(
+            ClientQuestionView(0, 0, "Опишите значение следующих эмодзи", emptyList()),
+            playerSession.receiveResponse<ClientQuestionResponse>().payload.questionView
+        )
+
+        assertTrue(playerSession.incoming.isEmpty)
+    }
+
+    @Test
     fun `quizzes storage api tests`() = testApplication {
                 setupServer()
         val client = getClient()
