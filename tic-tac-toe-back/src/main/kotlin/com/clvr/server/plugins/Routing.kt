@@ -1,15 +1,7 @@
 package com.clvr.server.plugins
 
 import com.clvr.server.TicTacToeSessionStorage
-import com.clvr.server.addQuiz
-import com.clvr.server.common.Config
-import com.clvr.server.common.QuizCellInfo
-import com.clvr.server.common.QuizCompleteInfo
-import com.clvr.server.common.QuizHeader
-import com.clvr.server.common.QuizId
-import com.clvr.server.getQuizById
-import com.clvr.server.quizDatabase
-import com.clvr.server.removeQuizById
+import com.clvr.server.common.*
 import com.clvr.server.utils.SessionId
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -64,7 +56,7 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            val quiz = quizDatabase.singleOrNull { it.id.id == quizRequest.quiz } ?: run {
+            val quiz = quizDatabase.getQuizById(QuizId(quizRequest.quiz)) ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@post
             }
@@ -75,11 +67,7 @@ fun Application.configureRouting() {
         }
 
         get("quiz-list") {
-            call.respond(HttpStatusCode.OK, QuizListResponse(
-                quizDatabase.map { quiz ->
-                    QuizHeader(quiz.templateTitle ?: "", quiz.id.id, "")
-                }.toList()
-            ))
+            call.respond(HttpStatusCode.OK, QuizListResponse(quizDatabase.listQuizzes()))
         }
 
         get("quiz-list/{quiz-id}") {
@@ -87,7 +75,7 @@ fun Application.configureRouting() {
                 call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
-            val quiz = getQuizById(quizId) ?: run {
+            val quiz = quizDatabase.getQuizById(quizId) ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }
@@ -110,17 +98,16 @@ fun Application.configureRouting() {
         }
 
         post("api/quiz") {
-            val quiz = try {
+            val quizRequest = try {
                 call.receive<QuizCreateRequest>()
             } catch (_: ContentTransformationException) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
 
-            // TODO: check if row and column are valid
-            val quizId = addQuiz(quiz)
-
-            call.respond(HttpStatusCode.OK, QuizIdResponse(quizId))
+            val quiz = quizCreateRequestToQuiz(quizRequest)
+            quizDatabase.addQuiz(quiz)
+            call.respond(HttpStatusCode.OK, QuizIdResponse(quiz.id))
         }
 
         delete("api/quiz/{quiz-id}") {
@@ -128,11 +115,38 @@ fun Application.configureRouting() {
                     call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
 
-            val quiz = getQuizById(quizId) ?: run {
+            val quiz = quizDatabase.getQuizById(quizId) ?: run {
                 call.respond(HttpStatusCode.NotFound)
                 return@delete
             }
 
-            removeQuizById(quiz.id)
-            call.respond(HttpStatusCode.OK)    }
+            quizDatabase.removeQuizById(quiz.id)
+            call.respond(HttpStatusCode.OK)
+        }
 }}
+
+// TODO: check if row and column are valid
+private fun quizCreateRequestToQuiz(quizRequest: QuizCreateRequest): Quiz {
+    val gridSize = 3 // TODO: make it configurable
+    val questions = Array(gridSize) {
+        Array(gridSize) {
+            QuizQuestion("", "", "", emptyList())
+        }
+    }
+    quizRequest.board.forEach { cell ->
+        questions[cell.row][cell.column] = QuizQuestion(
+            topic = cell.topic,
+            statement = cell.question,
+            answer = cell.answer,
+            hints = cell.hints
+        )
+    }
+    return Quiz(
+        id = QuizId(UUID.randomUUID().toString()),
+        questions = questions,
+        gridSide = gridSize,
+        templateTitle = quizRequest.name,
+        templateComment = quizRequest.comment,
+        templateAuthor = "Nobody",
+    )
+}

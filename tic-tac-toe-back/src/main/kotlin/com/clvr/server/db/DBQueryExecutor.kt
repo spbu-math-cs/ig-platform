@@ -4,7 +4,7 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class DBQueryExecutor(private val connection: Connection) {
+class DBQueryExecutor(private val connection: Connection): AutoCloseable {
     fun <T> query(
         query: String,
         prepareStatement: PreparedStatement.() -> Unit,
@@ -25,10 +25,10 @@ class DBQueryExecutor(private val connection: Connection) {
         query: String,
         prepareStatement: PreparedStatement.() -> Unit,
         rowMapper: ResultSet.() -> T
-    ): T {
+    ): T? {
         val result = query(query, prepareStatement, rowMapper)
         if (result.isEmpty())
-            throw NoSuchElementException("No suitable object was found")
+            return null
         return result[0]
     }
 
@@ -39,5 +39,9 @@ class DBQueryExecutor(private val connection: Connection) {
         val statement = connection.prepareStatement(query)
         prepareStatement(statement)
         return statement.executeUpdate()
+    }
+
+    override fun close() {
+        connection.close()
     }
 }
