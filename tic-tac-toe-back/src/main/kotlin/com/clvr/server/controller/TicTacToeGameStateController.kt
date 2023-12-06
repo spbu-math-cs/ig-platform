@@ -7,24 +7,15 @@ import com.clvr.server.model.IllegalGameActionException
 import com.clvr.server.utils.*
 
 class TicTacToeGameStateController(private val game: GameState) : TicTacToeEventHandler {
-    private fun getQuestionViews(row: Int, column: Int): Pair<HostQuestionView, ClientQuestionView> {
-        val statement = game.getQuestionStatement(row, column)
-        val answer = game.getQuestionAnswer(row, column)
-        val allHints = game.getAllHints(row, column)
-        val openedHints = game.getOpenedHints(row, column)
-        val hostQuestionView = HostQuestionView(row, column, statement, allHints, openedHints.size, answer)
-        val clientQuestionView = ClientQuestionView(row, column, statement, openedHints)
-
-        return hostQuestionView to clientQuestionView
-    }
-
     private fun sendQuestionResponses(manager: TicTacToeSessionManager, row: Int, column: Int) {
-        val (hostQuestionView, clientQuestionView) = getQuestionViews(row, column)
+        val hostQuestionView = HostQuestionView.fromGameState(game, row, column)
+        val clientQuestionView = ClientQuestionView.fromGameState(game, row, column)
+
         val hostResponse = ResponseEvent(
-            HostQuestionResponse(hostQuestionView, GameStateView.fromGameState(game))
+            HostQuestionResponse(hostQuestionView, BoardView.fromGameState(game))
         )
         val clientResponse = ResponseEvent(
-            ClientQuestionResponse(clientQuestionView, GameStateView.fromGameState(game))
+            ClientQuestionResponse(clientQuestionView, BoardView.fromGameState(game))
         )
         manager.sendToHost(hostResponse)
         manager.sendToClients(clientResponse)
@@ -47,7 +38,7 @@ class TicTacToeGameStateController(private val game: GameState) : TicTacToeEvent
                 val answer = game.getQuestionAnswer(row, column)
                 val questionWithAnswer = QuestionWithAnswer(row, column, question, answer)
                 val response = ResponseEvent(
-                    ShowAnswerResponse(questionWithAnswer, GameStateView.fromGameState(game))
+                    ShowAnswerResponse(questionWithAnswer, BoardView.fromGameState(game))
                 )
                 manager.sendToHost(response)
                 manager.sendToClients(response)
@@ -56,7 +47,7 @@ class TicTacToeGameStateController(private val game: GameState) : TicTacToeEvent
                 val (row, column, mark) = event.payload
                 val gameResult = game.updateCellContent(row, column, mark)
                 val response = ResponseEvent(
-                    SetFieldResponse(gameResult, GameStateView.fromGameState(game))
+                    SetFieldResponse(gameResult, BoardView.fromGameState(game))
                 )
                 manager.sendToHost(response)
                 manager.sendToClients(response)

@@ -47,7 +47,8 @@ class GameState(private val quiz: Quiz, private val config: Config) {
     var turn: Player = Player.X
         private set
 
-    private var currentQuestionPosition: Pair<Int, Int>? = null
+    var currentQuestionPosition: Pair<Int, Int>? = null
+        private set
 
     private fun ensureCellIsOpened(row: Int, column: Int) {
         val prevPosition = currentQuestionPosition ?: Pair(row, column)

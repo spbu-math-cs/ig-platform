@@ -76,7 +76,7 @@ class TicTacToeGameStateControllerTest {
 
         assertEquals(HostQuestionResponse.type, hostEventPayload.type)
         hostEventPayload as HostQuestionResponse
-        assertEquals(GameStateView.fromGameState(game), hostEventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
         val expectedHostQuestionView = HostQuestionView(
             row,
             column,
@@ -89,7 +89,7 @@ class TicTacToeGameStateControllerTest {
 
         assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
         clientEventPayload as ClientQuestionResponse
-        assertEquals(GameStateView.fromGameState(game), clientEventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
         val expectedClientQuestionView = ClientQuestionView(
             row,
             column,
@@ -118,7 +118,7 @@ class TicTacToeGameStateControllerTest {
 
         assertEquals(HostQuestionResponse.type, hostEventPayload.type)
         hostEventPayload as HostQuestionResponse
-        assertEquals(GameStateView.fromGameState(game), hostEventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
         val expectedHostQuestionView = HostQuestionView(
             row,
             column,
@@ -131,7 +131,7 @@ class TicTacToeGameStateControllerTest {
 
         assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
         clientEventPayload as ClientQuestionResponse
-        assertEquals(GameStateView.fromGameState(game), clientEventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
         val expectedClientQuestionView = ClientQuestionView(
             row,
             column,
@@ -158,7 +158,7 @@ class TicTacToeGameStateControllerTest {
 
             assertEquals(HostQuestionResponse.type, hostEventPayload.type)
             hostEventPayload as HostQuestionResponse
-            assertEquals(GameStateView.fromGameState(game), hostEventPayload.gameStateView)
+            assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
             val expectedHostQuestionView = HostQuestionView(
                 row,
                 column,
@@ -171,7 +171,7 @@ class TicTacToeGameStateControllerTest {
 
             assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
             clientEventPayload as ClientQuestionResponse
-            assertEquals(GameStateView.fromGameState(game), clientEventPayload.gameStateView)
+            assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
             val expectedClientQuestionView = ClientQuestionView(
                 row,
                 column,
@@ -200,7 +200,7 @@ class TicTacToeGameStateControllerTest {
         assertEquals(ShowAnswerResponse.type, eventPayload.type)
         eventPayload as ShowAnswerResponse
 
-        assertEquals(GameStateView.fromGameState(game), eventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
         val expectedQuestionWithAnswer = QuestionWithAnswer(
             row,
             column,
@@ -228,7 +228,7 @@ class TicTacToeGameStateControllerTest {
         assertEquals(SetFieldResponse.type, eventPayload.type)
         eventPayload as SetFieldResponse
 
-        assertEquals(GameStateView.fromGameState(game), eventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
         assertEquals(GameResult.EMPTY, eventPayload.win)
 
         assertEquals(CellContent.X, game.getGridContent()[row][column])
@@ -251,7 +251,7 @@ class TicTacToeGameStateControllerTest {
         assertEquals(SetFieldResponse.type, eventPayload.type)
         eventPayload as SetFieldResponse
 
-        assertEquals(GameStateView.fromGameState(game), eventPayload.gameStateView)
+        assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
         assertEquals(GameResult.X, eventPayload.win)
 
         assertEquals(CellContent.X, game.getGridContent()[row][column])

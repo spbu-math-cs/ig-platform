@@ -5,6 +5,7 @@ import com.clvr.server.common.Quiz
 import com.clvr.server.controller.TicTacToeGameStateController
 import com.clvr.server.model.GameState
 import com.clvr.server.utils.*
+import com.clvr.server.view.GameStateView
 import java.util.concurrent.ConcurrentHashMap
 
 typealias TicTacToeSessionManager = SessionManager<TicTacToeRequestPayload, TicTacToeResponsePayload>
@@ -30,6 +31,6 @@ object TicTacToeSessionStorage {
     }
 
     fun getGameStateView(session: SessionId): GameStateView {
-        return GameStateView.fromGameState(games[session]!!.gameState)
+        return GameStateView(games[session]!!.gameState)
     }
 }
