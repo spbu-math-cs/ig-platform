@@ -198,7 +198,7 @@ class ApplicationTest {
         val client = getClient()
 
         val quizId = createQuiz(client)
-        val quiz = getQuizById(quizId) ?: throw IllegalStateException("quiz cannot be null")
+        val quiz = quizDatabase.getQuizById(quizId) ?: throw IllegalStateException("quiz cannot be null")
 
         assertEquals(quizId, quiz.id)
         assertEquals("template name", quiz.templateTitle)
@@ -214,7 +214,7 @@ class ApplicationTest {
         assertEquals(expectedQuestions, quiz.questions.flatten().toList())
 
         deleteQuiz(client, quizId)
-        assertNull(getQuizById(quizId))
+        assertNull(quizDatabase.getQuizById(quizId))
     }
 
     @Test
@@ -290,11 +290,13 @@ class ApplicationTest {
 
     private fun ApplicationTestBuilder.setupServer() {
         application {
+            install(MonitoringPlugin)
+
             configureCallLogging()
             configureSerialization()
+            configureQuizDatabase(listOf(testQuizFile))
             configureSockets()
             configureRouting()
-            configureQuizDatabase(listOf(testQuizFile))
         }
     }
 
