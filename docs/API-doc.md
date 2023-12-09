@@ -446,6 +446,54 @@ CONNECT /ws/tic-tac-toe/host/{session_id}
 }
 ```
 
+### Wrong Answer
+
+Этот запрос отправляется, если одна из команд ответила на текущий вопрос неправильно. 
+После этого запроса происходит переход либо в OPEN_QUESTION, если другая команда ещё не отвечала, 
+либо в MAIN_BOARD, если обе команды уже успели ответить неправильно (в этом случае в клетку, соответствующую вопросу,
+выставляется значение EMPTY)
+
+#### Request
+```json 
+{
+  "session": {
+    "id": "<session_id>"
+  },
+  "type": "WRONG_ANSWER",
+  "payload": {
+    "row": "<row num>",
+    "column": "<column num>"
+  }
+}
+```
+
+#### Response
+
+Такой же, как в `OPEN_QUESTION` или `SET_FIELD`
+
+### Correct Answer
+
+Этот запрос отправляется, если команда правильно отвечает на вопрос. Запрос аналогичен SET_FIELD, 
+разница лишь в том, что здесь сервер сам определяет, что нужно поставить в текущую клетку, так как он знает, 
+какая команда сейчас отвечает.
+
+#### Request
+```json 
+{
+  "session": {
+    "id": "<session_id>"
+  },
+  "type": "CORRECT_ANSWER",
+  "payload": {
+    "row": "<row num>",
+    "column": "<column num>"
+  }
+}
+```
+
+#### Response (both to HOST and to CLIENT)
+
+Такой же, как и в случае `SET_FIELD`
 
 ## Game session as board
 CONNECT ws/tic-tac-toe/board/{session_id}
@@ -504,6 +552,8 @@ CONNECT /ws/tic-tac-toe/player/{session_id}/{team}
   }
 }
 ```
+
+Далее при правильном ответе на вопрос host отправляет запрос CORRECT_ANSWER, а при неправильном WRONG_ANSWER
 
 # NeKahoot
 
