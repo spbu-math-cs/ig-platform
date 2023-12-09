@@ -454,11 +454,56 @@ CONNECT ws/tic-tac-toe/board/{session_id}
 
 ## Game session as client 
 
-CONNECT /ws/tic-tac-toe/player/{session_id}
+CONNECT /ws/tic-tac-toe/player/{session_id}/{team}
 
-TODO: выбор X или O должен происходить при JOIN, какие ивенты приходят когда нажата кнопка + какое состояние ?
+Здесь и далее `team` это X или O. 
 
+### Press Button
 
+#### Request
+
+```json 
+{
+  "session": {
+    "id": "<session_id>"
+  },
+  "type": "PRESS_BUTTON"
+}
+```
+
+#### Response to HOST
+```json 
+{
+  "state": "TEAM_{team}_IS_ANSWERING",
+  "payload": {
+    "question": {
+      "row": "<row num>",
+      "column": "<column num>",
+      "question": "<question text>",
+      "hints": ["<hint1>", "<hint2>", ...],
+      "current_hints_num": "<current hints num>",
+      "answer": "<answer>"
+    },
+    "board": "<board description>"
+  }
+}
+```
+
+#### Response to CLIENT
+```json
+{
+  "state": "TEAM_{team}_IS_ANSWERING",
+  "payload": {
+    "question": {
+      "row": "<row num>",
+      "column": "<column num>",
+      "question": "<question text>",
+      "current_hints": "[<hint1>, <hint2>, ...]"
+    },
+    "board": "<board description>"
+  }
+}
+```
 
 # NeKahoot
 
