@@ -29,7 +29,7 @@ jobs:
 
       - name: Build
         run: ./gradlew build -x test
-        working-directory: ./tic-tac-toe-back
+        working-directory: ./clvr-back
 
   backend-unit-tests:
     name: Backend Unit-tests
@@ -50,12 +50,18 @@ jobs:
 
       - name: Unit tests
         run: ./gradlew test
-        working-directory: ./tic-tac-toe-back
+        working-directory: ./clvr-back
+
+      - name: Aggregating coverage
+        run: ./gradlew testCodeCoverageReport
+        working-directory: ./clvr-back
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./clvr-back/code-coverage-report/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
 
   frontend-build:
     name: Frontend Build
