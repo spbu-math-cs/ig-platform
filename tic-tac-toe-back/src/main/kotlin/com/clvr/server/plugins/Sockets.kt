@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.cancel
@@ -43,6 +44,11 @@ fun Application.configureSockets() {
             val sessionId = SessionId(
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
             )
+
+            val cookiesSession = call.sessions.get<UserSession>()
+            println("Cookie in WS $cookiesSession")
+
+
             val hostEndpoint: String = endpoint(call.request.origin)
             val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
             val hostChannel = sessionManager.hostChannel

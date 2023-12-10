@@ -2,8 +2,19 @@ import {GameConfig, ProtoQuiz, Quiz, QuizInfo, Session} from "@/game/types"
 
 const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
 
+export async function login(): Promise<void> {
+    await fetch(new URL(`login`, API_ENDPOINT), {
+        method: "GET",
+        credentials: 'include'
+    })
+}
+
 export async function getQuizList(): Promise<QuizInfo[]> {
-    const response = await fetch(new URL("quiz-list", API_ENDPOINT))
+    const response = await fetch(new URL("quiz-list", API_ENDPOINT),
+    {
+        method: "GET",
+        credentials: 'include'
+    })
     const json = await response.json()
 
     return json["quiz-list"]
@@ -18,6 +29,7 @@ export async function getQuiz(quizId: string): Promise<Quiz> {
 export async function createGame(quizId: string, config: GameConfig): Promise<Session> {
     const response = await fetch(new URL(`api/game-session`, API_ENDPOINT), {
         method: "POST",
+        credentials: 'include',
         body: JSON.stringify({
             quiz_id: quizId,
             game_configuration: {

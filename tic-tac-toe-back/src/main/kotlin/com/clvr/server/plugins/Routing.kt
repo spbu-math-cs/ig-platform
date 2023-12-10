@@ -8,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -43,11 +44,20 @@ data class QuizIdResponse(
     val quizId: QuizId
 )
 
+data class UserSession(val id: String)
+
 fun Application.configureRouting() {
     routing {
         options("/api/game-session") {
             call.respond(HttpStatusCode.OK)
         }
+
+        get("/login") {
+            println("Login clicked")
+            call.sessions.set(UserSession(id = "cookies oh my cookies " + UUID.randomUUID().toString()))
+            call.respondText { "Test cookies" }
+        }
+
         post("/api/game-session") {
             val quizRequest = try {
                 call.receive<QuizRequest>()
@@ -55,6 +65,9 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
+
+            val cookiesSession = call.sessions.get<UserSession>()
+            println("Cookie in routing $cookiesSession")
 
             val quiz = quizDatabase.getQuizById(QuizId(quizRequest.quiz)) ?: run {
                 call.respond(HttpStatusCode.NotFound)
@@ -68,6 +81,9 @@ fun Application.configureRouting() {
 
         get("quiz-list") {
             call.respond(HttpStatusCode.OK, QuizListResponse(quizDatabase.listQuizzes()))
+
+            val cookiesSession = call.sessions.get(".test")
+            println("Cookie in routing $cookiesSession")
         }
 
         get("quiz-list/{quiz-id}") {
