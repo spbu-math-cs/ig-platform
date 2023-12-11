@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import mu.KotlinLogging
 import java.util.*
 
 @Serializable
@@ -46,6 +47,8 @@ data class QuizIdResponse(
 
 data class UserSession(val id: String)
 
+private val routingLogger = KotlinLogging.logger { }
+
 fun Application.configureRouting() {
     routing {
         options("/api/game-session") {
@@ -53,12 +56,23 @@ fun Application.configureRouting() {
         }
 
         get("/login") {
-            println("Login clicked")
-            call.sessions.set(UserSession(id = "cookies oh my cookies " + UUID.randomUUID().toString()))
-            call.respondText { "Test cookies" }
+            val cookie = UserSession(id = "cookies oh my cookies " + UUID.randomUUID().toString())
+            call.sessions.set(cookie)
+            call.respondText { "Test cookies (login)" }
+
+            routingLogger.info { "Login clicked, cookie: $cookie" }
+        }
+
+        post("/logout") {
+            val cookie = call.sessions.get(".test")
+            call.sessions.clear(".test")
+            call.respondText { "Test cookies (logout)" }
+
+            routingLogger.info { "Logout clicked, cookie: $cookie" }
         }
 
         post("/api/game-session") {
+            logCookie(call, "/api/game-session")
             val quizRequest = try {
                 call.receive<QuizRequest>()
             } catch (_: ContentTransformationException) {
@@ -80,6 +94,7 @@ fun Application.configureRouting() {
         }
 
         get("quiz-list") {
+            logCookie(call, "quiz-list")
             call.respond(HttpStatusCode.OK, QuizListResponse(quizDatabase.listQuizzes()))
 
             val cookiesSession = call.sessions.get(".test")
@@ -87,6 +102,7 @@ fun Application.configureRouting() {
         }
 
         get("quiz-list/{quiz-id}") {
+            logCookie(call, "quiz-list/${call.parameters["quiz-id"]}")
             val quizId = QuizId(
                 call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
             )
@@ -140,6 +156,15 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.OK)
         }
 }}
+
+private fun logCookie(call: ApplicationCall, method: String) {
+    val cookie = call.sessions.get(".test")
+
+    if (cookie == null)
+        routingLogger.info { "Method $method: cookie is not set" }
+    else
+        routingLogger.info { "Method $method, cookie: $cookie" }
+}
 
 // TODO: check if row and column are valid
 private fun quizCreateRequestToQuiz(quizRequest: QuizCreateRequest): Quiz {

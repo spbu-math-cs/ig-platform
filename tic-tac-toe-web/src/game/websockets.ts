@@ -23,7 +23,7 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
     const url = new URL(`ws/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
-        shouldReconnect: () => true,
+        shouldReconnect: () => true 
     })
 
     const [gameState, setGameState] =

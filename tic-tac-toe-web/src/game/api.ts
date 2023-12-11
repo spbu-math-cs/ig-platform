@@ -9,6 +9,13 @@ export async function login(): Promise<void> {
     })
 }
 
+export async function logout(): Promise<void> {
+    await fetch(new URL(`logout`, API_ENDPOINT), {
+        method: "POST",
+        credentials: `include`
+    })
+}
+
 export async function getQuizList(): Promise<QuizInfo[]> {
     const response = await fetch(new URL("quiz-list", API_ENDPOINT),
     {
@@ -29,7 +36,6 @@ export async function getQuiz(quizId: string): Promise<Quiz> {
 export async function createGame(quizId: string, config: GameConfig): Promise<Session> {
     const response = await fetch(new URL(`api/game-session`, API_ENDPOINT), {
         method: "POST",
-        credentials: 'include',
         body: JSON.stringify({
             quiz_id: quizId,
             game_configuration: {
@@ -40,6 +46,7 @@ export async function createGame(quizId: string, config: GameConfig): Promise<Se
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: 'include',
     })
 
     const json = await response.json()
@@ -54,6 +61,7 @@ export async function createQuiz(quiz: ProtoQuiz): Promise<string> {
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: 'include'
     })
 
     return (await response.json()).id as string

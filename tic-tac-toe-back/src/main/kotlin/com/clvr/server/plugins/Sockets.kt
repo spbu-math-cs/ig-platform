@@ -45,8 +45,11 @@ fun Application.configureSockets() {
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
             )
 
-            val cookiesSession = call.sessions.get<UserSession>()
-            println("Cookie in WS $cookiesSession")
+            val cookie = call.sessions.get(".test")
+            if (cookie == null)
+                logger.info { "Cookie is not set in WS host" }
+            else
+                logger.info { "Cookie in WS host: $cookie" }
 
 
             val hostEndpoint: String = endpoint(call.request.origin)
@@ -101,6 +104,13 @@ fun Application.configureSockets() {
             val sessionId = SessionId(
                 call.parameters["session_id"] ?: throw IllegalArgumentException("failed to get session id")
             )
+
+            val cookie = call.sessions.get(".test")
+            if (cookie == null)
+                logger.info { "Cookie is not set in WS host" }
+            else
+                logger.info { "Cookie in WS host: $cookie" }
+
             val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
             val sessionManager: TicTacToeSessionManager = TicTacToeSessionStorage.getSessionManager(sessionId)
             val clientChannel = sessionManager.registerClient(clientEndpoint)

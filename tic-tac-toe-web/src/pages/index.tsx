@@ -6,7 +6,7 @@ import {nextTheme} from "@/state/themeSlice"
 import {useDispatch} from "react-redux"
 import {XIcon} from "@/components/XIcon"
 import {OIcon} from "@/components/OIcon"
-import {createGame, getQuizList, login} from "@/game/api"
+import {createGame, getQuizList, login, logout} from "@/game/api"
 import {QuizCard} from "@/components/QuizCard"
 import {GameConfig, QuizInfo} from "@/game/types"
 import {EditBoard} from "@/components/EditBoard"
@@ -53,6 +53,7 @@ const Home: NextPage = () => {
                     <OIcon/>
                 </div>
                 <button onClick={async () => { await login() }}> LOGIN </button>
+                <button onClick={async () => { await logout() }}> LOGOUT </button>
                 <div
                     className={`flex flex-col items-center py-12 w-[700px] md:w-[450px] h-64 md:h-72 rounded-2xl  bg-panel mt-6 space-y-8 md:space-y-8`}>
                     <p className={`text-md text-txt uppercase font-extrabold  md:text-3xl space-y-12 `}>
