@@ -2,7 +2,7 @@ package com.clvr.ttt
 
 import com.clvr.ttt.common.Config
 import com.clvr.ttt.common.OpenMultipleQuestions
-import com.clvr.ttt.common.QuizQuestion
+import com.clvr.ttt.common.TemplateQuestion
 import com.clvr.ttt.common.ReplaceMarks
 import com.clvr.ttt.common.TicTacToeTemplate
 import kotlinx.serialization.Serializable
@@ -115,7 +115,7 @@ class GameState(private val template: TicTacToeTemplate, private val config: Con
         return template.questions[row][column].answer
     }
 
-    fun changeQuestion(row: Int, column: Int, newQuestion: QuizQuestion) {
+    fun changeQuestion(row: Int, column: Int, newQuestion: TemplateQuestion) {
         template.questions[row][column] = newQuestion
     }
     

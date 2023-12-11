@@ -9,7 +9,7 @@ import com.clvr.platform.installActivity
 import com.clvr.ttt.*
 import com.clvr.ttt.common.Config
 import com.clvr.ttt.common.OpenMultipleQuestions
-import com.clvr.ttt.common.QuizCompleteInfo
+import com.clvr.ttt.common.TemplateCompleteInfo
 import com.clvr.ttt.common.ReplaceMarks
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -206,7 +206,7 @@ class ApplicationTest {
         val quizId = createQuiz(client)
         val quiz = client
             .get("/tic-tac-toe/quiz-list/${quizId.id}")
-            .body<QuizCompleteInfo>()
+            .body<TemplateCompleteInfo>()
 
         assertEquals(quizId.id, quiz.id)
         assertEquals("template name", quiz.name)
@@ -225,7 +225,7 @@ class ApplicationTest {
         setupServer()
         val client = getClient()
 
-        val quizList = client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList
+        val quizList = client.get("/tic-tac-toe/quiz-list").body<TemplateListResponse>().templateList
         assertEquals(1, quizList.size)
         assertEquals("Random template", quizList[0].name)
         assertEquals("ABCD", quizList[0].id)
@@ -234,16 +234,16 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.NotFound, client.get("/tic-tac-toe/quiz-list/KEK").status)
         assertEquals(HttpStatusCode.OK, client.get("/tic-tac-toe/quiz-list/ABCD").status)
 
-        val quizInfo = client.get("/tic-tac-toe/quiz-list/ABCD").body<QuizCompleteInfo>()
+        val quizInfo = client.get("/tic-tac-toe/quiz-list/ABCD").body<TemplateCompleteInfo>()
         assertEquals("ABCD", quizInfo.id)
 
         val addedId = createQuiz(client).id
 
-        assertEquals(2, client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList.size)
+        assertEquals(2, client.get("/tic-tac-toe/quiz-list").body<TemplateListResponse>().templateList.size)
 
         deleteQuiz(client, TicTacToeInstaller.templateId("ABCD"))
 
-        val quizListAfterUpdates = client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList
+        val quizListAfterUpdates = client.get("/tic-tac-toe/quiz-list").body<TemplateListResponse>().templateList
         assertEquals(1, quizListAfterUpdates.size)
         assertEquals(addedId, quizListAfterUpdates[0].id)
 
@@ -275,7 +275,7 @@ class ApplicationTest {
     private suspend fun createGameSession(client: HttpClient, config: Config): String {
         client.post("/tic-tac-toe/api/game-session") {
             contentType(ContentType.Application.Json)
-            setBody(QuizRequest("ABCD", config))
+            setBody(TemplateRequest("ABCD", config))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
