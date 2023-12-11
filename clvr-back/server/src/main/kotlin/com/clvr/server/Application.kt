@@ -12,7 +12,7 @@ import java.io.File
 
 private val mainLogger = KotlinLogging.logger { }
 
-private val defaultTicTacToeTemplateFiles = listOf("dumbQuizCollection.json", "samples.json")
+private val defaultTicTacToeTemplateFiles = listOf("dumbTemplateCollection.json", "samples.json")
     .map { fileName -> File(TicTacToeInstaller::class.java.classLoader.getResource(fileName)!!.toURI()) }
 
 private val activityInstallers: List<ActivityInstaller<*, *>> = listOf(
