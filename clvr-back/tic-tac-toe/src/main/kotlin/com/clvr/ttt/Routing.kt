@@ -126,7 +126,12 @@ fun Route.routingSetup(
             return@post
         }
 
-        val template = templateCreateRequestToTemplate(templateRequest)
+        val template = try {
+            templateCreateRequestToTemplate(templateRequest)
+        } catch (e: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, e.message ?: "unknown error")
+            return@post
+        }
         templateDatabase.addTemplate<TicTacToeTemplate>(template)
         call.respond(HttpStatusCode.OK, TemplateIdResponse(template.id))
     }
@@ -146,8 +151,30 @@ fun Route.routingSetup(
     }
 }
 
-// TODO: check if row and column are valid
+private fun validateTemplateRequest(templateRequest: TemplateCreateRequest) {
+    if (templateRequest.board.size != 9) {
+        throw IllegalArgumentException("board size is not 9")
+    }
+    templateRequest.board.forEach { cell ->
+        if (cell.row !in 0..2 || cell.column !in 0..2) {
+            throw IllegalArgumentException("invalid row or column")
+        }
+    }
+    templateRequest.board.forEach { cell ->
+        if (cell.topic.isBlank()) {
+            throw IllegalArgumentException("topic is blank")
+        }
+        if (cell.question.isBlank()) {
+            throw IllegalArgumentException("question is blank")
+        }
+        if (cell.answer.isBlank()) {
+            throw IllegalArgumentException("answer is blank")
+        }
+    }
+}
+
 private fun templateCreateRequestToTemplate(templateRequest: TemplateCreateRequest): TicTacToeTemplate {
+    validateTemplateRequest(templateRequest)
     val gridSize = 3
     val questions = Array(gridSize) {
         Array(gridSize) {
