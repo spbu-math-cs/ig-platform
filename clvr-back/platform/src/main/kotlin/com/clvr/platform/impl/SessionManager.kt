@@ -1,7 +1,6 @@
 package com.clvr.platform.impl
 
 import com.clvr.platform.api.ClvrGameController
-import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionParticipantsCommunicator
@@ -9,17 +8,17 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 
-internal class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInterface>(
+internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     private val clvrGameController: ClvrGameController<Req, Resp>
 ): AutoCloseable, SessionParticipantsCommunicator<Req, Resp> {
-    val hostChannel: Channel<ResponseEvent<Resp>> = Channel(Channel.UNLIMITED)
-    private val clientChannels: MutableMap<String, Channel<ResponseEvent<Resp>>> = mutableMapOf()
+    val hostChannel: Channel<Resp> = Channel(Channel.UNLIMITED)
+    private val clientChannels: MutableMap<String, Channel<Resp>> = mutableMapOf()
 
-    fun handleHostEvent(event: RequestEvent<Req>) {
+    fun handleHostEvent(event: Req) {
         clvrGameController.handle(this, event)
     }
 
-    override fun sendToClients(event: ResponseEvent<Resp>) {
+    override fun sendToClients(event: Resp) {
         synchronized(clientChannels) {
             runBlocking {
                 clientChannels.values.forEach { clientChannel ->
@@ -29,13 +28,13 @@ internal class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInte
         }
     }
 
-    override fun sendToHost(event: ResponseEvent<Resp>) {
+    override fun sendToHost(event: Resp) {
         runBlocking {
             hostChannel.send(event)
         }
     }
 
-    fun registerClient(clientEndpoint: String): ReceiveChannel<ResponseEvent<Resp>> {
+    fun registerClient(clientEndpoint: String): ReceiveChannel<Resp> {
         synchronized(clientChannels) {
             return clientChannels.computeIfAbsent(clientEndpoint) { Channel(Channel.UNLIMITED) }
         }

@@ -3,7 +3,8 @@ package com.clvr.platform.impl
 import com.clvr.platform.api.ClvrGameController
 import com.clvr.platform.api.ClvrGameView
 import com.clvr.platform.api.ClvrSessionRegistry
-import com.clvr.platform.api.EventPayloadInterface
+import com.clvr.platform.api.RequestEvent
+import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -17,12 +18,12 @@ import java.util.concurrent.ConcurrentHashMap
  * (like [getSessionManager]) from activity developers, and prohibits platform to create new sessions, only providing
  * access to already registered (via [ClvrSessionRegistry]) sessions
  */
-internal interface ClvrSessionStorage<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
+internal interface ClvrSessionStorage<Req: RequestEvent, Resp: ResponseEvent> {
     fun getSessionManager(session: SessionId): SessionManager<Req, Resp>
     fun getGameView(session: SessionId): ClvrGameView<Req, Resp>
 }
 
-internal class InMemorySessionStorage<Req: EventPayloadInterface, Resp: EventPayloadInterface>
+internal class InMemorySessionStorage<Req: RequestEvent, Resp: ResponseEvent>
     : ClvrSessionRegistry<Req, Resp>, ClvrSessionStorage<Req, Resp>
 {
     private inner class GameRecord(

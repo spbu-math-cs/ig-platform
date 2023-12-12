@@ -1,6 +1,5 @@
 package com.clvr.ttt
 
-import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.ttt.common.Config
 import kotlinx.coroutines.runBlocking
@@ -38,7 +37,7 @@ class TicTacToeGameStateControllerTest {
         val communicator = MockCommunicator()
         val hostChannel = communicator.hostChannel
         val clientChannel = communicator.clientChannel
-        controller.handle(communicator, RequestEvent(SessionId("0"), requestPayload))
+        controller.handle(communicator, TicTacToeRequest(SessionId("0"), requestPayload))
 
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()
@@ -70,7 +69,7 @@ class TicTacToeGameStateControllerTest {
             ThrowingSupplier { clientEventPayloads.single() }
         )
 
-        assertEquals(HostQuestionResponse.type, hostEventPayload.type)
+        assertEquals(HostQuestionResponse.state, hostEventPayload.state)
         hostEventPayload as HostQuestionResponse
         assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
         val expectedHostQuestionView = HostQuestionView(
@@ -83,7 +82,7 @@ class TicTacToeGameStateControllerTest {
         )
         assertEquals(expectedHostQuestionView, hostEventPayload.questionView)
 
-        assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
+        assertEquals(ClientQuestionResponse.state, clientEventPayload.state)
         clientEventPayload as ClientQuestionResponse
         assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
         val expectedClientQuestionView = ClientQuestionView(
@@ -112,7 +111,7 @@ class TicTacToeGameStateControllerTest {
             ThrowingSupplier { clientEventPayloads.single() }
         )
 
-        assertEquals(HostQuestionResponse.type, hostEventPayload.type)
+        assertEquals(HostQuestionResponse.state, hostEventPayload.state)
         hostEventPayload as HostQuestionResponse
         assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
         val expectedHostQuestionView = HostQuestionView(
@@ -125,7 +124,7 @@ class TicTacToeGameStateControllerTest {
         )
         assertEquals(expectedHostQuestionView, hostEventPayload.questionView)
 
-        assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
+        assertEquals(ClientQuestionResponse.state, clientEventPayload.state)
         clientEventPayload as ClientQuestionResponse
         assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
         val expectedClientQuestionView = ClientQuestionView(
@@ -152,7 +151,7 @@ class TicTacToeGameStateControllerTest {
                 ThrowingSupplier { clientEventPayloads.single() }
             )
 
-            assertEquals(HostQuestionResponse.type, hostEventPayload.type)
+            assertEquals(HostQuestionResponse.state, hostEventPayload.state)
             hostEventPayload as HostQuestionResponse
             assertEquals(BoardView.fromGameState(game), hostEventPayload.boardView)
             val expectedHostQuestionView = HostQuestionView(
@@ -165,7 +164,7 @@ class TicTacToeGameStateControllerTest {
             )
             assertEquals(expectedHostQuestionView, hostEventPayload.questionView)
 
-            assertEquals(ClientQuestionResponse.type, clientEventPayload.type)
+            assertEquals(ClientQuestionResponse.state, clientEventPayload.state)
             clientEventPayload as ClientQuestionResponse
             assertEquals(BoardView.fromGameState(game), clientEventPayload.boardView)
             val expectedClientQuestionView = ClientQuestionView(
@@ -193,7 +192,7 @@ class TicTacToeGameStateControllerTest {
             ThrowingSupplier { hostEventPayloads.single() }
         )
 
-        assertEquals(ShowAnswerResponse.type, eventPayload.type)
+        assertEquals(ShowAnswerResponse.state, eventPayload.state)
         eventPayload as ShowAnswerResponse
 
         assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
@@ -221,7 +220,7 @@ class TicTacToeGameStateControllerTest {
             ThrowingSupplier { hostEventPayloads.single() }
         )
 
-        assertEquals(SetFieldResponse.type, eventPayload.type)
+        assertEquals(SetFieldResponse.state, eventPayload.state)
         eventPayload as SetFieldResponse
 
         assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
@@ -244,7 +243,7 @@ class TicTacToeGameStateControllerTest {
             ThrowingSupplier { hostEventPayloads.single() }
         )
 
-        assertEquals(SetFieldResponse.type, eventPayload.type)
+        assertEquals(SetFieldResponse.state, eventPayload.state)
         eventPayload as SetFieldResponse
 
         assertEquals(BoardView.fromGameState(game), eventPayload.boardView)
