@@ -3,8 +3,8 @@ package com.clvr.platform.impl.plugins
 import com.clvr.platform.impl.ClvrSessionStorage
 import com.clvr.platform.api.ClvrGameView
 import com.clvr.platform.logger
-import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
+import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.impl.SessionManager
 import io.ktor.http.*
@@ -18,7 +18,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
-private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> DefaultWebSocketServerSession.configureHostSession(
+private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketServerSession.configureHostSession(
     sessionStorage: ClvrSessionStorage<Req, Resp>
 ) {
     val logger = application.logger
@@ -63,7 +63,7 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
                     val jsonEvent: String = frame.readText()
                     logger.debug { "Receive event $jsonEvent from host $hostEndpoint in $sessionId game" }
 
-                    val event: RequestEvent<Req> = gameView.decodeJsonToEvent(jsonEvent)
+                    val event: Req = gameView.decodeJsonToEvent(jsonEvent)
                     sessionManager.handleHostEvent(event)
                 } catch (e: Exception) {
                     logger.error { "Failed to process event incoming frame because of error $e" }
@@ -77,7 +77,7 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
     }
 }
 
-private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> DefaultWebSocketServerSession.configureClientSession(
+private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketServerSession.configureClientSession(
     sessionStorage: ClvrSessionStorage<Req, Resp>
 ) {
     val logger = application.logger

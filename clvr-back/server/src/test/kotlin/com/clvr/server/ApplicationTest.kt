@@ -1,8 +1,6 @@
 package com.clvr.server
 
 import com.clvr.platform.api.TemplateId
-import com.clvr.platform.api.RequestEvent
-import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.configurePlatform
 import com.clvr.platform.installActivity
@@ -52,7 +50,7 @@ class ApplicationTest {
         (0..8).forEach { assertEquals(CellContent.NOT_OPENED, initialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Set field event
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(1, 1, CellContent.X)))
         val setFieldEvent = hostSession.receiveResponse<SetFieldResponse>()
         assertEquals(GameResult.EMPTY, setFieldEvent.payload.win)
         assertEquals(CellContent.X, setFieldEvent.payload.boardView.cellStateViews[4].mark)
@@ -67,7 +65,7 @@ class ApplicationTest {
         (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, playerInitialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 1)))
         var openedQuestionHostEvent = hostSession.receiveResponse<HostQuestionResponse>()
         assertEquals(0, openedQuestionHostEvent.payload.questionView.row)
         assertEquals(1, openedQuestionHostEvent.payload.questionView.column)
@@ -84,7 +82,7 @@ class ApplicationTest {
         assertEquals(0, openedQuestionPlayerEvent.payload.questionView.currentHints.size)
 
         // Show next hint
-        hostSession.sendRequest(RequestEvent(sessionId, NextHintRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, NextHintRequest(0, 1)))
         openedQuestionHostEvent = hostSession.receiveResponse<HostQuestionResponse>()
         assertEquals(0, openedQuestionHostEvent.payload.questionView.row)
         assertEquals(1, openedQuestionHostEvent.payload.questionView.column)
@@ -99,7 +97,7 @@ class ApplicationTest {
         assertEquals(listOf("hint: На каком языке написана следующая программа"), openedQuestionPlayerEvent.payload.questionView.currentHints)
 
         // Show answer
-        hostSession.sendRequest(RequestEvent(sessionId, ShowAnswerRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, ShowAnswerRequest(0, 1)))
         val questionAnswerHostEvent = hostSession.receiveResponse<ShowAnswerResponse>()
         assertEquals(0, questionAnswerHostEvent.payload.question.row)
         assertEquals(1, questionAnswerHostEvent.payload.question.column)
@@ -110,16 +108,16 @@ class ApplicationTest {
         assertEquals(questionAnswerHostEvent, questionAnswerPlayerEvent)
 
         // Make win X win
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.X)))
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(2, 2, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(2, 2, CellContent.X)))
         hostSession.receiveResponse<SetFieldResponse>() // skip
-        val finalHostResponseEvent = hostSession.receiveResponse<SetFieldResponse>()
-        assertEquals(GameResult.X, finalHostResponseEvent.payload.win)
+        val finalHostTicTacToeResponse = hostSession.receiveResponse<SetFieldResponse>()
+        assertEquals(GameResult.X, finalHostTicTacToeResponse.payload.win)
 
         // Check client receives events with game result
         playerSession.receiveResponse<SetFieldResponse>() // skip
-        val finalPlayerResponseEvent = playerSession.receiveResponse<SetFieldResponse>()
-        assertEquals(GameResult.X, finalPlayerResponseEvent.payload.win)
+        val finalPlayerTicTacToeResponse = playerSession.receiveResponse<SetFieldResponse>()
+        assertEquals(GameResult.X, finalPlayerTicTacToeResponse.payload.win)
     }
 
     @Test
@@ -140,12 +138,12 @@ class ApplicationTest {
         playerSession.receiveResponse<SetFieldResponse>()
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 0)))
         hostSession.receiveResponse<HostQuestionResponse>()
         playerSession.receiveResponse<ClientQuestionResponse>()
 
         // Set other cell => error
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(1, 1, CellContent.X)))
         assertEquals(
             "Set mark in the opened cell before opening the next one",
             hostSession.receiveResponse<GameError>().payload.message
@@ -153,12 +151,12 @@ class ApplicationTest {
         assertTrue(playerSession.incoming.isEmpty)
 
         // Set correct cell
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.X)))
         hostSession.receiveResponse<SetFieldResponse>()
         playerSession.receiveResponse<SetFieldResponse>()
 
         // Set that cell again => error
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.O)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.O)))
         assertEquals(
             "Changing result in the cell is forbidden",
             hostSession.receiveResponse<GameError>().payload.message
@@ -182,7 +180,7 @@ class ApplicationTest {
         hostSession.receiveResponse<SetFieldResponse>()
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 0)))
         hostSession.receiveResponse<HostQuestionResponse>()
 
         // New client connects
@@ -313,38 +311,38 @@ class ApplicationTest {
         }
     }
 
-    private suspend fun ClientWebSocketSession.sendRequest(event: RequestEvent<TicTacToeRequestPayload>) {
-        outgoing.send(Frame.Text(encodeRequestEventToJson(event)))
+    private suspend fun ClientWebSocketSession.sendRequest(event: TicTacToeRequest<TicTacToeRequestPayload>) {
+        outgoing.send(Frame.Text(encodeTicTacToeRequestToJson(event)))
     }
 
     @Suppress("UNCHECKED_CAST")
-    private suspend inline fun <reified T: TicTacToeResponsePayload> ClientWebSocketSession.receiveResponse(): ResponseEvent<T> {
+    private suspend inline fun <reified T: TicTacToeResponsePayload> ClientWebSocketSession.receiveResponse(): TicTacToeResponse<T> {
         val frame = incoming.receive()
         assertTrue(frame is Frame.Text)
         val event = decodeResponseJsonToEvent((frame as Frame.Text).readText())
         assertTrue(event.payload is T)
-        return event as ResponseEvent<T>
+        return event as TicTacToeResponse<T>
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun encodeRequestEventToJson(event: RequestEvent<TicTacToeRequestPayload>): String {
+    private fun encodeTicTacToeRequestToJson(event: TicTacToeRequest<TicTacToeRequestPayload>): String {
         return when (event.payload) {
-            is QuestionRequest -> Json.encodeToString(event as RequestEvent<QuestionRequest>)
-            is SetFieldRequest -> Json.encodeToString(event as RequestEvent<SetFieldRequest>)
-            is NextHintRequest -> Json.encodeToString(event as RequestEvent<NextHintRequest>)
-            is ShowAnswerRequest -> Json.encodeToString(event as RequestEvent<ShowAnswerRequest>)
+            is QuestionRequest -> Json.encodeToString(event as TicTacToeRequest<QuestionRequest>)
+            is SetFieldRequest -> Json.encodeToString(event as TicTacToeRequest<SetFieldRequest>)
+            is NextHintRequest -> Json.encodeToString(event as TicTacToeRequest<NextHintRequest>)
+            is ShowAnswerRequest -> Json.encodeToString(event as TicTacToeRequest<ShowAnswerRequest>)
         }
     }
 
-    private fun decodeResponseJsonToEvent(jsonString: String): ResponseEvent<TicTacToeResponsePayload> {
+    private fun decodeResponseJsonToEvent(jsonString: String): TicTacToeResponse<*> {
         val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
         return when (jsonObject["state"]!!.jsonPrimitive.content) {
-            HostQuestionResponse.type -> Json.decodeFromString<ResponseEvent<HostQuestionResponse>>(jsonString)
-            ClientQuestionResponse.type -> Json.decodeFromString<ResponseEvent<ClientQuestionResponse>>(jsonString)
-            SetFieldResponse.type -> Json.decodeFromString<ResponseEvent<SetFieldResponse>>(jsonString)
-            ShowAnswerResponse.type -> Json.decodeFromString<ResponseEvent<ShowAnswerResponse>>(jsonString)
-            GameError.type -> Json.decodeFromString<ResponseEvent<GameError>>(jsonString)
+            HostQuestionResponse.state -> Json.decodeFromString<TicTacToeResponse<HostQuestionResponse>>(jsonString)
+            ClientQuestionResponse.state -> Json.decodeFromString<TicTacToeResponse<ClientQuestionResponse>>(jsonString)
+            SetFieldResponse.state -> Json.decodeFromString<TicTacToeResponse<SetFieldResponse>>(jsonString)
+            ShowAnswerResponse.state -> Json.decodeFromString<TicTacToeResponse<ShowAnswerResponse>>(jsonString)
+            GameError.state -> Json.decodeFromString<TicTacToeResponse<GameError>>(jsonString)
             else -> error("Response expected")
         }
     }

@@ -55,7 +55,7 @@ data class QuizIdResponse(
 
 fun Route.routingSetup(
     templateDatabase: TemplateDatabase,
-    sessionRegistry: ClvrSessionRegistry<TicTacToeRequestPayload, TicTacToeResponsePayload>
+    sessionRegistry: ClvrSessionRegistry<TicTacToeRequest<*>, TicTacToeResponse<*>>
 ) {
     options("/api/game-session") {
         call.respond(HttpStatusCode.OK)

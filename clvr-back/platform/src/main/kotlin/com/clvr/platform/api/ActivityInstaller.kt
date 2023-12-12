@@ -3,7 +3,7 @@ package com.clvr.platform.api
 import com.clvr.platform.api.db.TemplateDatabase
 import io.ktor.server.routing.*
 
-interface ActivityInstaller<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
+interface ActivityInstaller<Req: RequestEvent, Resp: ResponseEvent> {
     val activityName: String
 
     fun install(
