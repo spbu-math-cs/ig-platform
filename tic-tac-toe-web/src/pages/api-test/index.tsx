@@ -2,14 +2,14 @@
 import {useServerState} from "@/game/websockets"
 import {useEffect, useRef, useState} from "react"
 import {getQuiz, getQuizList} from "@/game/api"
-import {Quiz, QuizInfo} from "@/game/types"
+import {Quiz, TemplateInfo} from "@/game/types"
 
 /**
  * Testing page for the websocket API, and an example of how to use it.
  */
 export default function ApiTest() {
     const [quiz, setQuiz] = useState<Quiz>()
-    const [allQuizzes, setAllQuizzes] = useState<QuizInfo[]>()
+    const [allQuizzes, setAllQuizzes] = useState<TemplateInfo[]>()
 
     useEffect(() => {
         getQuiz("ABCD").then(q => { console.log(q); setQuiz(q) })

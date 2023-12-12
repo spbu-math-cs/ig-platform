@@ -10,10 +10,6 @@ interface SquareProp {
     onClick(): void
 }
 
-interface EditorProp {
-    handleGameIsConstructed(): void
-}
-
 type SquareState = {
     question: string
     answer: string
@@ -28,7 +24,19 @@ type BoardState = {
     gameDetails: string
 }
 
-export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
+function Square({tsk, ans, topic, onClick}: SquareProp) {
+    return (
+        <button
+            className="flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]"
+            onClick={onClick}>
+            <div className="w-full text-center h-5">{topic}</div>
+            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {tsk} </p>
+            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {ans} </p>
+        </button>
+    )
+}
+
+export function EditBoard() {
     const [state, setState] = useState<BoardState>({
         squares: Array(9).fill({
             question: '',
@@ -41,18 +49,6 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
     })
 
     const [editingNum, setEditingNum] = useState<number | undefined>(undefined)
-
-    function Square({tsk, ans, topic, onClick}: SquareProp) {
-        return (
-            <button
-                className="flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]"
-                onClick={onClick}>
-                <div className="w-full text-center h-5">{topic}</div>
-                <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {tsk} </p>
-                <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {ans} </p>
-            </button>
-        )
-    }
 
     const renderSquare = (i: number) => {
         // TODO: adaptivity
@@ -249,8 +245,7 @@ export const EditBoard = ({handleGameIsConstructed}: EditorProp) => {
             </form>
 
             <button onClick={() => {
-                handleGameIsConstructed()
-
+                // TODO: go back after creating game
                 createQuiz({
                     name: state.gameName,
                     comment: state.gameDetails,
