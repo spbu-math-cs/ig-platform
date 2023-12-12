@@ -2,6 +2,7 @@ import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session, Error} from "./types"
 import {Request} from "./wsRequests"
+import {checkExhausted} from "@/utils"
 
 type Role = "host" | "client"
 

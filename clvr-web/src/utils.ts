@@ -1,1 +1,1 @@
-const checkExhausted = (_: never): never => _
+export const checkExhausted = (_: never): never => _

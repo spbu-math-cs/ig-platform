@@ -8,6 +8,7 @@ import {TemplateCard} from "@/components/TemplateCard"
 import {TemplateInfo} from "@/tic-tac-toe/types"
 import {TicTacToe, TicTacToeState} from "@/components/TicTacToe"
 import Button from "@/components/Button"
+import {checkExhausted} from "@/utils"
 
 type AppState = {
     kind: "main_page"
@@ -24,21 +25,41 @@ type AppState = {
     state: TicTacToeState
 }
 
+export type AppAction = {
+    kind: "go_to_main_page"
+} | {
+    kind: "go_to_creating"
+    game: "tic_tac_toe"
+}
+
 const Home: NextPage = () => {
     const [state, setState] = useState<AppState>({
         kind: "main_page",
         sessionId: "",
         modal: undefined,
     })
+
     const [quizInfo, setQuizInfo] = useState<TemplateInfo[] | undefined>()
     const [replaceMarksChecked, setReplaceMarks] = useState(false)
     const [openMultipleQuestionsChecked, setOpenMultipleQuestions] = useState(false)
 
+    const runAction = (action: AppAction) => {
+        if (action.kind == "go_to_main_page") {
+            setState({kind: "main_page", sessionId: "", modal: undefined})
+        } else if (action.kind == "go_to_creating") {
+            if (action.game == "tic_tac_toe") {
+                setState({kind: "main_page", sessionId: "", modal: "tic_tac_toe"})
+                getQuizList().then(quizInfo => setQuizInfo(quizInfo))
+            } else {
+                checkExhausted(action.game)
+            }
+        } else {
+            checkExhausted(action)
+        }
+    }
+
     useEffect(() => {
         getQuizList().then(quizInfo => setQuizInfo(quizInfo))
-        // TODO: do proper updates
-        const handle = setInterval(() => getQuizList().then(quizInfo => setQuizInfo(quizInfo)), 10000)
-        return () => clearInterval(handle)
     }, [])
 
     let content
@@ -175,7 +196,7 @@ const Home: NextPage = () => {
     } else if (state.kind == "fatal") {
         content = <div>TODO</div>
     } else if (state.kind == "tic_tac_toe") {
-        content = <TicTacToe state={state.state}/>
+        content = <TicTacToe state={state.state} dispatch={runAction}/>
     } else {
         checkExhausted(state)
     }
@@ -199,8 +220,10 @@ const Home: NextPage = () => {
             </div>
 
             <div
-                className="flex flex-col justify-items-start py-10 px-100 rounded mb-2 -scroll-ms-3 overflow-auto
-                                            text-md text-JoinGameTxt">
+                className="
+                    flex flex-col justify-items-start py-10 px-100 rounded
+                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
+                    max-h-[60vh]">
                 {
                     quizInfo === undefined
                         ? "Loading..."
