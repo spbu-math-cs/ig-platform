@@ -5,10 +5,18 @@ import com.clvr.platform.api.ClvrGameView
 import com.clvr.platform.api.ClvrSessionRegistry
 import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.SessionId
-import com.clvr.platform.util.SessionManager
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Interface that allows platform get info about game session by its id.
+ * Note that it is separated from [ClvrSessionRegistry] interface which is a part of API, although
+ * implementations make sense only when they implement both interfaces.
+ *
+ * This separation both hides implementation-specific methods of [ClvrSessionStorage]
+ * (like [getSessionManager]) from activity developers, and prohibits platform to create new sessions, only providing
+ * access to already registered (via [ClvrSessionRegistry]) sessions
+ */
 internal interface ClvrSessionStorage<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
     fun getSessionManager(session: SessionId): SessionManager<Req, Resp>
     fun getGameView(session: SessionId): ClvrGameView<Req, Resp>

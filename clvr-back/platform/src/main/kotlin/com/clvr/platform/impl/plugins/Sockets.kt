@@ -6,7 +6,7 @@ import com.clvr.platform.logger
 import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.SessionId
-import com.clvr.platform.util.SessionManager
+import com.clvr.platform.impl.SessionManager
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -141,14 +141,14 @@ internal fun Application.configureSockets() {
     }
 }
 
-internal fun Application.addWebsocketRouting(activityId: String, storage: ClvrSessionStorage<*, *>) {
+internal fun Application.addWebsocketRouting(activityName: String, storage: ClvrSessionStorage<*, *>) {
 
     routing {
-        webSocket("/ws/${activityId}/host/{session_id}") {
+        webSocket("/ws/${activityName}/host/{session_id}") {
             configureHostSession(storage)
         }
 
-        webSocket("/ws/${activityId}/client/{session_id}") {
+        webSocket("/ws/${activityName}/client/{session_id}") {
             configureClientSession(storage)
         }
     }

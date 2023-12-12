@@ -45,9 +45,9 @@ fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> Application.instal
     installer: ActivityInstaller<Req, Resp>
 ) {
     val sessionStorage = InMemorySessionStorage<Req, Resp>()
-    addWebsocketRouting(installer.activityId, sessionStorage)
+    addWebsocketRouting(installer.activityName, sessionStorage)
     routing {
-        route("/${installer.activityId}") {
+        route("/${installer.activityName}") {
             installer.install(this, templateDatabase, sessionStorage)
         }
     }

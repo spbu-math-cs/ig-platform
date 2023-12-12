@@ -22,9 +22,9 @@ class ListTemplateDatabase: TemplateDatabase {
         return res as? T
     }
 
-    override fun listTemplates(activityId: String): List<TemplateHeader> {
+    override fun listTemplates(activityName: String): List<TemplateHeader> {
         return templates
-            .filter { it.id.activityId == activityId }
+            .filter { it.id.activityName == activityName }
             .map { it.header }
             .toList()
     }
