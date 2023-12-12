@@ -36,7 +36,7 @@ function Square({tsk, ans, topic, onClick}: SquareProp) {
     )
 }
 
-export function EditBoard() {
+export function EditBoard({onCreate}: {onCreate: () => void}) {
     const [state, setState] = useState<BoardState>({
         squares: Array(9).fill({
             question: '',
@@ -245,7 +245,6 @@ export function EditBoard() {
             </form>
 
             <button onClick={() => {
-                // TODO: go back after creating game
                 createQuiz({
                     name: state.gameName,
                     comment: state.gameDetails,
@@ -257,7 +256,7 @@ export function EditBoard() {
                         hints: square.hints,
                         topic: square.topic,
                     })),
-                }).then()
+                }).then(onCreate)
             }}
                     className={`px-8 button hover:ring-4 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
                 CREATE GAME

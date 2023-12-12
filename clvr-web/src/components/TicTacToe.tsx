@@ -1,8 +1,8 @@
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
-import {getQuizList} from "@/tic-tac-toe/api"
 import React from "react"
-import {JSX} from "react"
 import {Board} from "@/tic-tac-toe/Board"
+import {checkExhausted} from "@/utils"
+import {AppAction} from "@/pages/index"
 
 export type TicTacToeState = {
     kind: "playing"
@@ -12,11 +12,16 @@ export type TicTacToeState = {
     kind: "constructor"
 }
 
-export function TicTacToe({state}: {state: TicTacToeState}) {
+interface TicTacTorProps {
+    state: TicTacToeState
+    dispatch: (action: AppAction) => void
+}
+
+export function TicTacToe({state, dispatch}: TicTacTorProps) {
     let content
     if (state.kind == "constructor") {
         content = <div className="mt-10 w-[1000px] items-center justify-center ">
-            <EditBoard/>
+            <EditBoard onCreate={() => dispatch({kind: "go_to_creating", game: "tic_tac_toe"})}/>
         </div>
     } else if (state.kind == "playing") {
         content = <div>
