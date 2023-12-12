@@ -20,7 +20,7 @@ type Role = "host" | "client"
  * @returns A tuple containing the current game state and a function to send requests
  */
 export function useServerState(role: Role, session: Session): [GameState, Error[], (action: Request) => void] {
-    const url = new URL(`ws/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+    const url = new URL(`ws/tic-tac-toe/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
         shouldReconnect: () => true,
