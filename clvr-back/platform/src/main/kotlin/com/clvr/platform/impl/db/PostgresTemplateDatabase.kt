@@ -7,7 +7,7 @@ import com.clvr.platform.api.db.TemplateDatabase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class PostgresTemplateDatabase(private val db: DBQueryExecutor) : TemplateDatabase {
+internal class PostgresTemplateDatabase(private val db: DBQueryExecutor) : TemplateDatabase {
     companion object {
         // TODO: make PRIVATE KEY = (activity_id, uuid) (?)
         // TODO: remove header as separate column and take it from template column via JSON-oriented SQL API

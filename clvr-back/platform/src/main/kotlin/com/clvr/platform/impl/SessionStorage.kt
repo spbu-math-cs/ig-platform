@@ -22,7 +22,7 @@ internal interface ClvrSessionStorage<Req: EventPayloadInterface, Resp: EventPay
     fun getGameView(session: SessionId): ClvrGameView<Req, Resp>
 }
 
-class InMemorySessionStorage<Req: EventPayloadInterface, Resp: EventPayloadInterface>
+internal class InMemorySessionStorage<Req: EventPayloadInterface, Resp: EventPayloadInterface>
     : ClvrSessionRegistry<Req, Resp>, ClvrSessionStorage<Req, Resp>
 {
     private inner class GameRecord(

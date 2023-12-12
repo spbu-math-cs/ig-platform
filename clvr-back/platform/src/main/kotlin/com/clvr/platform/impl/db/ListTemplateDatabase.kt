@@ -5,7 +5,7 @@ import com.clvr.platform.api.TemplateHeader
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
 
-class ListTemplateDatabase: TemplateDatabase {
+internal class ListTemplateDatabase: TemplateDatabase {
     private val templates = mutableListOf<Template>()
 
     override fun <T : Template> addTemplate(template: T, serializer: (T) -> String) {
