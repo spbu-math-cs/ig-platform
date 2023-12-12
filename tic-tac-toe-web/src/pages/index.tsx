@@ -244,7 +244,11 @@ const Home: NextPage = () => {
 
     return <div className={`flex min-h-screen bg-back flex-col items-center  justify-items-center   py-2`}>
         <Head>
-            <title>Tic-Tac-Toe Game</title>
+            <title>
+                {state.kind === "tic_tac_toe"
+                    ? <>CLVR: Tic-Tac-Toe</>
+                    : <>CLVR</>}
+            </title>
             <link rel="icon" href="/tictactoe.ico"/>
         </Head>
 
@@ -261,7 +265,7 @@ const Home: NextPage = () => {
         }
 
         <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
-            TIC{" "}<span className="text-createcol">TAC </span>{" "}TOE
+            C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
         </h1>
 
         {content}
