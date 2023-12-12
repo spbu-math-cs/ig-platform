@@ -1,5 +1,6 @@
-package com.clvr.platform.util
+package com.clvr.platform.impl
 
+import com.clvr.platform.api.ClvrGameController
 import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
@@ -8,18 +9,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 
-fun interface EventHandler<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
-    fun handle(manager: SessionParticipantsCommunicator<Req, Resp>, event: RequestEvent<Req>)
-}
-
 class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInterface>(
-    private val hostEventHandler: EventHandler<Req, Resp>
+    private val clvrGameController: ClvrGameController<Req, Resp>
 ): AutoCloseable, SessionParticipantsCommunicator<Req, Resp> {
     val hostChannel: Channel<ResponseEvent<Resp>> = Channel(Channel.UNLIMITED)
     private val clientChannels: MutableMap<String, Channel<ResponseEvent<Resp>>> = mutableMapOf()
 
     fun handleHostEvent(event: RequestEvent<Req>) {
-        hostEventHandler.handle(this, event)
+        clvrGameController.handle(this, event)
     }
 
     override fun sendToClients(event: ResponseEvent<Resp>) {

@@ -2,7 +2,7 @@ package com.clvr.ttt
 
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.SessionId
-import com.clvr.platform.util.SessionManager
+import com.clvr.platform.impl.SessionManager
 import com.clvr.ttt.common.Config
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*

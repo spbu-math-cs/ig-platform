@@ -1,7 +1,7 @@
 [
   {
     "id": {
-      "activityId": "tic-tac-toe",
+      "activityName": "tic-tac-toe",
       "id": "ABCD"
     },
     "questions": [
@@ -106,7 +106,7 @@
   },
   {
     "id": {
-      "activityId": "tic-tac-toe",
+      "activityName": "tic-tac-toe",
       "id": "ABCDEFu"
     },
     "questions": [
