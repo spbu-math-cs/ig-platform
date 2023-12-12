@@ -1,11 +1,11 @@
 import type {NextPage} from 'next'
 import Head from 'next/head'
 import React, {useEffect, useState} from 'react'
-import {XIcon} from "@/tic_tac_toe/XIcon"
-import {OIcon} from "@/tic_tac_toe/OIcon"
-import {createGame, getQuizList} from "@/game/api"
+import {XIcon} from "@/tic-tac-toe/XIcon"
+import {OIcon} from "@/tic-tac-toe/OIcon"
+import {createGame, getQuizList} from "@/tic-tac-toe/api"
 import {TemplateCard} from "@/components/TemplateCard"
-import {TemplateInfo} from "@/game/types"
+import {TemplateInfo} from "@/tic-tac-toe/types"
 import {TicTacToe, TicTacToeState} from "@/components/TicTacToe"
 import Button from "@/components/Button"
 

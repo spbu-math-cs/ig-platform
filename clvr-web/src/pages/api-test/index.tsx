@@ -1,8 +1,8 @@
 "use client"
-import {useServerState} from "@/game/websockets"
+import {useServerState} from "@/tic-tac-toe/websockets"
 import {useEffect, useRef, useState} from "react"
-import {getQuiz, getQuizList} from "@/game/api"
-import {Quiz, TemplateInfo} from "@/game/types"
+import {getQuiz, getQuizList} from "@/tic-tac-toe/api"
+import {Quiz, TemplateInfo} from "@/tic-tac-toe/types"
 
 /**
  * Testing page for the websocket API, and an example of how to use it.

@@ -1,4 +1,4 @@
-import {Error} from "@/game/types"
+import {Error} from "@/tic-tac-toe/types"
 
 interface ErrorProps {
     errors: Error[]
