@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {createQuiz} from "@/game/api"
+import {createQuiz} from "@/tic-tac-toe/api"
 
 
 interface SquareProp {

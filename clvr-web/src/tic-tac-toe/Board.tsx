@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
-import {useServerState} from "@/game/websockets"
+import {useServerState} from "@/tic-tac-toe/websockets"
 import {ErrorSnackbar} from '@/components/Errors'
 
 const rows = 3

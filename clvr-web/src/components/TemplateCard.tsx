@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {GameConfig, TemplateInfo} from "@/game/types"
+import {GameConfig, TemplateInfo} from "@/tic-tac-toe/types"
 
 interface TemplateProps {
     template: TemplateInfo

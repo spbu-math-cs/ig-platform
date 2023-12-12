@@ -1,8 +1,8 @@
-import {EditBoard} from "@/tic_tac_toe/EditBoard"
-import {getQuizList} from "@/game/api"
+import {EditBoard} from "@/tic-tac-toe/EditBoard"
+import {getQuizList} from "@/tic-tac-toe/api"
 import React from "react"
 import {JSX} from "react"
-import {Board} from "@/tic_tac_toe/Board"
+import {Board} from "@/tic-tac-toe/Board"
 
 export type TicTacToeState = {
     kind: "playing"

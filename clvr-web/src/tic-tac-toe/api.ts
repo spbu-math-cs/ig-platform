@@ -1,4 +1,4 @@
-import {GameConfig, ProtoQuiz, Quiz, TemplateInfo, Session} from "@/game/types"
+import {GameConfig, ProtoQuiz, Quiz, TemplateInfo, Session} from "@/tic-tac-toe/types"
 
 const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
 
