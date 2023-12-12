@@ -2,7 +2,6 @@ package com.clvr.ttt
 
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.SessionId
-import com.clvr.platform.impl.SessionManager
 import com.clvr.ttt.common.Config
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
@@ -36,10 +35,10 @@ class TicTacToeGameStateControllerTest {
         requestPayload: TicTacToeRequestPayload
     ): Pair<List<TicTacToeResponsePayload>, List<TicTacToeResponsePayload>> {
         val controller = TicTacToeGameController(game)
-        val manager = SessionManager<TicTacToeRequestPayload, TicTacToeResponsePayload> { _, _ -> } // We will make requests directly, not through manager
-        val hostChannel = manager.hostChannel
-        val clientChannel = manager.registerClient("client")
-        controller.handle(manager, RequestEvent(SessionId("0"), requestPayload))
+        val communicator = MockCommunicator()
+        val hostChannel = communicator.hostChannel
+        val clientChannel = communicator.clientChannel
+        controller.handle(communicator, RequestEvent(SessionId("0"), requestPayload))
 
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()

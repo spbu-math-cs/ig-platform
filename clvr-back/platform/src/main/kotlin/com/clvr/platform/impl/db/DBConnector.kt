@@ -3,7 +3,7 @@ package com.clvr.platform.impl.db
 import java.sql.Connection
 import java.sql.DriverManager
 
-object DBConnector {
+internal object DBConnector {
     fun connectToDB(url: String, user: String, password: String): Connection =
         DriverManager.getConnection(url, user, password)
 

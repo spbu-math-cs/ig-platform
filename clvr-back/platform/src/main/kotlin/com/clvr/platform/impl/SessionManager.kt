@@ -9,7 +9,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 
-class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInterface>(
+internal class SessionManager<Req: EventPayloadInterface, Resp: EventPayloadInterface>(
     private val clvrGameController: ClvrGameController<Req, Resp>
 ): AutoCloseable, SessionParticipantsCommunicator<Req, Resp> {
     val hostChannel: Channel<ResponseEvent<Resp>> = Channel(Channel.UNLIMITED)

@@ -4,7 +4,7 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class DBQueryExecutor(private val connection: Connection): AutoCloseable {
+internal class DBQueryExecutor(private val connection: Connection): AutoCloseable {
     fun <T> query(
         query: String,
         prepareStatement: PreparedStatement.() -> Unit,
