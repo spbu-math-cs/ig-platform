@@ -246,8 +246,8 @@ const Home: NextPage = () => {
         <Head>
             <title>
                 {state.kind === "tic_tac_toe"
-                    ? <>CLVR: Tic-Tac-Toe</>
-                    : <>CLVR</>}
+                    ? "CLVR: Tic-Tac-Toe"
+                    : "CLVR"}
             </title>
             <link rel="icon" href="/tictactoe.ico"/>
         </Head>
