@@ -1,21 +1,10 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.serialization)
-}
-
-application {
-    mainClass.set("com.clvr.server.ApplicationKt")
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
 dependencies {
     implementation(project(":platform"))
-    implementation(project(":tic-tac-toe"))
-    implementation(project(":nekahoot"))
-
     implementation(libs.postgres)
     implementation(libs.h2)
     implementation(libs.kotlin.logging)
@@ -27,7 +16,6 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cors)
-    implementation(libs.ktor.server.tls)
 
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.ktor.client.contentNegotiation)
