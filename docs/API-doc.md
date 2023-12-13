@@ -712,9 +712,9 @@ CONNECT /ws/nekahoot/host/{session_id}
   "payload": {
     "question": {
       "question": "<question text>",
-      "answer_description": "<description for answer (optional)>",
-      "given_answer": "<empty if player has not given answer | number of given answer OR answer itself>",
-      "time": "<left time for question in seconds>"
+      "answer_options": ["<option1>", "<option2>", ...],
+      "time": "<left time for question in seconds>",
+      "given_answer": "<empty if player has not given answer | number of given answer OR answer itself>"
     }
   }
 }
