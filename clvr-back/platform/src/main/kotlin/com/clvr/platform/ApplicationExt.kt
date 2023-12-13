@@ -5,17 +5,20 @@ import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.db.DBType
 import com.clvr.platform.impl.InMemorySessionStorage
+import com.clvr.platform.impl.plugins.*
 import com.clvr.platform.impl.plugins.MonitoringPlugin
 import com.clvr.platform.impl.plugins.addWebsocketRouting
 import com.clvr.platform.impl.plugins.configureCallLogging
-import com.clvr.platform.impl.plugins.configureTemplateDatabase
 import com.clvr.platform.impl.plugins.configureSerialization
 import com.clvr.platform.impl.plugins.configureSockets
+import com.clvr.platform.impl.plugins.configureTemplateDatabase
 import com.clvr.platform.impl.plugins.templateDatabase
+import com.clvr.platform.impl.plugins.userDatabase
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import mu.KLogger
 import mu.KotlinLogging
 
@@ -32,7 +35,14 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
         allowMethod(HttpMethod.Get)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Cookie)
+        allowCredentials = true
         anyHost()
+    }
+    install(Sessions) {
+        cookie<UserSession>(cookieName) {
+            cookie.path = "/"
+        }
     }
     install(MonitoringPlugin)
 
@@ -40,6 +50,7 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
     configureSerialization()
     configureTemplateDatabase(dbType)
     configureSockets()
+    configureAuthRouting()
 }
 
 fun <Req: RequestEvent, Resp: ResponseEvent> Application.installActivity(
@@ -49,7 +60,7 @@ fun <Req: RequestEvent, Resp: ResponseEvent> Application.installActivity(
     addWebsocketRouting(installer.activityName, sessionStorage)
     routing {
         route("/${installer.activityName}") {
-            installer.install(this, templateDatabase, sessionStorage)
+            installer.install(this, templateDatabase, userDatabase, sessionStorage)
         }
     }
 }

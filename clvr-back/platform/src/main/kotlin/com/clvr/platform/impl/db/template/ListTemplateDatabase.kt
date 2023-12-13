@@ -1,10 +1,11 @@
-package com.clvr.platform.impl.db
+package com.clvr.platform.impl.db.template
 
 import com.clvr.platform.api.Template
 import com.clvr.platform.api.TemplateHeader
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
 
+@Suppress("unused")
 internal class ListTemplateDatabase: TemplateDatabase {
     private val templates = mutableListOf<Template>()
 

@@ -4,6 +4,7 @@ import com.clvr.platform.api.ActivityInstaller
 import com.clvr.platform.api.ClvrSessionRegistry
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
+import com.clvr.platform.api.db.UserDatabase
 import com.clvr.platform.api.db.preloadTemplates
 import com.clvr.ttt.common.TicTacToeTemplate
 import io.ktor.server.routing.*
@@ -17,6 +18,7 @@ class TicTacToeInstaller(
     override fun install(
         route: Route,
         templateDatabase: TemplateDatabase,
+        userDatabase: UserDatabase,
         sessionRegistry: ClvrSessionRegistry<TicTacToeRequest<*>, TicTacToeResponse<*>>
     ) {
         templateDatabase.preloadTemplates<TicTacToeTemplate>(templateFiles)
