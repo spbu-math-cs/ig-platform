@@ -109,6 +109,24 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                 }
             }
 
+            launch {
+                for (frame in incoming) {
+                    try {
+                        if (frame !is Frame.Text) {
+                            continue
+                        }
+
+                        val jsonEvent: String = frame.readText()
+                        logger.debug { "Receive event $jsonEvent from client $clientEndpoint in $sessionId game" }
+
+                        val event: Req = gameView.decodeJsonToEvent(jsonEvent)
+                        sessionManager.handleClientEvent(clientEndpoint, event)
+                    } catch (e: Exception) {
+                        logger.error { "Failed to process event incoming frame because of error $e" }
+                    }
+                }
+            }
+
             val closeReason = closeReason.await()
             logger.info { "Connection with client $clientEndpoint was closed because of $closeReason" }
             cancel("Connection with client was closed because of $closeReason")

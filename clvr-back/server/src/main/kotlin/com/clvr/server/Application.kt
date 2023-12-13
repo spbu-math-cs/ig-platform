@@ -1,5 +1,6 @@
 package com.clvr.server
 
+import com.clvr.nk.NeKahootInstaller
 import com.clvr.platform.api.ActivityInstaller
 import com.clvr.platform.configurePlatform
 import com.clvr.platform.installActivity
@@ -15,8 +16,12 @@ private val mainLogger = KotlinLogging.logger { }
 private val defaultTicTacToeTemplateFiles = listOf("dumbQuizCollection.json", "samples.json")
     .map { fileName -> File(TicTacToeInstaller::class.java.classLoader.getResource(fileName)!!.toURI()) }
 
+private val defaultNeKahootTemplateFiles = listOf("demoNeKahoot.json")
+    .map { fileName -> File(NeKahootInstaller::class.java.classLoader.getResource(fileName)!!.toURI()) }
+
 private val activityInstallers: List<ActivityInstaller<*, *>> = listOf(
-    TicTacToeInstaller(defaultTicTacToeTemplateFiles)
+    TicTacToeInstaller(defaultTicTacToeTemplateFiles),
+    NeKahootInstaller(defaultNeKahootTemplateFiles),
 )
 
 fun main() {
