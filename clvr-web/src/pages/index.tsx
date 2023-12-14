@@ -13,6 +13,7 @@ import {LogIn} from "@/components/Authorization";
 import {RootState, store} from "@/state/store";
 import {useSelector} from "react-redux";
 import {nextTheme} from "@/state/themeSlice"
+import Head from "next/head"
 
 type AppState = {
     kind: "main_page"
@@ -363,14 +364,30 @@ const Home: NextPage = () => {
         className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
         <div className={`flex flex-row justify-between items-center`}>
             <div className="flex flex-row items-center ">
-                <a href="/clover.PNG" className="flex items-center">
-                    <img src="/clover.PNG" className=" mt-4 h-20" alt={""}/>
+                <img src={
+                state.kind == "tic_tac_toe" ? "/tictactoe.ico"
+                    : state.kind == "neKahoot" ? "/kahoot.ico"
+                    : "/clover.PNG"} className="h-20" alt={""}/>
+                <a href={"/"}>
+                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
+                        C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
+                    </h1>
                 </a>
-                <h1 className={`text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
-                    C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
-                </h1>
             </div>
         </div>
+
+        <Head>
+            <title>
+                {state.kind === "tic_tac_toe" ? "CLVR: Tic-Tac-Toe"
+                    : state.kind == "neKahoot" ? "CLVR: neKahoot"
+                    : "CLVR"}
+            </title>
+            <link rel="icon" href={
+                state.kind == "tic_tac_toe" ? "/tictactoe.ico"
+                    : state.kind == "neKahoot" ? "/kahoot.ico"
+                    : "/clover.ico"
+            }/>
+        </Head>
 
         {state.kind === "main_page" && state.modal !== undefined &&
             <div className="
