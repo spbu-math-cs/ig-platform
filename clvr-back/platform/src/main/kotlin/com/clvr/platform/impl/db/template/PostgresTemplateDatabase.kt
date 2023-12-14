@@ -1,9 +1,10 @@
-package com.clvr.platform.impl.db
+package com.clvr.platform.impl.db.template
 
 import com.clvr.platform.api.Template
 import com.clvr.platform.api.TemplateHeader
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
+import com.clvr.platform.impl.db.DBQueryExecutor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
