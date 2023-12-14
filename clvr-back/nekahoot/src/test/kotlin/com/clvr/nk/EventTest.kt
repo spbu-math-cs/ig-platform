@@ -96,7 +96,7 @@ class EventTest {
                 "opt2",
                 "opt3"
             ],
-            "time": 6,
+            "time": 1,
             "answered": 4
         }
     }
@@ -129,7 +129,7 @@ class EventTest {
                 "opt2",
                 "opt3"
             ],
-            "time": 6,
+            "time": 1,
             "given_answer": "opt2"
         }
     }
@@ -164,7 +164,7 @@ class EventTest {
                 "opt1",
                 "opt2"
             ],
-            "time": 8
+            "time": 2
         }
     }
 }"""

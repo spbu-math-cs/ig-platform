@@ -31,7 +31,7 @@ class GameStateTest {
         Assertions.assertEquals("opt2", gameState.getAnswer())
         Assertions.assertEquals(null, gameState.getAnswerDescription())
         Assertions.assertEquals(listOf("opt1", "opt2", "opt3"), gameState.getAnswerOptions())
-        Assertions.assertEquals(6, gameState.getTime())
+        Assertions.assertEquals(1, gameState.getTime())
         Assertions.assertEquals("template title", gameState.getTemplateTitle())
         Assertions.assertEquals("template comment", gameState.getTemplateComment())
         Assertions.assertEquals("frungl", gameState.getTemplateAuthor())
@@ -84,8 +84,8 @@ class GameStateTest {
         var currentTime = 1L
         gameState.openQuestion(currentTime)
         gameState.answerQuestion(currentTime + 0, "player2", "opt2")
-        gameState.answerQuestion(currentTime + 3000, "player1", "opt2")
-        gameState.answerQuestion(currentTime + 4321, "player3", "opt1")
+        gameState.answerQuestion(currentTime + 500, "player1", "opt2")
+        gameState.answerQuestion(currentTime + 421, "player3", "opt1")
         gameState.closeQuestion()
 
         val results = gameState.getResults()
@@ -100,8 +100,8 @@ class GameStateTest {
         currentTime += 53323930L
         gameState.openQuestion(currentTime)
         gameState.answerQuestion(currentTime + 0, "player4", "opt1")
-        gameState.answerQuestion(currentTime + 6000, "player3", "opt1")
-        gameState.answerQuestion(currentTime + 8000, "player2", "opt1")
+        gameState.answerQuestion(currentTime + 1500, "player3", "opt1")
+        gameState.answerQuestion(currentTime + 2000, "player2", "opt1")
         gameState.closeQuestion()
 
         val results2 = gameState.getResults()
