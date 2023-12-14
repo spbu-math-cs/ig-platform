@@ -5,6 +5,7 @@ import com.clvr.platform.api.ClvrGameController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
         SessionParticipantsCommunicator<NeKahootRequest<*>, NeKahootResponse<*>>
@@ -75,7 +76,7 @@ class NeKahootGameController(private val game: GameState) :
                 coroutineScope {
                     game.openQuestion(System.currentTimeMillis())
                     sendQuestionResponses(communicator)
-                    delay(game.getTime() * 1000L)
+                    delay(game.getTime().seconds)
                     sendCorrectAnswerResponses(communicator)
                     game.closeQuestion()
                 }
@@ -110,6 +111,9 @@ class NeKahootGameController(private val game: GameState) :
             is StartGameRequest -> throw ClientStartGameException()
             is QuestionRequest -> throw ClientOpenQuestionException()
             is AnswerRequest -> {
+                if (game.getAnswerOfPlayer(clientEndpoint).isNotEmpty()) {
+                    throw AlreadyAnsweredException()
+                }
                 when {
                     game.isQuestionOpened() -> {
                         game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
