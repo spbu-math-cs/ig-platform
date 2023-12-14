@@ -11,13 +11,13 @@ import java.io.File
 
 class NeKahootInstaller(
     private val templateFiles: List<File>
-) : ActivityInstaller<NeKahootRequest<*>, NeKahootResponse<*>> {
+) : ActivityInstaller<NeKahootRequest, NeKahootResponseWithPayload<*>> {
     override val activityName: String = ACTIVITY_ID
 
     override fun install(
         route: Route,
         templateDatabase: TemplateDatabase,
-        sessionRegistry: ClvrSessionRegistry<NeKahootRequest<*>, NeKahootResponse<*>>
+        sessionRegistry: ClvrSessionRegistry<NeKahootRequest, NeKahootResponseWithPayload<*>>
     ) {
         templateDatabase.preloadTemplates<NeKahootTemplate>(templateFiles)
         with (route) {

@@ -11,8 +11,7 @@ data class PlayerResult(
 )
 
 class GameState(private val template: NeKahootTemplate) {
-    var playerResults: MutableMap<String, Pair<Int, Int>> = mutableMapOf()
-
+    private var playerResults: MutableMap<String, Pair<Int, Int>> = mutableMapOf()
     private var currentPlayersAnswers: MutableMap<String, Pair<Long, String>> = mutableMapOf()
     private var currentQuestionNumber: Int = 0
     private var gameStarted: Boolean = false

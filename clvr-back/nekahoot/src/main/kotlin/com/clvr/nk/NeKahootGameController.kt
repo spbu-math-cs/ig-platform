@@ -8,19 +8,19 @@ import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
-        SessionParticipantsCommunicator<NeKahootRequest<*>, NeKahootResponse<*>>
+        SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>
 
 class NeKahootGameController(private val game: GameState) :
-    ClvrGameController<NeKahootRequest<*>, NeKahootResponse<*>> {
+    ClvrGameController<NeKahootRequest, NeKahootResponseWithPayload<*>> {
 
     private fun sendQuestionResponses(manager: NeKahootSessionParticipantsCommunicator) {
         val hostQuestionView = HostQuestionView.fromGameState(game)
         val clientQuestionView = ClientQuestionView.fromGameState(game)
 
-        val hostResponse = NeKahootResponse(
+        val hostResponse = NeKahootResponseWithPayload(
             HostQuestionResponse(hostQuestionView)
         )
-        val clientResponse = NeKahootResponse(
+        val clientResponse = NeKahootResponseWithPayload(
             ClientQuestionResponse(clientQuestionView)
         )
         manager.sendToHost(hostResponse)
@@ -30,10 +30,10 @@ class NeKahootGameController(private val game: GameState) :
     private fun sendCorrectAnswerResponses(manager: NeKahootSessionParticipantsCommunicator) {
         val questionWithAnswerView = QuestionWithAnswerView.fromGameState(game)
 
-        val hostResponse = NeKahootResponse(
+        val hostResponse = NeKahootResponseWithPayload(
             ShowAnswerEvent(questionWithAnswerView)
         )
-        val clientResponse = NeKahootResponse(
+        val clientResponse = NeKahootResponseWithPayload(
             ShowAnswerEvent(questionWithAnswerView)
         )
         manager.sendToHost(hostResponse)
@@ -44,10 +44,10 @@ class NeKahootGameController(private val game: GameState) :
         val hostAnswerView = HostQuestionView.fromGameState(game)
         val clientAnswerView = ClientQuestionView.fromGameState(game, clientName)
 
-        val hostResponse = NeKahootResponse(
+        val hostResponse = NeKahootResponseWithPayload(
             HostQuestionResponse(hostAnswerView)
         )
-        val clientResponse = NeKahootResponse(
+        val clientResponse = NeKahootResponseWithPayload(
             ClientQuestionResponse(clientAnswerView)
         )
         manager.sendToHost(hostResponse)
@@ -56,7 +56,7 @@ class NeKahootGameController(private val game: GameState) :
 
     private fun sendResultsResponses(manager: NeKahootSessionParticipantsCommunicator) {
         val results = game.getResults()
-        val resultsEvent = NeKahootResponse(
+        val resultsEvent = NeKahootResponseWithPayload(
             ResultsEvent(results)
         )
         manager.sendToHost(resultsEvent)
@@ -64,8 +64,8 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     override fun handle(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest<*>, NeKahootResponse<*>>,
-        event: NeKahootRequest<*>
+        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
+        event: NeKahootRequest
     ) = try {
         fun nextStep() = when {
             game.isGameFinished() -> sendResultsResponses(communicator)
@@ -80,7 +80,7 @@ class NeKahootGameController(private val game: GameState) :
             }
         }
 
-        when (event.payload) {
+        when (event) {
             is StartGameRequest -> {
                 game.startGame()
                 nextStep()
@@ -89,41 +89,49 @@ class NeKahootGameController(private val game: GameState) :
                 game.nextQuestion()
                 nextStep()
             }
-            is AnswerRequest -> throw HostAnswerException()
+            is NeKahootRequestWithPayload<*> -> {
+                when (event.payload) {
+                    is AnswerRequest -> throw HostAnswerException()
+                }
+            }
         }
     } catch (e: IllegalGameActionException) {
         communicator.sendToHost(
-            NeKahootResponse(
+            NeKahootResponseWithPayload(
                 GameError(e.message ?: "Unknown error occurred!")
             )
         )
     }
 
     override fun handleFromClient(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest<*>, NeKahootResponse<*>>,
+        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
         clientEndpoint: String,
-        event: NeKahootRequest<*>
+        event: NeKahootRequest
     ) = try {
-        when (val payload = event.payload) {
+        when (event) {
             is StartGameRequest -> throw ClientStartGameException()
             is QuestionRequest -> throw ClientOpenQuestionException()
-            is AnswerRequest -> {
-                if (game.getAnswerOfPlayer(clientEndpoint).isNotEmpty()) {
-                    throw AlreadyAnsweredException()
-                }
-                when {
-                    game.isQuestionOpened() -> {
-                        game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
-                        sendAnswerResponses(communicator, clientEndpoint)
+            is NeKahootRequestWithPayload<*> -> {
+                when (val payload = event.payload) {
+                    is AnswerRequest -> {
+                        if (game.getAnswerOfPlayer(clientEndpoint).isNotEmpty()) {
+                            throw AlreadyAnsweredException()
+                        }
+                        when {
+                            game.isQuestionOpened() -> {
+                                game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
+                                sendAnswerResponses(communicator, clientEndpoint)
+                            }
+                            else -> throw LateAnswerException()
+                        }
                     }
-                    else -> throw LateAnswerException()
                 }
             }
         }
     } catch (e: IllegalGameActionException) {
         communicator.sendToClient(
             clientEndpoint,
-            NeKahootResponse(
+            NeKahootResponseWithPayload(
                 GameError(e.message ?: "Unknown error occurred!")
             )
         )
