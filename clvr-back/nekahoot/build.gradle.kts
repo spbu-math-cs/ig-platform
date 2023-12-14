@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cors)
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0-RC")
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.ktor.client.contentNegotiation)
     testImplementation(libs.ktor.client.websockets)
