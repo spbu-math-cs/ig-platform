@@ -137,7 +137,7 @@ module.exports = {
                     selectors: [".theme-purple"],
                     extend: {
                         colors: {
-                            'primary': '#b93f73',
+                            'primary': '#f3b236',
                             'O': '#f3b236',
                             'X': '#AE445A',
                             'task': '#571e65',
@@ -201,7 +201,7 @@ module.exports = {
                         colors: {
                             'primary': '#6c6c6c',
                             'O': '#303030',
-                            'X': '#a0a0a0',
+                            'X': '#303030',
                             'task': '#fde57d',
                             'answerPanel': '#a0a0a0',
                             'back': '#ededed',
