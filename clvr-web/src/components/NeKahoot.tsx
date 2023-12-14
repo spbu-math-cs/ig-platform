@@ -2,7 +2,7 @@ import {EditBoard} from "@/neKahoot/EditBoard"
 import React from "react"
 import {Board} from "@/neKahoot/Board"
 import {checkExhausted} from "@/utils"
-import {AppAction} from "@/pages/index"
+import {AppAction} from "@/pages"
 
 export type NeKahootState = {
     kind: "playing"
