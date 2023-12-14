@@ -49,7 +49,7 @@ data class TemplateCreateRequest(
 
 @Serializable
 data class TemplateIdResponse(
-    @SerialName("template-id")
+    @SerialName("id")
     val templateId: TemplateId
 )
 

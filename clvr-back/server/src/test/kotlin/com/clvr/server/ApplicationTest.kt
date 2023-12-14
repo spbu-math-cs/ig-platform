@@ -259,7 +259,7 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, status)
 
             val jsonObject: JsonObject = Json.decodeFromString(bodyAsText())
-            val template = jsonObject["template-id"] as JsonObject
+            val template = jsonObject["id"] as JsonObject
             return TicTacToeInstaller.templateId(
                 template["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null")
             )
