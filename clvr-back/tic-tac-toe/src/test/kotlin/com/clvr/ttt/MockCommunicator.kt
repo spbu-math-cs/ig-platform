@@ -14,4 +14,8 @@ class MockCommunicator : TicTacToeSessionParticipantsCommunicator {
     override fun sendToClients(event: TicTacToeResponse<*>) = runBlocking {
         clientChannel.send(event)
     }
+
+    override fun sendToClient(clientEndpoint: String, event: TicTacToeResponse<*>) = runBlocking {
+        clientChannel.send(event)
+    }
 }
