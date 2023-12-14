@@ -286,7 +286,7 @@ const Home: NextPage = () => {
                             checked={replaceMarksChecked}
                             onChange={() => setReplaceMarks(!replaceMarksChecked)}
                         />
-                        <text className="text-txt font-bold">Enable replace marks</text>
+                        <p className="text-txt font-bold">Enable replace marks</p>
                     </li>
                     <li>
                         <input
@@ -294,7 +294,7 @@ const Home: NextPage = () => {
                             checked={openMultipleQuestionsChecked}
                             onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                         />
-                        <text className="text-txt font-bold">Enable open multiple questions</text>
+                        <p className="text-txt font-bold">Enable open multiple questions</p>
                     </li>
                 </ul>
             </div>
@@ -340,7 +340,7 @@ const Home: NextPage = () => {
                             checked={replaceMarksChecked}
                             onChange={() => setReplaceMarks(!replaceMarksChecked)}
                         />
-                        <text className="text-txt font-bold">Enable replace marks</text>
+                        <p className="text-txt font-bold">Enable replace marks</p>
                     </li>
                     <li>
                         <input
@@ -348,7 +348,7 @@ const Home: NextPage = () => {
                             checked={openMultipleQuestionsChecked}
                             onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                         />
-                        <text className="text-txt font-bold">Enable open multiple questions</text>
+                        <p className="text-txt font-bold">Enable open multiple questions</p>
                     </li>
                 </ul>
             </div>
