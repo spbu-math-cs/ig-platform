@@ -110,7 +110,7 @@ module.exports = {
                     selectors: [".theme-2048"],
                     extend: {
                         colors: {
-                            'primary': '#f67c5f',
+                            'primary': '#303030',
                             'O': '#f3b236',
                             'X': '#f59563',
                             'task': '#ffe1a9',
@@ -118,16 +118,16 @@ module.exports = {
                             'back': '#ffe1c9',
                             'next': '#f3b236',
                             'quit': '#f59563',
-                            'txt': '#f59563',
-                            'panel': '#9b6f6f',
-                            'selectPanel': '#8d6b6b',
-                            'square' :  '#835c5c',
+                            'txt': '#303030',
+                            'panel': '#f59563',
+                            'selectPanel': '#f59563',
+                            'square' :  '#f59563',
                             'boardHover': '#f59563',
-                            'answerTxt': '#ffe1a9',
+                            'answerTxt': '#303030',
                             'XO': '#303030',
-                            'hostTxt': '#ffd551',
-                            'JoinGameTxt' : '#f3cf83',
-                            'playerTxt': '#f59563',
+                            'hostTxt': '#303030',
+                            'JoinGameTxt' : '#303030',
+                            'playerTxt': '#303030',
                             'createcol' : '#f3b236'
                         }
                     }

@@ -9,6 +9,10 @@ import {TemplateInfo} from "@/tic-tac-toe/types"
 import {TicTacToe, TicTacToeState} from "@/components/TicTacToe"
 import Button from "@/components/Button"
 import {checkExhausted} from "@/utils"
+import {LogIn} from "@/components/Authorization";
+import {RootState, store} from "@/state/store";
+import {useSelector} from "react-redux";
+import {nextTheme} from "@/state/themeSlice"
 
 type AppState = {
     kind: "main_page"
@@ -23,6 +27,8 @@ type AppState = {
 } | {
     kind: "tic_tac_toe"
     state: TicTacToeState
+} | {
+    kind: "logging"
 }
 
 export type AppAction = {
@@ -38,6 +44,8 @@ const Home: NextPage = () => {
         sessionId: "",
         modal: undefined,
     })
+    const dispatch = store.dispatch
+    const theme = useSelector((state: RootState) => state.theme)
 
     const [quizInfo, setQuizInfo] = useState<TemplateInfo[] | undefined>()
     const [replaceMarksChecked, setReplaceMarks] = useState(false)
@@ -66,73 +74,87 @@ const Home: NextPage = () => {
     if (state.kind == "main_page") {
         content = <div>
             <div className="mt-10 md:mt-16 w-[1000px] flex flex-col items-center justify-center mx-auto">
-                <div className="w-full flex gap-4 m-8">
-                    <ul className="grow space-y-4">
-                        <div className="text-3xl text-txt font-bold w-full text-center mb-4">
+                <div className="w-full flex flex-row space-x-10 gap-4 m-8">
+                    <div className="grow space-y-4">
+                        <div
+                            className="text-3xl text-txt font-bold text-center rounded-xl outline-1 px-6 py-3 ring-4 ring-txt  ">
                             HOST A GAME
                         </div>
 
-                        <li className="bg-panel px-8 py-4 rounded-xl w-full">
-                            <h2
-                                className="text-3xl md:text-5xl font-extrabold m-4 text-primary">
+                        <div className="flex flex-col space-y-4 bg-panel px-8 py-4 rounded-xl w-full h-60 items-center">
+                            <h2 className="text-3xl md:text-5xl font-extrabold m-4 text-primary">
                                 TIC TAC TOE
                             </h2>
 
-                            <div className="flex rounded-xl px-6 py-2 items-center justify-center space-x-4">
-                                <XIcon/>
-                                <OIcon/>
-                            </div>
+                            <div className="flex flex-row rounded-xl px-6 items-center justify-center space-x-2">
+                                <a href="/tictactoe.ico" className="flex items-center">
+                                    <img src="/tictactoe.ico" className=" mt-2 mr-3 h-10 sm:h-12" alt={""}/>
+                                </a>
 
-                            <div className="w-full flex justify-end">
-                                <Button onClick={() => setState({...state, modal: "tic_tac_toe"})}>
-                                    BROWSE GAMES
-                                </Button>
+                                <div className="mt-2 w-full flex justify-end">
+                                    <Button onClick={() => setState({...state, modal: "tic_tac_toe"})}>
+                                        BROWSE GAMES
+                                    </Button>
+                                </div>
                             </div>
-                        </li>
+                        </div>
 
-                        <li className="bg-panel px-8 py-4 rounded-xl w-full">
+                        <div className="flex flex-col space-y-4 bg-panel px-8 py-4 rounded-xl w-full h-60 items-center">
                             <h2
                                 className="text-3xl md:text-5xl font-extrabold m-4 text-primary">
-                                ALSO TIC TAC TOE, SHUT UP
+                                !KAHOOT
                             </h2>
 
-                            <div className="flex rounded-xl px-6 py-2 items-center justify-center space-x-4">
-                                <XIcon/>
-                                <OIcon/>
-                            </div>
+                            <div className="flex flex-row rounded-xl px-6 items-center justify-center space-x-2">
+                                <a href="/kahoot.ico" className="flex items-center">
+                                    <img src="/kahoot.ico" className=" mt-2 mr-3 h-10 sm:h-12 rounded-xl" alt={""}/>
+                                </a>
 
-                            <div className="w-full flex justify-end">
-                                <Button onClick={() => setState({...state, modal: "tic_tac_toe"})}>
-                                    BROWSE GAMES
+                                <div className="mt-2 w-full flex justify-end">
+                                    <Button onClick={() => setState({...state, modal: "tic_tac_toe"})}>
+                                        BROWSE GAMES
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col space-y-4">
+                        <div>
+                            <div className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                                JOIN A GAME
+                            </div>
+                            <form
+                                className="flex flex-col items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
+                                <p className="text-2xl md:text-5xl font-extrabold m-4 text-primary">
+                                    ENTER GAME ID
+                                </p>
+                                <input
+                                    type="text"
+                                    className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
+                                    value={state.sessionId}
+                                    onChange={e => {
+                                        setState({kind: "main_page", modal: undefined, sessionId: e.target.value})
+                                    }}
+                                />
+                                <Button>
+                                    JOIN!
+                                </Button>
+                            </form>
+                        </div>
+                        <div
+                            className="flex flex-row items-center justify-center py-4 space-x-8 rounded-xl h-40 outline-1 px-6 ring-4 ring-txt">
+
+                            <div className="flex justify-end">
+                                <Button onClick={() => dispatch(nextTheme())}>
+                                    CHANGE THEME
                                 </Button>
                             </div>
-                        </li>
-                    </ul>
-
-                    <div>
-                        <div className="text-3xl text-txt font-bold w-full text-center mb-4">
-                            JOIN A GAME
+                            <div className="flex justify-end">
+                                <Button onClick={() => setState({kind: "logging"})}>
+                                    LOG IN
+                                </Button>
+                            </div>
                         </div>
-                        <form
-                            className="flex flex-col items-center py-12 w-[700px] md:w-[450px] h-64 md:h-72 rounded-2xl bg-panel space-y-8 md:space-y-6">
-
-                            <p className="text-md text-JoinGameTxt uppercase font-extrabold  md:text-3xl space-y-12">
-                                ENTER GAME ID
-                            </p>
-
-                            <input
-                                type="text"
-                                className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
-                                value={state.sessionId}
-                                onChange={e => {
-                                    setState({kind: "main_page", modal: undefined, sessionId: e.target.value})
-                                }}
-                            />
-
-                            <Button>
-                                JOIN!
-                            </Button>
-                        </form>
                     </div>
                 </div>
                 {/*
@@ -197,6 +219,9 @@ const Home: NextPage = () => {
         content = <div>TODO</div>
     } else if (state.kind == "tic_tac_toe") {
         content = <TicTacToe state={state.state} dispatch={runAction}/>
+    } else if (state.kind == "logging") {
+        content =
+            <LogIn switchPage={setState}></LogIn>
     } else {
         checkExhausted(state)
     }
@@ -215,7 +240,7 @@ const Home: NextPage = () => {
 
                 <button onClick={() => setState({kind: "tic_tac_toe", state: {kind: "constructor"}})}
                         className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
-                    CREATE NEW QUIZ
+                    or CREATE NEW QUIZ
                 </button>
             </div>
 
@@ -265,15 +290,18 @@ const Home: NextPage = () => {
         checkExhausted(state.modal)
     }
 
-    return <div className={`flex min-h-screen bg-back flex-col items-center  justify-items-center   py-2`}>
-        <Head>
-            <title>
-                {state.kind === "tic_tac_toe"
-                    ? "CLVR: Tic-Tac-Toe"
-                    : "CLVR"}
-            </title>
-            <link rel="icon" href="/tictactoe.ico"/>
-        </Head>
+    return <div
+        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
+        <div className={`flex flex-row justify-between items-center`}>
+            <div className="flex flex-row items-center ">
+                <a href="/clover.PNG" className="flex items-center">
+                    <img src="/clover.PNG" className=" mt-4 h-20" alt={""}/>
+                </a>
+                <h1 className={`text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
+                    C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
+                </h1>
+            </div>
+        </div>
 
         {state.kind === "main_page" && state.modal !== undefined &&
             <div className="
@@ -286,11 +314,6 @@ const Home: NextPage = () => {
                 </div>
             </div>
         }
-
-        <h1 className={`text-4xl md:text-5xl font-extrabold mt-4 text-primary`}>
-            C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
-        </h1>
-
         {content}
     </div>
 }
