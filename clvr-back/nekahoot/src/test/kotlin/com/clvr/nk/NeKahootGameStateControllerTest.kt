@@ -11,15 +11,19 @@ import kotlin.time.Duration.Companion.seconds
 class NeKahootGameStateControllerTest {
     private val quiz = basicTestTemplate
 
+    private val testSessionId = SessionId("0")
+    private val startGameRequest = StartGameRequest(testSessionId)
+    private val questionRequest = QuestionRequest(testSessionId)
+
     private fun makeRequest(
         game: GameState,
-        requestPayload: NeKahootRequestPayload,
+        request: NeKahootRequest
     ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
         val controller = NeKahootGameController(game)
         val communicator = MockCommunicator()
         val hostChannel = communicator.hostChannel
         val clientChannel = communicator.clientsToChannels
-        controller.handle(communicator, NeKahootRequest(SessionId("0"), requestPayload))
+        controller.handle(communicator, request)
 
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()
@@ -40,14 +44,14 @@ class NeKahootGameStateControllerTest {
 
     private fun makeRequestFromClient(
         game: GameState,
-        requestPayload: NeKahootRequestPayload,
         clientEndpoint: String,
+        request: NeKahootRequest
     ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
         val controller = NeKahootGameController(game)
         val communicator = MockCommunicator()
         val hostChannel = communicator.hostChannel
         val clientChannel = communicator.clientsToChannels
-        controller.handleFromClient(communicator, clientEndpoint, NeKahootRequest(SessionId("0"), requestPayload))
+        controller.handleFromClient(communicator, clientEndpoint, request)
 
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()
@@ -64,6 +68,21 @@ class NeKahootGameStateControllerTest {
         }
 
         return hostEvents.toList() to clientEvents.toMap()
+    }
+
+    private fun makeRequestWithPayload(
+        game: GameState,
+        requestPayload: NeKahootRequestPayload
+    ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
+        return makeRequest(game, NeKahootRequestWithPayload(testSessionId, requestPayload))
+    }
+
+    private fun makeRequestFromClientWithPayload(
+        game: GameState,
+        clientEndpoint: String,
+        requestPayload: NeKahootRequestPayload,
+    ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
+        return makeRequestFromClient(game, clientEndpoint, NeKahootRequestWithPayload(testSessionId, requestPayload))
     }
 
     private fun checkCloseOfQuestion(
@@ -86,11 +105,9 @@ class NeKahootGameStateControllerTest {
     @Test
     fun `question close logic`() = runTest(timeout = 5.seconds) {
         val game = GameState(quiz)
-        val startGameRequest = StartGameRequest()
         val (hostEvents, clientsToEvents) = makeRequest(game, startGameRequest)
         checkCloseOfQuestion(hostEvents, clientsToEvents)
 
-        val questionRequest = QuestionRequest()
         val (hostEvents2, clientsToEvents2) = makeRequest(game, questionRequest)
         checkCloseOfQuestion(hostEvents2, clientsToEvents2)
 
@@ -180,19 +197,23 @@ class NeKahootGameStateControllerTest {
 
 
         delay(10)
-        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, client1Request, client1)
+        val (hostEvents, clientsToEvents) = makeRequestFromClientWithPayload(game, client1, client1Request)
         checkAnswerResponse(client1, game, hostEvents, clientsToEvents)
 
         delay(533)
-        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2Request, client2)
+        val (hostEvents2, clientsToEvents2) = makeRequestFromClientWithPayload(game, client2, client2Request)
         checkAnswerResponse(client2, game, hostEvents2, clientsToEvents2)
 
         delay(1)
-        val (hostEvents2Attempt2, clientsToEvents2Attempt2) = makeRequestFromClient(game, client2RequestAttempt2, client2)
+        val (hostEvents2Attempt2, clientsToEvents2Attempt2) = makeRequestFromClientWithPayload(
+            game,
+            client2,
+            client2RequestAttempt2
+        )
         checkClientErrorResponse(AlreadyAnsweredException(), client2, hostEvents2Attempt2, clientsToEvents2Attempt2)
 
         delay(500)
-        val (hostEvents3, clientsToEvents3) = makeRequestFromClient(game, client3Request, client3)
+        val (hostEvents3, clientsToEvents3) = makeRequestFromClientWithPayload(game, client3, client3Request)
         checkClientErrorResponse(LateAnswerException(), client3, hostEvents3, clientsToEvents3)
     }
 
@@ -207,7 +228,7 @@ class NeKahootGameStateControllerTest {
         }
 
         val answerRequest = AnswerRequest("opt2")
-        val (hostEvents, clientsToEvents) = makeRequest(game, answerRequest)
+        val (hostEvents, clientsToEvents) = makeRequestWithPayload(game, answerRequest)
         checkHostErrorResponse(HostAnswerException(), hostEvents, clientsToEvents)
     }
 
@@ -222,13 +243,11 @@ class NeKahootGameStateControllerTest {
         }
 
         val client1 = "client-1"
-        val client1Request = StartGameRequest()
-        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, client1Request, client1)
+        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, client1, startGameRequest)
         checkClientErrorResponse(ClientStartGameException(), client1, hostEvents, clientsToEvents)
 
         val client2 = "client-2"
-        val client2Request = QuestionRequest()
-        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2Request, client2)
+        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2, questionRequest)
         checkClientErrorResponse(ClientOpenQuestionException(), client2, hostEvents2, clientsToEvents2)
     }
 
@@ -270,11 +289,11 @@ class NeKahootGameStateControllerTest {
         var options = game.getAnswerOptions()
 
         delay(42)
-        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, AnswerRequest(options[0]), client1)
+        val (hostEvents, clientsToEvents) = makeRequestFromClientWithPayload(game, client1, AnswerRequest(options[0]))
         checkAnswerResponse(client1, game, hostEvents, clientsToEvents)
 
         delay(239)
-        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, AnswerRequest(options[1]), client2)
+        val (hostEvents2, clientsToEvents2) = makeRequestFromClientWithPayload(game, client2, AnswerRequest(options[1]))
         checkAnswerResponse(client2, game, hostEvents2, clientsToEvents2)
 
         currentQuestion.join()
@@ -287,11 +306,11 @@ class NeKahootGameStateControllerTest {
         options = game.getAnswerOptions()
 
         delay(1100)
-        val (hostEvents3, clientsToEvents3) = makeRequestFromClient(game, AnswerRequest(options[0]), client1)
+        val (hostEvents3, clientsToEvents3) = makeRequestFromClientWithPayload(game, client1, AnswerRequest(options[0]))
         checkAnswerResponse(client1, game, hostEvents3, clientsToEvents3)
 
         delay(30)
-        val (hostEvents4, clientsToEvents4) = makeRequestFromClient(game, AnswerRequest(options[1]), client3)
+        val (hostEvents4, clientsToEvents4) = makeRequestFromClientWithPayload(game, client3, AnswerRequest(options[1]))
         checkAnswerResponse(client3, game, hostEvents4, clientsToEvents4)
 
         currentQuestion.join()
@@ -304,12 +323,11 @@ class NeKahootGameStateControllerTest {
         options = game.getAnswerOptions()
 
         delay(1)
-        val (hostEvents5, clientsToEvents5) = makeRequestFromClient(game, AnswerRequest(options[3]), client3)
+        val (hostEvents5, clientsToEvents5) = makeRequestFromClientWithPayload(game, client3, AnswerRequest(options[3]))
         checkAnswerResponse(client3, game, hostEvents5, clientsToEvents5)
 
         currentQuestion.join()
 
-        val questionRequest = QuestionRequest()
         val (finalHostEvents, finalClientsToEvents) = makeRequest(game, questionRequest)
         checkResultsResponse(game, finalHostEvents, finalClientsToEvents)
     }

@@ -51,7 +51,7 @@ data class TemplateCreateRequest(
 
 fun Route.routingSetup(
     templateDatabase: TemplateDatabase,
-    sessionRegistry: ClvrSessionRegistry<NeKahootRequest<*>, NeKahootResponse<*>>
+    sessionRegistry: ClvrSessionRegistry<NeKahootRequest, NeKahootResponseWithPayload<*>>
 ) {
     options("game") {
         call.respond(HttpStatusCode.OK)

@@ -11,49 +11,41 @@ class EventTest {
     private val jsonPrettyFormatter = Json { prettyPrint = true }
     @Test
     fun `start game request`() {
-        val event: NeKahootRequest<StartGameRequest> = NeKahootRequest(SessionId("142"), StartGameRequest())
+        val event = StartGameRequest(SessionId("142"))
         val expectedJsonString =
 """{
     "session": {
         "id": "142"
     },
-    "type": "START_GAME",
-    "payload": {
-    }
+    "type": "START_GAME"
 }"""
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
         val decodedEvent = decodeJsonToNKEvent(jsonString)
-        Assertions.assertEquals(event.session, decodedEvent.session)
-        Assertions.assertEquals(event.type, decodedEvent.type)
-        Assertions.assertInstanceOf(StartGameRequest::class.java, decodedEvent.payload)
+        Assertions.assertEquals(event, decodedEvent)
     }
 
     @Test
     fun `question request`() {
-        val event: NeKahootRequest<QuestionRequest> = NeKahootRequest(SessionId("142"), QuestionRequest())
+        val event = QuestionRequest(SessionId("142"))
         val expectedJsonString =
 """{
     "session": {
         "id": "142"
     },
-    "type": "NEXT_QUESTION",
-    "payload": {
-    }
+    "type": "NEXT_QUESTION"
 }"""
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
         val decodedEvent = decodeJsonToNKEvent(jsonString)
-        Assertions.assertEquals(event.session, decodedEvent.session)
-        Assertions.assertEquals(event.type, decodedEvent.type)
-        Assertions.assertInstanceOf(QuestionRequest::class.java, decodedEvent.payload)
+        Assertions.assertEquals(event, decodedEvent)
     }
 
     @Test
     fun `answer request`() {
-        val event: NeKahootRequest<AnswerRequest> = NeKahootRequest(SessionId("533"), AnswerRequest("yumsh"))
+        val event: NeKahootRequestWithPayload<AnswerRequest> = NeKahootRequestWithPayload(SessionId("533"), AnswerRequest("yumsh"))
         val expectedJsonString =
 """{
     "session": {
@@ -82,7 +74,7 @@ class EventTest {
             time = template.time,
             answered = 4,
         )
-        val event: NeKahootResponse<HostQuestionResponse> = NeKahootResponse(HostQuestionResponse(hostQuestionView))
+        val event: NeKahootResponseWithPayload<HostQuestionResponse> = NeKahootResponseWithPayload(HostQuestionResponse(hostQuestionView))
         val expectedJsonString =
 """{
     "state": "OPENED_QUESTION",
@@ -104,7 +96,7 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponse<HostQuestionResponse>>(jsonString)
+        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponseWithPayload<HostQuestionResponse>>(jsonString)
         Assertions.assertEquals(event, decodedEvent)
     }
 
@@ -117,7 +109,7 @@ class EventTest {
             time = template.time,
             givenAnswer = "opt2",
         )
-        val event: NeKahootResponse<ClientQuestionResponse> = NeKahootResponse(ClientQuestionResponse(clientQuestionView))
+        val event: NeKahootResponseWithPayload<ClientQuestionResponse> = NeKahootResponseWithPayload(ClientQuestionResponse(clientQuestionView))
         val expectedJsonString =
 """{
     "state": "OPENED_QUESTION",
@@ -137,7 +129,7 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponse<ClientQuestionResponse>>(jsonString)
+        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponseWithPayload<ClientQuestionResponse>>(jsonString)
         Assertions.assertEquals(event, decodedEvent)
     }
 
@@ -151,7 +143,7 @@ class EventTest {
             answerOptions = template.answerOptions,
             time = template.time
         )
-        val event: NeKahootResponse<ShowAnswerEvent> = NeKahootResponse(ShowAnswerEvent(questionWithAnswerView))
+        val event: NeKahootResponseWithPayload<ShowAnswerEvent> = NeKahootResponseWithPayload(ShowAnswerEvent(questionWithAnswerView))
         val expectedJsonString =
 """{
     "state": "SHOW_QUESTION_ANSWER",
@@ -171,7 +163,7 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponse<ShowAnswerEvent>>(jsonString)
+        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponseWithPayload<ShowAnswerEvent>>(jsonString)
         Assertions.assertEquals(event, decodedEvent)
     }
 
@@ -182,7 +174,7 @@ class EventTest {
             PlayerResult("player-1", 100, 1),
             PlayerResult("player-2", 30, 0),
         )
-        val event: NeKahootResponse<ResultsEvent> = NeKahootResponse(ResultsEvent(results))
+        val event: NeKahootResponseWithPayload<ResultsEvent> = NeKahootResponseWithPayload(ResultsEvent(results))
         val expectedJsonString =
             """{
     "state": "RESULT",
@@ -204,13 +196,13 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponse<ResultsEvent>>(jsonString)
+        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponseWithPayload<ResultsEvent>>(jsonString)
         Assertions.assertEquals(event, decodedEvent)
     }
 
     @Test
     fun `error response`() {
-        val event: NeKahootResponse<GameError> = NeKahootResponse(GameError("error message"))
+        val event: NeKahootResponseWithPayload<GameError> = NeKahootResponseWithPayload(GameError("error message"))
         val expectedJsonString =
 """{
     "state": "ERROR",
@@ -221,7 +213,7 @@ class EventTest {
         val jsonString = jsonPrettyFormatter.encodeToString(event)
         Assertions.assertEquals(expectedJsonString, jsonString)
 
-        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponse<GameError>>(jsonString)
+        val decodedEvent = jsonPrettyFormatter.decodeFromString<NeKahootResponseWithPayload<GameError>>(jsonString)
         Assertions.assertEquals(event, decodedEvent)
     }
 }

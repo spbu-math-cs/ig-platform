@@ -3,9 +3,7 @@ package com.clvr.nk
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -19,16 +17,22 @@ sealed interface NeKahootResponsePayload {
 }
 
 @Serializable
-data class NeKahootRequest<T: NeKahootRequestPayload> private constructor(
+sealed interface NeKahootRequest: RequestEvent {
+    override val session: SessionId
+    override val type: String
+}
+
+@Serializable
+data class NeKahootRequestWithPayload<T: NeKahootRequestPayload> private constructor(
     override val session: SessionId,
     override val type: String,
     val payload: T,
-): RequestEvent {
+): NeKahootRequest {
     constructor(session: SessionId, payload: T): this(session, payload.type, payload)
 }
 
 @Serializable
-data class NeKahootResponse<T: NeKahootResponsePayload> private constructor(
+data class NeKahootResponseWithPayload<T: NeKahootResponsePayload> private constructor(
     override val state: String,
     val payload: T,
 ): ResponseEvent {
@@ -37,23 +41,23 @@ data class NeKahootResponse<T: NeKahootResponsePayload> private constructor(
 
 // TODO: remove this method and implement normal one
 @Suppress("UNCHECKED_CAST")
-fun encodeNKEventToJson(event: NeKahootResponse<*>): String {
+fun encodeNKEventToJson(event: NeKahootResponseWithPayload<*>): String {
     return when (event.payload) {
-        is HostQuestionResponse -> Json.encodeToString(event as NeKahootResponse<HostQuestionResponse>)
-        is ClientQuestionResponse -> Json.encodeToString(event as NeKahootResponse<ClientQuestionResponse>)
-        is ShowAnswerEvent -> Json.encodeToString(event as NeKahootResponse<ShowAnswerEvent>)
-        is ResultsEvent -> Json.encodeToString(event as NeKahootResponse<ResultsEvent>)
-        is GameError -> Json.encodeToString(event as NeKahootResponse<GameError>)
+        is HostQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<HostQuestionResponse>)
+        is ClientQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<ClientQuestionResponse>)
+        is ShowAnswerEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ShowAnswerEvent>)
+        is ResultsEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ResultsEvent>)
+        is GameError -> Json.encodeToString(event as NeKahootResponseWithPayload<GameError>)
     }
 }
 
-fun decodeJsonToNKEvent(jsonString: String): NeKahootRequest<*> {
+fun decodeJsonToNKEvent(jsonString: String): NeKahootRequest {
     val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
     return when (jsonObject["type"]!!.jsonPrimitive.content) {
-        QuestionRequest.type -> Json.decodeFromString<NeKahootRequest<QuestionRequest>>(jsonString)
-        AnswerRequest.type -> Json.decodeFromString<NeKahootRequest<AnswerRequest>>(jsonString)
-        StartGameRequest.type -> Json.decodeFromString<NeKahootRequest<StartGameRequest>>(jsonString)
+        StartGameRequest.type -> Json.decodeFromString<StartGameRequest>(jsonString)
+        QuestionRequest.type -> Json.decodeFromString<QuestionRequest>(jsonString)
+        AnswerRequest.type -> Json.decodeFromString<NeKahootRequestWithPayload<AnswerRequest>>(jsonString)
         else -> throw IllegalArgumentException("Unknown type of event")
     }
 }
@@ -125,16 +129,21 @@ data class QuestionWithAnswerView(
 }
 
 @Serializable
-class StartGameRequest: NeKahootRequestPayload {
+data class StartGameRequest(
+    override val session: SessionId
+) : NeKahootRequest {
+    @EncodeDefault
     override val type: String = Companion.type
-
     companion object {
         const val type: String = "START_GAME"
     }
 }
 
 @Serializable
-class QuestionRequest: NeKahootRequestPayload {
+data class QuestionRequest(
+    override val session: SessionId
+) : NeKahootRequest {
+    @EncodeDefault
     override val type: String = Companion.type
 
     companion object {
