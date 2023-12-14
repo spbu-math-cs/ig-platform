@@ -38,14 +38,6 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
     const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
-    useEffect(() => {
-        let k = new Audio("/LobbyMusic.mp3")
-
-        k.addEventListener("canplaythrough", (_) => {
-            k.play().then()
-        }, true)
-    }, [])
-
     function value(i: number) {
         let value
         let board

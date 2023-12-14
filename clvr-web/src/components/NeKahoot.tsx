@@ -7,7 +7,7 @@ import {AppAction} from "@/pages"
 export type NeKahootState = {
     kind: "playing"
     sessionId: string
-    role: "host" | "board"
+    role: "host" | "player"
 } | {
     kind: "constructor"
 }
