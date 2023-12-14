@@ -6,6 +6,7 @@ import com.clvr.platform.api.TemplateHeader
 import com.clvr.platform.api.TemplateId
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import com.clvr.platform.configurePlatform
 import com.clvr.platform.installActivity
@@ -24,7 +25,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class ApplicationTest {
     @Test
-    fun `basic test for API`() = testApplication {
+    fun kek() = testApplication {
         setupServer()
         val client = getClient()
         assertEquals(TemplateListResponse(listOf()), client.get("/nekahoot/template-list").body<TemplateListResponse>())
@@ -32,17 +33,17 @@ class ApplicationTest {
         val templateID = addTemplate(client)
         /*assertEquals(TemplateListResponse(listOf(
                 TemplateHeader(
-                        basicTestTemplate.templateTitle ?: "",
+                        basicTestTemplate2.templateTitle ?: "",
                         templateID.id,
-                        basicTestTemplate.templateComment ?: ""
+                        basicTestTemplate2.templateComment ?: ""
                 ))), client.get("/nekahoot/template-list").body<TemplateListResponse>()
         )*/
 
         assertEquals(TemplateCompleteInfo(
                 templateID.id,
-                basicTestTemplate.templateTitle ?: "",
-                basicTestTemplate.templateComment ?: "",
-                basicTestTemplate.questions
+                basicTestTemplate2.templateTitle ?: "",
+                basicTestTemplate2.templateComment ?: "",
+                basicTestTemplate2.questions
         ), client.get("/nekahoot/template/${templateID.id}").body<TemplateCompleteInfo>())
 
        assertEquals(HttpStatusCode.OK, client.post("/nekahoot/game") {
@@ -71,9 +72,9 @@ class ApplicationTest {
         client.post("/nekahoot/template") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(TemplateCreateRequest(
-                    basicTestTemplate.templateTitle ?: "",
-                    basicTestTemplate.templateComment ?: "",
-                    basicTestTemplate.questions
+                    basicTestTemplate2.templateTitle ?: "",
+                    basicTestTemplate2.templateComment ?: "",
+                    basicTestTemplate2.questions
             )))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
