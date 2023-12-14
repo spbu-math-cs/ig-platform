@@ -145,7 +145,7 @@ const Home: NextPage = () => {
                                     className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
                                     value={state.sessionId}
                                     onChange={e => {
-                                        setState({kind: "joining", sessionId: e.target.value})
+                                        setState({kind: "main_page", sessionId: e.target.value, modal: undefined})
                                     }}
                                 />
                                 <Button>
@@ -286,7 +286,7 @@ const Home: NextPage = () => {
                             checked={replaceMarksChecked}
                             onChange={() => setReplaceMarks(!replaceMarksChecked)}
                         />
-                        <p className="text-txt font-bold">Enable replace marks</p>
+                        <span className="text-txt font-bold">Enable replace marks</span>
                     </li>
                     <li>
                         <input
@@ -294,7 +294,7 @@ const Home: NextPage = () => {
                             checked={openMultipleQuestionsChecked}
                             onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                         />
-                        <p className="text-txt font-bold">Enable open multiple questions</p>
+                        <span className="text-txt font-bold">Enable open multiple questions</span>
                     </li>
                 </ul>
             </div>
@@ -340,7 +340,7 @@ const Home: NextPage = () => {
                             checked={replaceMarksChecked}
                             onChange={() => setReplaceMarks(!replaceMarksChecked)}
                         />
-                        <p className="text-txt font-bold">Enable replace marks</p>
+                        <span className="text-txt font-bold">Enable replace marks</span>
                     </li>
                     <li>
                         <input
@@ -348,7 +348,7 @@ const Home: NextPage = () => {
                             checked={openMultipleQuestionsChecked}
                             onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                         />
-                        <p className="text-txt font-bold">Enable open multiple questions</p>
+                        <span className="text-txt font-bold">Enable open multiple questions</span>
                     </li>
                 </ul>
             </div>
