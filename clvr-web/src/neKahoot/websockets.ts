@@ -2,6 +2,7 @@ import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session, Error} from "./types"
 import {Request} from "./wsRequests"
+import {checkExhausted} from "@/utils"
 
 type Role = "host" | "client"
 
@@ -36,6 +37,7 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
     }, [readyState])
 
     const [errors, setErrors] = useState<Error[]>([])
+    const [nextErrorId, setNextErrorId] = useState(0)
 
     useEffect(() => {
         const msg = lastJsonMessage as any
@@ -89,7 +91,8 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
             console.log("ERROR: " + msg.payload.message)
 
             const newErrors = [...errors]
-            newErrors.push({error_message: msg.payload.message})
+            newErrors.push({error_message: msg.payload.message, id: nextErrorId})
+            setNextErrorId(nextErrorId + 1)
             setErrors(newErrors)
             setTimeout(() => {
                 setErrors(errors => {

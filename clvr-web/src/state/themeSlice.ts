@@ -20,18 +20,12 @@ export const themeSlice = createSlice({
         nextTheme: (state) => {
             switch (state.value) {
                 case "theme-metal":
-                    state.value = "theme-2048"
-                    break
-                case "theme-2048":
                     state.value = "theme-purple"
                     break
                 case "theme-purple":
                     state.value = "theme-green"
                     break
                 case "theme-green":
-                    state.value = "theme-tnkf"
-                    break
-                case "theme-tnkf":
                     state.value = "theme-metal"
                     break
             }

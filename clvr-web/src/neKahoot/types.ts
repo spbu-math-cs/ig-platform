@@ -14,6 +14,7 @@ export type EnabledDisabled = "ENABLED" | "DISABLED"
 
 export type Error = {
     error_message: string
+    id: number
 }
 
 type Cell = {
@@ -59,13 +60,13 @@ type QuestionWithAnswer = {
     answer: string
 }
 
-export type QuizInfo = {
+export type TemplateInfo = {
     name: string
     id: string
     comment: string
 }
 
-export type Quiz = QuizInfo & {
+export type Quiz = TemplateInfo & {
     board: Question[]
 }
 

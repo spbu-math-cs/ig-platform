@@ -1,34 +1,34 @@
 import {useState} from "react";
-import {GameConfig, QuizInfo} from "@/game/types"
+import {TemplateInfo} from "@/tic-tac-toe/types"
 
-interface QuizProps {
-    quiz: QuizInfo
-    handleSelect(id: string) : Promise<void>
+interface TemplateProps {
+    template: TemplateInfo
+    handleSelect(id: string): void
 }
 
-export function QuizCard({quiz, handleSelect}: QuizProps) {
+export function Template({template, handleSelect}: TemplateProps) {
     const [details, setDetails] = useState(false)
 
     return (
         <div className="border-2 border-back w-[950px] rounded-2xl py-2 px-4 flex flex-col items-start mb-2">
             <div className="rounded-2xl flex flex-row">
                 <div className="rounded-2xl py-2 px-4 flex flex-row mb-1 space-x-30 w-[810px]">
-                    <p className="font-bold text-2xl">{quiz.name}</p>
+                    <p className="font-bold text-2xl">{template.name}</p>
 
                     {details ? <div>
-                            <p className="font-bold text-xl px-10">{quiz.comment}</p>
+                            <p className="font-bold text-xl px-10">{template.comment}</p>
                         </div>
                         : ''}
                 </div>
-                <button className="mt-3 font-extrabold text-xl text-JoinGameTxt space-30-px flex button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel"
-                        onClick={() => handleSelect(quiz.id)}
+                <button className="bg-panel font-extrabold text-xl text-hostTxt space-30-px py-3 flex"
+                        onClick={() => handleSelect(template.id)}
                 >
-                    PLAY!
+                    SELECT
                 </button>
             </div>
 
             <button
-                className="px-4 bg-selectPanel font-bold rounded-l text-s text-back"
+                className="px-4 bg-panel font-bold text-s text-back"
                 onClick={() => setDetails(prev => !prev)}
             >
                 {details ? 'HIDE DETAILS' : 'SHOW DETAILS'}

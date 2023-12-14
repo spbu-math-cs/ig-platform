@@ -1,8 +1,8 @@
-import {GameConfig, ProtoQuiz, Quiz, QuizInfo, Session} from "@/game/types"
+import {GameConfig, ProtoQuiz, Quiz, TemplateInfo, Session} from "@/tic-tac-toe/types"
 
 const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
 
-export async function getQuizList(): Promise<QuizInfo[]> {
+export async function getQuizList(): Promise<TemplateInfo[]> {
     const response = await fetch(new URL("tic-tac-toe/template-list", API_ENDPOINT))
     const json = await response.json()
 
