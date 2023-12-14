@@ -231,4 +231,86 @@ class NeKahootGameStateControllerTest {
         val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2Request, client2)
         checkClientErrorResponse(ClientOpenQuestionException(), client2, hostEvents2, clientsToEvents2)
     }
+
+    private fun checkResultsResponse(
+        game: GameState,
+        hostEventPayloads: List<NeKahootResponsePayload>,
+        clientsToEventPayloads: Map<String, List<NeKahootResponsePayload>>
+    ) {
+        Assertions.assertEquals(1, hostEventPayloads.size)
+        clientsToEventPayloads.forEach { (_, eventPayloads) ->
+            Assertions.assertEquals(1, eventPayloads.size)
+        }
+        val hostPayload = hostEventPayloads.single()
+        Assertions.assertEquals(ResultsEvent.state, hostPayload.state)
+        hostPayload as ResultsEvent
+        Assertions.assertEquals(game.getResults(), hostPayload.results)
+
+        clientsToEventPayloads.forEach { (_, eventPayloads) ->
+            val clientPayload = eventPayloads.single()
+            Assertions.assertEquals(ResultsEvent.state, clientPayload.state)
+            clientPayload as ResultsEvent
+            Assertions.assertEquals(game.getResults(), clientPayload.results)
+        }
+    }
+
+    @Test
+    fun `game results after last question`() = runTest {
+        val game = GameState(quiz)
+        val client1 = "client-1"
+        val client2 = "client-2"
+        val client3 = "client-3"
+        game.startGame()
+
+        game.openQuestion(System.currentTimeMillis())
+        var currentQuestion = launch {
+            delay(game.getTime().toLong().seconds)
+            game.closeQuestion()
+        }
+        var options = game.getAnswerOptions()
+
+        delay(42)
+        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, AnswerRequest(options[0]), client1)
+        checkAnswerResponse(client1, game, hostEvents, clientsToEvents)
+
+        delay(239)
+        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, AnswerRequest(options[1]), client2)
+        checkAnswerResponse(client2, game, hostEvents2, clientsToEvents2)
+
+        currentQuestion.join()
+        game.nextQuestion()
+        game.openQuestion(System.currentTimeMillis())
+        currentQuestion = launch {
+            delay(game.getTime().toLong().seconds)
+            game.closeQuestion()
+        }
+        options = game.getAnswerOptions()
+
+        delay(1100)
+        val (hostEvents3, clientsToEvents3) = makeRequestFromClient(game, AnswerRequest(options[0]), client1)
+        checkAnswerResponse(client1, game, hostEvents3, clientsToEvents3)
+
+        delay(30)
+        val (hostEvents4, clientsToEvents4) = makeRequestFromClient(game, AnswerRequest(options[1]), client3)
+        checkAnswerResponse(client3, game, hostEvents4, clientsToEvents4)
+
+        currentQuestion.join()
+        game.nextQuestion()
+        game.openQuestion(System.currentTimeMillis())
+        currentQuestion = launch {
+            delay(game.getTime().toLong().seconds)
+            game.closeQuestion()
+        }
+        options = game.getAnswerOptions()
+
+        delay(1)
+        val (hostEvents5, clientsToEvents5) = makeRequestFromClient(game, AnswerRequest(options[3]), client3)
+        checkAnswerResponse(client3, game, hostEvents5, clientsToEvents5)
+
+        currentQuestion.join()
+
+        val questionRequest = QuestionRequest()
+        val (finalHostEvents, finalClientsToEvents) = makeRequest(game, questionRequest)
+        checkResultsResponse(game, finalHostEvents, finalClientsToEvents)
+    }
 }
