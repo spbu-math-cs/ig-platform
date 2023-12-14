@@ -1,14 +1,14 @@
 package com.clvr.server
 
-import com.clvr.ttt.QuizCreateRequest
-import com.clvr.ttt.common.QuizCellInfo
+import com.clvr.ttt.TemplateCreateRequest
+import com.clvr.ttt.common.TemplateCellInfo
 
-val createTemplate = QuizCreateRequest(
+val createTemplate = TemplateCreateRequest(
     "template name",
     "template comment",
     List(3) { row ->
         List(3) { col ->
-            QuizCellInfo(
+            TemplateCellInfo(
                 row,
                 col,
                 "topic $row $col",

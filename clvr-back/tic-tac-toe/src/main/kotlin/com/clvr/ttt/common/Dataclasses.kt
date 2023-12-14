@@ -6,7 +6,7 @@ import com.clvr.platform.api.TemplateId
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class QuizQuestion(
+data class TemplateQuestion(
     val topic: String,
     val statement: String,
     val answer: String,
@@ -16,7 +16,7 @@ data class QuizQuestion(
 @Serializable
 data class TicTacToeTemplate(
     override val id: TemplateId,
-    val questions: Array<Array<QuizQuestion>>,
+    val questions: Array<Array<TemplateQuestion>>,
     val gridSide: Int,
     val templateTitle: String?,
     val templateComment: String?,
@@ -28,7 +28,7 @@ data class TicTacToeTemplate(
 
 
 @Serializable
-data class QuizCellInfo(
+data class TemplateCellInfo(
         val row: Int,
         val column: Int,
         val topic: String,
@@ -38,9 +38,9 @@ data class QuizCellInfo(
 )
 
 @Serializable
-data class QuizCompleteInfo(
+data class TemplateCompleteInfo(
         val id: String,
         val name: String,
         val comment: String,
-        val board: List<QuizCellInfo>
+        val board: List<TemplateCellInfo>
 )

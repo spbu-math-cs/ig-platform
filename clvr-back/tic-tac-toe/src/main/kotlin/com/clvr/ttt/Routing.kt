@@ -9,9 +9,9 @@ import com.clvr.platform.api.db.getTemplatesById
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.api.db.TemplateDatabase
 import com.clvr.ttt.common.Config
-import com.clvr.ttt.common.QuizCellInfo
-import com.clvr.ttt.common.QuizCompleteInfo
-import com.clvr.ttt.common.QuizQuestion
+import com.clvr.ttt.common.TemplateCellInfo
+import com.clvr.ttt.common.TemplateCompleteInfo
+import com.clvr.ttt.common.TemplateQuestion
 import com.clvr.ttt.common.TicTacToeTemplate
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -26,30 +26,30 @@ import java.util.*
 data class SessionResponse(val session: SessionId)
 
 @Serializable
-data class QuizRequest(
-    @SerialName("quiz_id")
-    val quiz: String,
+data class TemplateRequest(
+    @SerialName("template_id")
+    val template: String,
 
     @SerialName("game_configuration")
     val config: Config
 )
 
 @Serializable
-data class QuizListResponse (
-    @SerialName("quiz-list")
-    val quizList: List<TemplateHeader>
+data class TemplateListResponse (
+    @SerialName("template-list")
+    val templateList: List<TemplateHeader>
 )
 
 @Serializable
-data class QuizCreateRequest(
+data class TemplateCreateRequest(
     val name: String,
     val comment: String,
-    val board: List<QuizCellInfo>
+    val board: List<TemplateCellInfo>
 )
 
 @Serializable
-data class QuizIdResponse(
-    @SerialName("quiz-id")
+data class TemplateIdResponse(
+    @SerialName("id")
     val templateId: TemplateId
 )
 
@@ -57,56 +57,56 @@ fun Route.routingSetup(
     templateDatabase: TemplateDatabase,
     sessionRegistry: ClvrSessionRegistry<TicTacToeRequestPayload, TicTacToeResponsePayload>
 ) {
-    options("/api/game-session") {
+    options("game") {
         call.respond(HttpStatusCode.OK)
     }
-    post("/api/game-session") {
-        val quizRequest = try {
-            call.receive<QuizRequest>()
+    post("game") {
+        val templateRequest = try {
+            call.receive<TemplateRequest>()
         } catch (_: ContentTransformationException) {
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
 
         val template = templateDatabase.getTemplatesById<TicTacToeTemplate>(
-            TicTacToeInstaller.templateId(quizRequest.quiz)
+            TicTacToeInstaller.templateId(templateRequest.template)
         ) ?: run {
             call.respond(HttpStatusCode.NotFound)
             return@post
         }
 
-        val game = GameState(template, quizRequest.config)
+        val game = GameState(template, templateRequest.config)
         val controller = TicTacToeGameController(game)
         val view = TicTacToeGameView(game)
         val newSession = sessionRegistry.startNewGame(controller, view)
         call.respond(HttpStatusCode.OK, SessionResponse(newSession))
     }
 
-    get("quiz-list") {
+    get("template-list") {
         call.respond(
             HttpStatusCode.OK,
-            QuizListResponse(
+            TemplateListResponse(
                 templateDatabase.listTemplates(TicTacToeInstaller.ACTIVITY_ID)
             )
         )
     }
 
-    get("quiz-list/{quiz-id}") {
-        val quizId = TicTacToeInstaller.templateId(
-            call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+    get("template/{template-id}") {
+        val templateId = TicTacToeInstaller.templateId(
+            call.parameters["template-id"] ?: throw IllegalArgumentException("failed to get template id")
         )
 
-        val template = templateDatabase.getTemplatesById<TicTacToeTemplate>(quizId) ?: run {
+        val template = templateDatabase.getTemplatesById<TicTacToeTemplate>(templateId) ?: run {
             call.respond(HttpStatusCode.NotFound)
             return@get
         }
 
-        call.respond(HttpStatusCode.OK, QuizCompleteInfo(
+        call.respond(HttpStatusCode.OK, TemplateCompleteInfo(
             template.id.id,
             template.templateTitle ?: "",
             template.templateComment ?:"",
             template.questions.flatMapIndexed { row, data ->
-                data.mapIndexed { column, question -> QuizCellInfo(
+                data.mapIndexed { column, question -> TemplateCellInfo(
                     row,
                     column,
                     question.topic,
@@ -118,25 +118,30 @@ fun Route.routingSetup(
         ))
     }
 
-    post("api/quiz") {
-        val quizRequest = try {
-            call.receive<QuizCreateRequest>()
+    post("template") {
+        val templateRequest = try {
+            call.receive<TemplateCreateRequest>()
         } catch (_: ContentTransformationException) {
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
 
-        val quiz = quizCreateRequestToQuiz(quizRequest)
-        templateDatabase.addTemplate<TicTacToeTemplate>(quiz)
-        call.respond(HttpStatusCode.OK, QuizIdResponse(quiz.id))
+        val template = try {
+            templateCreateRequestToTemplate(templateRequest)
+        } catch (e: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, e.message ?: "unknown error")
+            return@post
+        }
+        templateDatabase.addTemplate<TicTacToeTemplate>(template)
+        call.respond(HttpStatusCode.OK, TemplateIdResponse(template.id))
     }
 
-    delete("api/quiz/{quiz-id}") {
-        val quizId = TicTacToeInstaller.templateId(
-            call.parameters["quiz-id"] ?: throw IllegalArgumentException("failed to get quiz id")
+    delete("template/{template-id}") {
+        val templateId = TicTacToeInstaller.templateId(
+            call.parameters["template-id"] ?: throw IllegalArgumentException("failed to get template id")
         )
 
-        val template = templateDatabase.getTemplatesById<TicTacToeTemplate>(quizId) ?: run {
+        val template = templateDatabase.getTemplatesById<TicTacToeTemplate>(templateId) ?: run {
             call.respond(HttpStatusCode.NotFound)
             return@delete
         }
@@ -146,16 +151,38 @@ fun Route.routingSetup(
     }
 }
 
-// TODO: check if row and column are valid
-private fun quizCreateRequestToQuiz(quizRequest: QuizCreateRequest): TicTacToeTemplate {
-    val gridSize = 3 // TODO: make it configurable
-    val questions = Array(gridSize) {
-        Array(gridSize) {
-            QuizQuestion("", "", "", emptyList())
+private fun validateTemplateRequest(templateRequest: TemplateCreateRequest) {
+    if (templateRequest.board.size != 9) {
+        throw IllegalArgumentException("board size is not 9")
+    }
+    templateRequest.board.forEach { cell ->
+        if (cell.row !in 0..2 || cell.column !in 0..2) {
+            throw IllegalArgumentException("invalid row or column")
         }
     }
-    quizRequest.board.forEach { cell ->
-        questions[cell.row][cell.column] = QuizQuestion(
+    templateRequest.board.forEach { cell ->
+        if (cell.topic.isBlank()) {
+            throw IllegalArgumentException("topic is blank")
+        }
+        if (cell.question.isBlank()) {
+            throw IllegalArgumentException("question is blank")
+        }
+        if (cell.answer.isBlank()) {
+            throw IllegalArgumentException("answer is blank")
+        }
+    }
+}
+
+private fun templateCreateRequestToTemplate(templateRequest: TemplateCreateRequest): TicTacToeTemplate {
+    validateTemplateRequest(templateRequest)
+    val gridSize = 3
+    val questions = Array(gridSize) {
+        Array(gridSize) {
+            TemplateQuestion("", "", "", emptyList())
+        }
+    }
+    templateRequest.board.forEach { cell ->
+        questions[cell.row][cell.column] = TemplateQuestion(
             topic = cell.topic,
             statement = cell.question,
             answer = cell.answer,
@@ -166,8 +193,8 @@ private fun quizCreateRequestToQuiz(quizRequest: QuizCreateRequest): TicTacToeTe
         id = TicTacToeInstaller.templateId(UUID.randomUUID().toString()),
         questions = questions,
         gridSide = gridSize,
-        templateTitle = quizRequest.name,
-        templateComment = quizRequest.comment,
+        templateTitle = templateRequest.name,
+        templateComment = templateRequest.comment,
         templateAuthor = "Nobody",
     )
 }
