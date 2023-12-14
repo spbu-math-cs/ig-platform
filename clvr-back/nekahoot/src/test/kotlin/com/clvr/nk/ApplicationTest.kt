@@ -28,16 +28,16 @@ class ApplicationTest {
     fun kek() = testApplication {
         setupServer()
         val client = getClient()
-        assertEquals(TemplateListResponse(listOf()), client.get("/nekahoot/template-list").body<TemplateListResponse>())
+        assertEquals(TemplateListResponse(listOf()), client.get("/nekahoot/template").body<TemplateListResponse>())
 
         val templateID = addTemplate(client)
-        /*assertEquals(TemplateListResponse(listOf(
+        assertEquals(TemplateListResponse(listOf(
                 TemplateHeader(
                         basicTestTemplate2.templateTitle ?: "",
                         templateID.id,
                         basicTestTemplate2.templateComment ?: ""
-                ))), client.get("/nekahoot/template-list").body<TemplateListResponse>()
-        )*/
+                ))), client.get("/nekahoot/template").body<TemplateListResponse>()
+        )
 
         assertEquals(TemplateCompleteInfo(
                 templateID.id,
@@ -80,7 +80,7 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, status)
 
             val jsonObject: JsonObject = Json.decodeFromString(bodyAsText())
-            val template = jsonObject["template-id"] as JsonObject
+            val template = jsonObject["id"] as JsonObject
             return templateId(
                 template["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null")
             )

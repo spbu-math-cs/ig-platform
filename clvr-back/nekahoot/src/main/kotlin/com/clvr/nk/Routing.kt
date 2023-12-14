@@ -26,13 +26,13 @@ data class SessionIdResponse(
 
 @Serializable
 data class TemplateIdResponse(
-    @SerialName("template-id")
+    @SerialName("id")
     val templateId: TemplateId,
 )
 
 @Serializable
 data class TemplateListResponse(
-    @SerialName("template-list")
+    @SerialName("templates")
     val templateList: List<TemplateHeader>,
 )
 
@@ -78,7 +78,7 @@ fun Route.routingSetup(
         call.respond(HttpStatusCode.OK, SessionIdResponse(newSession))
     }
 
-    get("template-list") {
+    get("template") {
         call.respond(
             HttpStatusCode.OK,
             TemplateListResponse(

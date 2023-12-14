@@ -26,7 +26,7 @@ data class NeKahootTemplate(
     val templateAuthor: String?,
 ) : Template {
     override val header: TemplateHeader
-        get() = TemplateHeader(templateTitle ?: "", id.id, "")
+        get() = TemplateHeader(templateTitle ?: "", id.id, templateComment ?: "")
 }
 
 @Serializable
