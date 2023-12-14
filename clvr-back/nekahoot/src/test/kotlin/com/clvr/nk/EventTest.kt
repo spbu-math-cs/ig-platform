@@ -77,8 +77,8 @@ class EventTest {
         val hostQuestionView = HostQuestionView(
             question = template.question,
             answer = template.answer,
-            answer_description = template.answer_description,
-            answer_options = template.answer_options,
+            answerDescription = template.answer_description,
+            answerOptions = template.answer_options,
             time = template.time,
             answered = 4,
         )
@@ -113,9 +113,9 @@ class EventTest {
         val template = quiz.questions[0]
         val clientQuestionView = ClientQuestionView(
             question = template.question,
-            answer_options = template.answer_options,
+            answerOptions = template.answer_options,
             time = template.time,
-            given_answer = "opt2",
+            givenAnswer = "opt2",
         )
         val event: NeKahootResponse<ClientQuestionResponse> = NeKahootResponse(ClientQuestionResponse(clientQuestionView))
         val expectedJsonString =
@@ -147,8 +147,8 @@ class EventTest {
         val questionWithAnswerView = QuestionWithAnswerView(
             question = template.question,
             answer = template.answer,
-            answer_description = template.answer_description,
-            answer_options = template.answer_options,
+            answerDescription = template.answer_description,
+            answerOptions = template.answer_options,
             time = template.time
         )
         val event: NeKahootResponse<ShowAnswerEvent> = NeKahootResponse(ShowAnswerEvent(questionWithAnswerView))

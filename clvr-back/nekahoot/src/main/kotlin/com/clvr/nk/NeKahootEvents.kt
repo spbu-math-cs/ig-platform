@@ -62,8 +62,10 @@ fun decodeJsonToNKEvent(jsonString: String): NeKahootRequest<*> {
 data class HostQuestionView(
     val question: String,
     val answer: String,
-    val answer_description: String?,
-    val answer_options: List<String>,
+    @SerialName("answer_description")
+    val answerDescription: String?,
+    @SerialName("answer_options")
+    val answerOptions: List<String>,
     val time: Int,
     val answered: Int,
 ) {
@@ -83,9 +85,11 @@ data class HostQuestionView(
 @Serializable
 data class ClientQuestionView(
     val question: String,
-    val answer_options: List<String>,
+    @SerialName("answer_options")
+    val answerOptions: List<String>,
     val time: Int,
-    val given_answer: String,
+    @SerialName("given_answer")
+    val givenAnswer: String,
 ) {
     companion object {
         fun fromGameState(game: GameState, clientName: String? = null): ClientQuestionView =
@@ -102,8 +106,10 @@ data class ClientQuestionView(
 data class QuestionWithAnswerView(
     val question: String,
     val answer: String,
-    val answer_description: String?,
-    val answer_options: List<String>,
+    @SerialName("answer_description")
+    val answerDescription: String?,
+    @SerialName("answer_options")
+    val answerOptions: List<String>,
     val time: Int,
 ) {
     companion object {
