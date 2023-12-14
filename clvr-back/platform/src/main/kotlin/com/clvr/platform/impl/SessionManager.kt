@@ -19,7 +19,7 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     }
 
     fun handleClientEvent(clientEndpoint: String, event: Req) {
-        clvrGameController.handle(this, event)
+        clvrGameController.handleFromClient(this, clientEndpoint, event)
     }
 
     override fun sendToClient(clientEndpoint: String, event: Resp) {
