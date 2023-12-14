@@ -14,9 +14,6 @@ class NeKahootGameController(private val game: GameState) :
     ClvrGameController<NeKahootRequest<*>, NeKahootResponse<*>> {
 
     private fun sendQuestionResponses(manager: NeKahootSessionParticipantsCommunicator) {
-        if (game.isGameFinished()) {
-            throw GameFinishedException()
-        }
         val hostQuestionView = HostQuestionView.fromGameState(game)
         val clientQuestionView = ClientQuestionView.fromGameState(game)
 

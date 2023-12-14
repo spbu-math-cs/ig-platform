@@ -9,7 +9,5 @@ class ClientStartGameException :
     IllegalGameActionException("Client can't start the game")
 class ClientOpenQuestionException :
     IllegalGameActionException("Client can't open the question")
-class GameFinishedException :
-    IllegalGameActionException("Game is already finished")
 class AlreadyAnsweredException :
     IllegalGameActionException("Player has already answered the question")

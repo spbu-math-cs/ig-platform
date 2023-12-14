@@ -125,7 +125,22 @@ class NeKahootGameStateControllerTest {
         Assertions.assertEquals(game.getAnswerOfPlayer(clientEndpoint), clientPayload.questionView.givenAnswer)
     }
 
-    private fun checkErrorResponse(
+    private fun checkHostErrorResponse(
+        expectedException: IllegalGameActionException,
+        hostEventPayloads: List<NeKahootResponsePayload>,
+        clientsToEventPayloads: Map<String, List<NeKahootResponsePayload>>
+    ) {
+        Assertions.assertEquals(1, hostEventPayloads.size)
+        clientsToEventPayloads.forEach { (_, eventPayloads) ->
+            Assertions.assertEquals(0, eventPayloads.size)
+        }
+        val hostPayload = hostEventPayloads.single()
+        Assertions.assertEquals(GameError.state, hostPayload.state)
+        hostPayload as GameError
+        Assertions.assertEquals(expectedException.message, hostPayload.message)
+    }
+
+    private fun checkClientErrorResponse(
         expectedException: IllegalGameActionException,
         clientEndpoint: String,
         hostEventPayloads: List<NeKahootResponsePayload>,
@@ -174,10 +189,46 @@ class NeKahootGameStateControllerTest {
 
         delay(1)
         val (hostEvents2Attempt2, clientsToEvents2Attempt2) = makeRequestFromClient(game, client2RequestAttempt2, client2)
-        checkErrorResponse(AlreadyAnsweredException(), client2, hostEvents2Attempt2, clientsToEvents2Attempt2)
+        checkClientErrorResponse(AlreadyAnsweredException(), client2, hostEvents2Attempt2, clientsToEvents2Attempt2)
 
         delay(500)
         val (hostEvents3, clientsToEvents3) = makeRequestFromClient(game, client3Request, client3)
-        checkErrorResponse(LateAnswerException(), client3, hostEvents3, clientsToEvents3)
+        checkClientErrorResponse(LateAnswerException(), client3, hostEvents3, clientsToEvents3)
+    }
+
+    @Test
+    fun `illegal actions from host`() = runTest {
+        val game = GameState(quiz)
+        game.startGame()
+        game.openQuestion(System.currentTimeMillis())
+        launch {
+            delay(game.getTime().toLong().seconds)
+            game.closeQuestion()
+        }
+
+        val answerRequest = AnswerRequest("opt2")
+        val (hostEvents, clientsToEvents) = makeRequest(game, answerRequest)
+        checkHostErrorResponse(HostAnswerException(), hostEvents, clientsToEvents)
+    }
+
+    @Test
+    fun `illegal actions from client`() = runTest {
+        val game = GameState(quiz)
+        game.startGame()
+        game.openQuestion(System.currentTimeMillis())
+        launch {
+            delay(game.getTime().toLong().seconds)
+            game.closeQuestion()
+        }
+
+        val client1 = "client-1"
+        val client1Request = StartGameRequest()
+        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, client1Request, client1)
+        checkClientErrorResponse(ClientStartGameException(), client1, hostEvents, clientsToEvents)
+
+        val client2 = "client-2"
+        val client2Request = QuestionRequest()
+        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2Request, client2)
+        checkClientErrorResponse(ClientOpenQuestionException(), client2, hostEvents2, clientsToEvents2)
     }
 }
