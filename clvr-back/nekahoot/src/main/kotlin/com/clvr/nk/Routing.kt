@@ -133,13 +133,13 @@ private fun validateTemplateRequest(templateRequest: TemplateCreateRequest) {
         if (q.question.isBlank()) {
             throw IllegalArgumentException("question is blank")
         }
-        if (q.answer_options.size !in 2..6) {
+        if (q.answerOptions.size !in 2..6) {
             throw IllegalArgumentException("less than 2 or more than 6 answer options")
         }
-        if (q.answer_options.any { it.isBlank() }) {
+        if (q.answerOptions.any { it.isBlank() }) {
             throw IllegalArgumentException("answer option is blank")
         }
-        if (q.answer !in q.answer_options) {
+        if (q.answer !in q.answerOptions) {
             throw IllegalArgumentException("correct answer is not in answer options")
         }
     }

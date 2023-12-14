@@ -77,8 +77,8 @@ class EventTest {
         val hostQuestionView = HostQuestionView(
             question = template.question,
             answer = template.answer,
-            answerDescription = template.answer_description,
-            answerOptions = template.answer_options,
+            answerDescription = template.answerDescription,
+            answerOptions = template.answerOptions,
             time = template.time,
             answered = 4,
         )
@@ -113,7 +113,7 @@ class EventTest {
         val template = quiz.questions[0]
         val clientQuestionView = ClientQuestionView(
             question = template.question,
-            answerOptions = template.answer_options,
+            answerOptions = template.answerOptions,
             time = template.time,
             givenAnswer = "opt2",
         )
@@ -147,8 +147,8 @@ class EventTest {
         val questionWithAnswerView = QuestionWithAnswerView(
             question = template.question,
             answer = template.answer,
-            answerDescription = template.answer_description,
-            answerOptions = template.answer_options,
+            answerDescription = template.answerDescription,
+            answerOptions = template.answerOptions,
             time = template.time
         )
         val event: NeKahootResponse<ShowAnswerEvent> = NeKahootResponse(ShowAnswerEvent(questionWithAnswerView))

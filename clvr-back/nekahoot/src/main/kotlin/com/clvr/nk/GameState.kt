@@ -33,10 +33,10 @@ class GameState(private val template: NeKahootTemplate) {
         template.questions[currentQuestionNumber].answer
 
     fun getAnswerDescription(): String? =
-        template.questions[currentQuestionNumber].answer_description
+        template.questions[currentQuestionNumber].answerDescription
 
     fun getAnswerOptions(): List<String> =
-        template.questions[currentQuestionNumber].answer_options
+        template.questions[currentQuestionNumber].answerOptions
 
     fun getTime(): Int =
         template.questions[currentQuestionNumber].time
