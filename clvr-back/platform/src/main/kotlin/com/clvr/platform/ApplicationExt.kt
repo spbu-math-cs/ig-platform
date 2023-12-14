@@ -1,7 +1,8 @@
 package com.clvr.platform
 
 import com.clvr.platform.api.ActivityInstaller
-import com.clvr.platform.api.EventPayloadInterface
+import com.clvr.platform.api.RequestEvent
+import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.db.DBType
 import com.clvr.platform.impl.InMemorySessionStorage
 import com.clvr.platform.impl.plugins.MonitoringPlugin
@@ -41,7 +42,7 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
     configureSockets()
 }
 
-fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> Application.installActivity(
+fun <Req: RequestEvent, Resp: ResponseEvent> Application.installActivity(
     installer: ActivityInstaller<Req, Resp>
 ) {
     val sessionStorage = InMemorySessionStorage<Req, Resp>()

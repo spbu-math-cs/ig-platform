@@ -11,13 +11,13 @@ import java.io.File
 
 class TicTacToeInstaller(
     private val templateFiles: List<File>
-) : ActivityInstaller<TicTacToeRequestPayload, TicTacToeResponsePayload> {
+) : ActivityInstaller<TicTacToeRequest<*>, TicTacToeResponse<*>> {
     override val activityName: String = ACTIVITY_ID
 
     override fun install(
         route: Route,
         templateDatabase: TemplateDatabase,
-        sessionRegistry: ClvrSessionRegistry<TicTacToeRequestPayload, TicTacToeResponsePayload>
+        sessionRegistry: ClvrSessionRegistry<TicTacToeRequest<*>, TicTacToeResponse<*>>
     ) {
         templateDatabase.preloadTemplates<TicTacToeTemplate>(templateFiles)
         with (route) {
