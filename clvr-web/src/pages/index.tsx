@@ -119,12 +119,19 @@ const Home: NextPage = () => {
                         </div>
                     </div>
                     <div className="flex flex-col space-y-4">
-                        <div>
-                            <div className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            <div
+                                className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
                                 JOIN A GAME
                             </div>
                             <form
-                                className="flex flex-col items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
+                                onSubmit={e => { setState({
+                                    kind: "tic_tac_toe",
+                                    state: {kind: "playing", sessionId: state.sessionId, role: "board"},
+                                })
+                                e.preventDefault()
+                            }}
+                                className="flex flex-col
+                                 items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
                                 <p className="text-2xl md:text-5xl font-extrabold m-4 text-primary">
                                     ENTER GAME ID
                                 </p>
@@ -140,7 +147,6 @@ const Home: NextPage = () => {
                                     JOIN!
                                 </Button>
                             </form>
-                        </div>
                         <div
                             className="flex flex-row items-center justify-center py-4 space-x-8 rounded-xl h-40 outline-1 px-6 ring-4 ring-txt">
 
