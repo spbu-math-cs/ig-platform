@@ -3,7 +3,7 @@ package com.clvr.nk
 import com.clvr.nk.common.NeKahootTemplate
 import com.clvr.nk.common.TemplateQuestion
 
-val basicNeKahootTemplate = NeKahootTemplate(
+val basicTestTemplate = NeKahootTemplate(
     id = NeKahootInstaller.templateId("random id"),
     questions = listOf(
         TemplateQuestion("q1", "opt2", null, listOf("opt1", "opt2", "opt3"), 6),
