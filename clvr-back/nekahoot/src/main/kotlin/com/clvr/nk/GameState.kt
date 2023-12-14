@@ -41,6 +41,15 @@ class GameState(private val template: NeKahootTemplate) {
     fun getTime(): Int =
         template.questions[currentQuestionNumber].time
 
+    fun getTemplateTitle(): String? =
+        template.templateTitle
+
+    fun getTemplateComment(): String? =
+        template.templateComment
+
+    fun getTemplateAuthor(): String? =
+        template.templateAuthor
+
     private fun updatePlayerResults() {
         currentPlayersAnswers.forEach { (playerName, answer) ->
             val (timestamp, answerText) = answer
@@ -61,8 +70,6 @@ class GameState(private val template: NeKahootTemplate) {
         if (isGameFinished() || !gameStarted) {
             return
         }
-        updatePlayerResults()
-        currentPlayersAnswers = mutableMapOf()
         currentQuestionNumber++
     }
 
@@ -73,6 +80,8 @@ class GameState(private val template: NeKahootTemplate) {
 
     fun closeQuestion() {
         isQuestionOpened = false
+        updatePlayerResults()
+        currentPlayersAnswers = mutableMapOf()
     }
 
     fun isQuestionOpened(): Boolean =
