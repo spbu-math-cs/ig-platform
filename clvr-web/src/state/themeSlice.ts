@@ -26,9 +26,6 @@ export const themeSlice = createSlice({
                     state.value = "theme-green"
                     break
                 case "theme-green":
-                    state.value = "theme-tnkf"
-                    break
-                case "theme-tnkf":
                     state.value = "theme-metal"
                     break
             }

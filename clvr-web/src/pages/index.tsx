@@ -230,16 +230,15 @@ const Home: NextPage = () => {
     if (state.kind !== "main_page" || state.modal === undefined) {
         // do nothing
     } else if (state.modal === "tic_tac_toe") {
-        modalContent = <div
-            className="flex flex-col items-center w-[1000px] rounded-2xl bg-selectPanel p-6">
+        modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
             <div
-                className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-panel space-x-96`}>
-                <p className={`justify-items-start text-md py-6  text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
+                className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+                <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
                     CHOOSE EXISTING GAME
                 </p>
 
                 <button onClick={() => setState({kind: "tic_tac_toe", state: {kind: "constructor"}})}
-                        className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-panel`}>
+                        className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
                     or CREATE NEW QUIZ
                 </button>
             </div>
@@ -248,7 +247,7 @@ const Home: NextPage = () => {
                 className="
                     flex flex-col justify-items-start py-10 px-100 rounded
                     mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
-                    max-h-[60vh]">
+                    max-h-[60vh] bg-square">
                 {
                     quizInfo === undefined
                         ? "Loading..."
@@ -273,7 +272,7 @@ const Home: NextPage = () => {
                             checked={replaceMarksChecked}
                             onChange={() => setReplaceMarks(!replaceMarksChecked)}
                         />
-                        <span style={{color: "orange"}}>Enable replace marks</span>
+                        <text className="text-txt font-bold">Enable replace marks</text>
                     </li>
                     <li>
                         <input
@@ -281,7 +280,7 @@ const Home: NextPage = () => {
                             checked={openMultipleQuestionsChecked}
                             onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
                         />
-                        <span style={{color: "orange"}}>Enable open multiple questions</span>
+                        <text className="text-txt font-bold">Enable open multiple questions</text>
                     </li>
                 </ul>
             </div>
