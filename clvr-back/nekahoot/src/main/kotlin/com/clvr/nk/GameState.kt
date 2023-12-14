@@ -13,10 +13,11 @@ data class PlayerResult(
 class GameState(private val template: NeKahootTemplate) {
     var playerResults: MutableMap<String, Pair<Int, Int>> = mutableMapOf()
 
-    private var currentPlayersAnswers: MutableMap<String, String> = mutableMapOf()
+    private var currentPlayersAnswers: MutableMap<String, Pair<Long, String>> = mutableMapOf()
     private var currentQuestionNumber: Int = 0
     private var gameStarted: Boolean = false
     private var isQuestionOpened: Boolean = false
+    private var questionOpenTimestamp: Long = 0
 
     fun isGameFinished(): Boolean =
         currentQuestionNumber == template.questions.size
@@ -42,12 +43,12 @@ class GameState(private val template: NeKahootTemplate) {
 
     private fun updatePlayerResults() {
         currentPlayersAnswers.forEach { (playerName, answer) ->
-            val (score, correctQuestions) = playerResults[playerName] ?: Pair(0, 0)
-            if (answer == getAnswer()) {
-                playerResults[playerName] = Pair(score + 100, correctQuestions + 1)
-            } else {
-                playerResults[playerName] = Pair(score, correctQuestions)
-            }
+            val (timestamp, answerText) = answer
+            val isCorrect = answerText == getAnswer()
+            val (score, correctQuestions) = playerResults.getOrPut(playerName) { 0 to 0 }
+            val newScore = score + if (isCorrect) 1000 - (timestamp - questionOpenTimestamp).toInt() / getTime() else 0
+            val newCorrectQuestions = correctQuestions + if (isCorrect) 1 else 0
+            playerResults[playerName] = newScore to newCorrectQuestions
         }
     }
 
@@ -65,8 +66,9 @@ class GameState(private val template: NeKahootTemplate) {
         currentQuestionNumber++
     }
 
-    fun openQuestion() {
+    fun openQuestion(timestamp: Long) {
         isQuestionOpened = true
+        questionOpenTimestamp = timestamp
     }
 
     fun closeQuestion() {
@@ -80,9 +82,9 @@ class GameState(private val template: NeKahootTemplate) {
         currentPlayersAnswers.size
 
     fun getAnswerOfPlayer(playerName: String?): String =
-        currentPlayersAnswers[playerName] ?: ""
+        currentPlayersAnswers[playerName]?.second ?: ""
 
-    fun answerQuestion(playerName: String, answer: String) {
-        currentPlayersAnswers[playerName] = answer
+    fun answerQuestion(timestamp: Long, playerName: String, answer: String) {
+        currentPlayersAnswers[playerName] = timestamp to answer
     }
 }

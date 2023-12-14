@@ -87,7 +87,7 @@ class NeKahootGameController(private val game: GameState) :
                     game.isGameFinished() -> sendResultsResponses(communicator)
                     else -> runBlocking {
                         coroutineScope {
-                            game.openQuestion()
+                            game.openQuestion(System.currentTimeMillis())
                             sendQuestionResponses(communicator)
                             delay(game.getTime() * 1000L)
                             sendCorrectAnswerResponses(communicator)
@@ -117,7 +117,7 @@ class NeKahootGameController(private val game: GameState) :
             is AnswerRequest -> {
                 when {
                     game.isQuestionOpened() -> {
-                        game.answerQuestion(clientEndpoint, payload.answer)
+                        game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
                         sendAnswerResponses(communicator, clientEndpoint)
                     }
                     else -> throw LateAnswerException()
