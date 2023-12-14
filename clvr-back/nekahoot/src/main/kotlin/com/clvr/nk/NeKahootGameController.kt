@@ -30,14 +30,13 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     private fun sendCorrectAnswerResponses(manager: NeKahootSessionParticipantsCommunicator) {
-        val hostAnswerView = HostQuestionView.fromGameState(game)
-        val clientAnswerView = ClientQuestionView.fromGameState(game)
+        val questionWithAnswerView = QuestionWithAnswerView.fromGameState(game)
 
         val hostResponse = NeKahootResponse(
-            HostQuestionResponse(hostAnswerView)
+            ShowAnswerEvent(questionWithAnswerView)
         )
         val clientResponse = NeKahootResponse(
-            ClientQuestionResponse(clientAnswerView)
+            ShowAnswerEvent(questionWithAnswerView)
         )
         manager.sendToHost(hostResponse)
         manager.sendToClients(clientResponse)
@@ -70,25 +69,27 @@ class NeKahootGameController(private val game: GameState) :
         communicator: SessionParticipantsCommunicator<NeKahootRequest<*>, NeKahootResponse<*>>,
         event: NeKahootRequest<*>
     ) = try {
+        fun nextStep() = when {
+            game.isGameFinished() -> sendResultsResponses(communicator)
+            else -> runBlocking {
+                coroutineScope {
+                    game.openQuestion(System.currentTimeMillis())
+                    sendQuestionResponses(communicator)
+                    delay(game.getTime() * 1000L)
+                    sendCorrectAnswerResponses(communicator)
+                    game.closeQuestion()
+                }
+            }
+        }
+
         when (event.payload) {
             is StartGameRequest -> {
                 game.startGame()
-                sendQuestionResponses(communicator)
+                nextStep()
             }
             is QuestionRequest -> {
                 game.nextQuestion()
-                when {
-                    game.isGameFinished() -> sendResultsResponses(communicator)
-                    else -> runBlocking {
-                        coroutineScope {
-                            game.openQuestion(System.currentTimeMillis())
-                            sendQuestionResponses(communicator)
-                            delay(game.getTime() * 1000L)
-                            sendCorrectAnswerResponses(communicator)
-                            game.closeQuestion()
-                        }
-                    }
-                }
+                nextStep()
             }
             is AnswerRequest -> throw HostAnswerException()
         }
