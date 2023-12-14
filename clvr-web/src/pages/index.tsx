@@ -1,5 +1,4 @@
 import type {NextPage} from 'next'
-import Head from 'next/head'
 import React, {useEffect, useState} from 'react'
 import {XIcon} from "@/tic-tac-toe/XIcon"
 import {OIcon} from "@/tic-tac-toe/OIcon"
@@ -7,6 +6,7 @@ import {createGame, getQuizList} from "@/tic-tac-toe/api"
 import {TemplateCard} from "@/components/TemplateCard"
 import {TemplateInfo} from "@/tic-tac-toe/types"
 import {TicTacToe, TicTacToeState} from "@/components/TicTacToe"
+import {NeKahoot, NeKahootState} from "@/components/NeKahoot"
 import Button from "@/components/Button"
 import {checkExhausted} from "@/utils"
 import {LogIn} from "@/components/Authorization";
@@ -16,7 +16,7 @@ import {nextTheme} from "@/state/themeSlice"
 
 type AppState = {
     kind: "main_page"
-    modal: undefined | "tic_tac_toe"
+    modal: undefined | "tic_tac_toe" | "neKahoot"
     sessionId: string
 } | {
     kind: "joining"
@@ -29,13 +29,16 @@ type AppState = {
     state: TicTacToeState
 } | {
     kind: "logging"
+} | {
+    kind: "neKahoot"
+    state: NeKahootState
 }
 
 export type AppAction = {
     kind: "go_to_main_page"
 } | {
     kind: "go_to_creating"
-    game: "tic_tac_toe"
+    game: "tic_tac_toe" | "neKahoot"
 }
 
 const Home: NextPage = () => {
@@ -57,6 +60,9 @@ const Home: NextPage = () => {
         } else if (action.kind == "go_to_creating") {
             if (action.game == "tic_tac_toe") {
                 setState({kind: "main_page", sessionId: "", modal: "tic_tac_toe"})
+                getQuizList().then(quizInfo => setQuizInfo(quizInfo))
+            } else if (action.game == "neKahoot") {
+                setState({kind: "main_page", sessionId: "", modal: "neKahoot"})
                 getQuizList().then(quizInfo => setQuizInfo(quizInfo))
             } else {
                 checkExhausted(action.game)
@@ -111,7 +117,7 @@ const Home: NextPage = () => {
                                 </a>
 
                                 <div className="mt-2 w-full flex justify-end">
-                                    <Button onClick={() => setState({...state, modal: "tic_tac_toe"})}>
+                                    <Button onClick={() => setState({...state, modal: "neKahoot"})}>
                                         BROWSE GAMES
                                     </Button>
                                 </div>
@@ -120,7 +126,8 @@ const Home: NextPage = () => {
                     </div>
                     <div className="flex flex-col space-y-4">
                         <div>
-                            <div className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            <div
+                                className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
                                 JOIN A GAME
                             </div>
                             <form
@@ -133,7 +140,7 @@ const Home: NextPage = () => {
                                     className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
                                     value={state.sessionId}
                                     onChange={e => {
-                                        setState({kind: "main_page", modal: undefined, sessionId: e.target.value})
+                                        setState({kind: "joining", sessionId: e.target.value})
                                     }}
                                 />
                                 <Button>
@@ -222,6 +229,8 @@ const Home: NextPage = () => {
     } else if (state.kind == "logging") {
         content =
             <LogIn switchPage={setState}></LogIn>
+    } else if (state.kind == "neKahoot") {
+        content = <NeKahoot state={state.state} dispatch={runAction}/>
     } else {
         checkExhausted(state)
     }
@@ -231,8 +240,7 @@ const Home: NextPage = () => {
         // do nothing
     } else if (state.modal === "tic_tac_toe") {
         modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
-            <div
-                className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
                 <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
                     CHOOSE EXISTING GAME
                 </p>
@@ -242,7 +250,6 @@ const Home: NextPage = () => {
                     or CREATE NEW QUIZ
                 </button>
             </div>
-
             <div
                 className="
                     flex flex-col justify-items-start py-10 px-100 rounded
@@ -259,7 +266,10 @@ const Home: NextPage = () => {
                                         replaceMarks: replaceMarksChecked ? "ENABLED" : "DISABLED",
                                         openMultipleQuestions: openMultipleQuestionsChecked ? "ENABLED" : "DISABLED",
                                     })).id
-                                    setState({kind: "tic_tac_toe", state: {kind: "playing", sessionId: sessionId, role: "host"}})
+                                    setState({
+                                        kind: "tic_tac_toe",
+                                        state: {kind: "playing", sessionId: sessionId, role: "host"}
+                                    })
                                 }}/>,
                         )}
             </div>
@@ -284,6 +294,62 @@ const Home: NextPage = () => {
                     </li>
                 </ul>
             </div>
+
+
+        </div>
+    } else if (state.modal === "neKahoot") {
+        modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
+            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+                <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
+                    CHOOSE EXISTING GAME
+                </p>
+            </div>
+            <div
+                className="
+                    flex flex-col justify-items-start py-10 px-100 rounded
+                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
+                    max-h-[60vh] bg-square">
+                {
+                    quizInfo === undefined
+                        ? "Loading..."
+                        : quizInfo.map(quiz =>
+                            <TemplateCard
+                                template={quiz} key={quiz.id}
+                                handleSelect={async (id: string) => {
+                                    const sessionId = (await createGame(id, {
+                                        replaceMarks: replaceMarksChecked ? "ENABLED" : "DISABLED",
+                                        openMultipleQuestions: openMultipleQuestionsChecked ? "ENABLED" : "DISABLED",
+                                    })).id
+                                    setState({
+                                        kind: "neKahoot",
+                                        state: {kind: "playing", sessionId: sessionId, role: "host"}
+                                    })
+                                }}/>,
+                        )}
+            </div>
+
+            <div style={{alignContent: "left", transform: "scale(1.5)"}}>
+                <ul>
+                    <li>
+                        <input
+                            type="checkbox"
+                            checked={replaceMarksChecked}
+                            onChange={() => setReplaceMarks(!replaceMarksChecked)}
+                        />
+                        <text className="text-txt font-bold">Enable replace marks</text>
+                    </li>
+                    <li>
+                        <input
+                            type="checkbox"
+                            checked={openMultipleQuestionsChecked}
+                            onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
+                        />
+                        <text className="text-txt font-bold">Enable open multiple questions</text>
+                    </li>
+                </ul>
+            </div>
+
+
         </div>
     } else {
         checkExhausted(state.modal)
