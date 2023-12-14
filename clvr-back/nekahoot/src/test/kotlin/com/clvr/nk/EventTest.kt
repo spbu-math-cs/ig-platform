@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class EventTest {
+    private val quiz = basicTestTemplate
     private val jsonPrettyFormatter = Json { prettyPrint = true }
-
     @Test
     fun `start game request`() {
         val event: NeKahootRequest<StartGameRequest> = NeKahootRequest(SessionId("142"), StartGameRequest())
@@ -73,7 +73,7 @@ class EventTest {
 
     @Test
     fun `host question response`() {
-        val template = basicTestTemplate.questions[0]
+        val template = quiz.questions[0]
         val hostQuestionView = HostQuestionView(
             question = template.question,
             answer = template.answer,
@@ -110,7 +110,7 @@ class EventTest {
 
     @Test
     fun `client question response`() {
-        val template = basicTestTemplate.questions[0]
+        val template = quiz.questions[0]
         val clientQuestionView = ClientQuestionView(
             question = template.question,
             answer_options = template.answer_options,
@@ -143,7 +143,7 @@ class EventTest {
 
     @Test
     fun `show answer response`() {
-        val template = basicTestTemplate.questions[1]
+        val template = quiz.questions[1]
         val questionWithAnswerView = QuestionWithAnswerView(
             question = template.question,
             answer = template.answer,
