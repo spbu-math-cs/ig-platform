@@ -14,13 +14,7 @@ class NeKahootGameController(private val game: GameState) :
 
     private fun sendQuestionResponses(manager: NeKahootSessionParticipantsCommunicator) {
         if (game.isGameFinished()) {
-            val resultsView = ResultsView.fromGameState(game)
-            val resultsEvent = NeKahootResponse(
-                ResultsEvent(resultsView)
-            )
-            manager.sendToHost(resultsEvent)
-            manager.sendToClients(resultsEvent)
-            return
+            throw GameFinishedException()
         }
         val hostQuestionView = HostQuestionView.fromGameState(game)
         val clientQuestionView = ClientQuestionView.fromGameState(game)
@@ -64,9 +58,9 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     private fun sendResultsResponses(manager: NeKahootSessionParticipantsCommunicator) {
-        val resultsView = ResultsView.fromGameState(game)
+        val results = game.getResults()
         val resultsEvent = NeKahootResponse(
-            ResultsEvent(resultsView)
+            ResultsEvent(results)
         )
         manager.sendToHost(resultsEvent)
         manager.sendToClients(resultsEvent)
