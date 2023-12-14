@@ -54,7 +54,7 @@ fun decodeJsonToNKEvent(jsonString: String): NeKahootRequest<*> {
         QuestionRequest.type -> Json.decodeFromString<NeKahootRequest<QuestionRequest>>(jsonString)
         AnswerRequest.type -> Json.decodeFromString<NeKahootRequest<AnswerRequest>>(jsonString)
         StartGameRequest.type -> Json.decodeFromString<NeKahootRequest<StartGameRequest>>(jsonString)
-        else -> error("Request expected")
+        else -> throw IllegalArgumentException("Unknown type of event")
     }
 }
 
@@ -115,16 +115,6 @@ data class QuestionWithAnswerView(
                 game.getAnswerOptions(),
                 game.getTime(),
             )
-    }
-}
-
-@Serializable
-data class ResultsView(
-    val results: List<PlayerResult>,
-) {
-    companion object {
-        fun fromGameState(game: GameState): ResultsView =
-            ResultsView(game.getResults())
     }
 }
 
@@ -195,8 +185,7 @@ data class ShowAnswerEvent(
 
 @Serializable
 data class ResultsEvent(
-    @SerialName("")
-    val result: ResultsView,
+    val results: List<PlayerResult>,
 ): NeKahootResponsePayload {
     override val state: String = Companion.state
 
