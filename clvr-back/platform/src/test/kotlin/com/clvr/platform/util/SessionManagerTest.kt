@@ -4,7 +4,6 @@ import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
-import com.clvr.platform.impl.SessionManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*

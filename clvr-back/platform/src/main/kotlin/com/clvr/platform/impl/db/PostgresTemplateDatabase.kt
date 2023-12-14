@@ -7,10 +7,9 @@ import com.clvr.platform.api.db.TemplateDatabase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-internal class PostgresTemplateDatabase(private val db: DBQueryExecutor) : TemplateDatabase {
+class PostgresTemplateDatabase(private val db: DBQueryExecutor) : TemplateDatabase {
     companion object {
         // TODO: make PRIVATE KEY = (activity_id, uuid) (?)
-        // TODO: remove header as separate column and take it from template column via JSON-oriented SQL API
         private val createTableQuery: String = """
             CREATE TABLE IF NOT EXISTS template (
                 uuid TEXT PRIMARY KEY,
@@ -36,7 +35,7 @@ internal class PostgresTemplateDatabase(private val db: DBQueryExecutor) : Templ
     override fun <T : Template> addTemplate(template: T, serializer: (T) -> String) {
         db.update(addTemplateQuery) {
             setString(1, template.id.id)
-            setString(2, template.id.activityName)
+            setString(2, template.id.activityId)
             setString(3, Json.encodeToString(template.header))
             setString(4, serializer(template))
         }
@@ -54,8 +53,8 @@ internal class PostgresTemplateDatabase(private val db: DBQueryExecutor) : Templ
         }
     }
 
-    override fun listTemplates(activityName: String): List<TemplateHeader> {
-        return db.query(listTemplatesQuery, { setString(1, activityName) }) {
+    override fun listTemplates(activityId: String): List<TemplateHeader> {
+        return db.query(listTemplatesQuery, { setString(1, activityId) }) {
             Json.decodeFromString<TemplateHeader>(Json.decodeFromString<String>(getString(1)))
         }
     }

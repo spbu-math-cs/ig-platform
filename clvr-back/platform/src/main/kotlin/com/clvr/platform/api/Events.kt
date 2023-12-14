@@ -6,7 +6,6 @@ interface EventPayloadInterface {
     val type: String
 }
 
-// TODO: this doesn't allow payload = null (issue #93)
 sealed interface Event<out T: EventPayloadInterface> {
     val payload: T
 }

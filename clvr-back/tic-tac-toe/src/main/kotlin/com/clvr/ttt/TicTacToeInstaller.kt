@@ -12,7 +12,7 @@ import java.io.File
 class TicTacToeInstaller(
     private val templateFiles: List<File>
 ) : ActivityInstaller<TicTacToeRequestPayload, TicTacToeResponsePayload> {
-    override val activityName: String = ACTIVITY_ID
+    override val activityId: String = ACTIVITY_ID
 
     override fun install(
         route: Route,

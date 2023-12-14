@@ -4,7 +4,7 @@ import com.clvr.platform.api.db.TemplateDatabase
 import io.ktor.server.routing.*
 
 interface ActivityInstaller<Req: EventPayloadInterface, Resp: EventPayloadInterface> {
-    val activityName: String
+    val activityId: String
 
     fun install(
         route: Route,

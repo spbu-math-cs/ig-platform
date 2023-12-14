@@ -14,13 +14,11 @@ interface TemplateDatabase: AutoCloseable {
 
     fun <T: Template> getTemplatesById(templateId: TemplateId, deserializer: (String) -> T): T?
 
-    fun listTemplates(activityName: String): List<TemplateHeader>
+    fun listTemplates(activityId: String): List<TemplateHeader>
 
     override fun close() { }
 }
 
-// Note that methods below use reified type parameters, therefore they are inline
-// and can't be declared in interface directly, so they are implemented as extension methods
 inline fun <reified T: Template> TemplateDatabase.addTemplate(template: T) {
     addTemplate(template, Json::encodeToString)
 }

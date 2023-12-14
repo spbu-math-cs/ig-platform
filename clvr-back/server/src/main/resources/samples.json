@@ -1,7 +1,7 @@
 [
   {
     "id": {
-      "activityName": "tic-tac-toe",
+      "activityId": "tic-tac-toe",
       "id": "sample-1"
     },
     "questions": [

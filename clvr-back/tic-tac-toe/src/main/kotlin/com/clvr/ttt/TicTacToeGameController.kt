@@ -1,9 +1,9 @@
 package com.clvr.ttt
 
+import com.clvr.platform.api.ClvrGameController
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionParticipantsCommunicator
-import com.clvr.platform.api.ClvrGameController
 
 typealias TicTacToeSessionParticipantsCommunicator =
     SessionParticipantsCommunicator<TicTacToeRequestPayload, TicTacToeResponsePayload>
@@ -24,16 +24,16 @@ class TicTacToeGameController(private val game: GameState) :
         manager.sendToClients(clientResponse)
     }
 
-    override fun handle(communicator: SessionParticipantsCommunicator<TicTacToeRequestPayload, TicTacToeResponsePayload>, event: RequestEvent<TicTacToeRequestPayload>) = try {
+    override fun handle(manager: SessionParticipantsCommunicator<TicTacToeRequestPayload, TicTacToeResponsePayload>, event: RequestEvent<TicTacToeRequestPayload>) = try {
         when (val payload = event.payload) {
             is QuestionRequest -> {
                 val (row, column) = payload
-                sendQuestionResponses(communicator, row, column)
+                sendQuestionResponses(manager, row, column)
             }
             is NextHintRequest -> {
                 val (row, column) = payload
                 game.openNextHint(row, column)
-                sendQuestionResponses(communicator, row, column)
+                sendQuestionResponses(manager, row, column)
             }
             is ShowAnswerRequest -> {
                 val (row, column) = payload
@@ -43,8 +43,8 @@ class TicTacToeGameController(private val game: GameState) :
                 val response = ResponseEvent(
                     ShowAnswerResponse(questionWithAnswer, BoardView.fromGameState(game))
                 )
-                communicator.sendToHost(response)
-                communicator.sendToClients(response)
+                manager.sendToHost(response)
+                manager.sendToClients(response)
             }
             is SetFieldRequest -> {
                 val (row, column, mark) = payload
@@ -52,12 +52,12 @@ class TicTacToeGameController(private val game: GameState) :
                 val response = ResponseEvent(
                     SetFieldResponse(gameResult, BoardView.fromGameState(game))
                 )
-                communicator.sendToHost(response)
-                communicator.sendToClients(response)
+                manager.sendToHost(response)
+                manager.sendToClients(response)
             }
         }
     } catch (e: IllegalGameActionException) {
-        communicator.sendToHost(
+        manager.sendToHost(
             ResponseEvent(
                 GameError(e.message ?: "Unknown error occurred!")
             )

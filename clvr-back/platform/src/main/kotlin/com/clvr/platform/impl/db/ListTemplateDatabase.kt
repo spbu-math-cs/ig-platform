@@ -5,7 +5,7 @@ import com.clvr.platform.api.TemplateHeader
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
 
-internal class ListTemplateDatabase: TemplateDatabase {
+class ListTemplateDatabase: TemplateDatabase {
     private val templates = mutableListOf<Template>()
 
     override fun <T : Template> addTemplate(template: T, serializer: (T) -> String) {
@@ -22,9 +22,9 @@ internal class ListTemplateDatabase: TemplateDatabase {
         return res as? T
     }
 
-    override fun listTemplates(activityName: String): List<TemplateHeader> {
+    override fun listTemplates(activityId: String): List<TemplateHeader> {
         return templates
-            .filter { it.id.activityName == activityName }
+            .filter { it.id.activityId == activityId }
             .map { it.header }
             .toList()
     }
