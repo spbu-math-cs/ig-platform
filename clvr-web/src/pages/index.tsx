@@ -314,6 +314,7 @@ const Home: NextPage = () => {
                 </div>
             </div>
         }
+        <link rel="icon" href="/tictactoe.ico"/>
         {content}
     </div>
 }
