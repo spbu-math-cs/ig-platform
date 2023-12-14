@@ -12,13 +12,10 @@ function MyApp({Component, pageProps}: AppProps) {
     function ThemeAware() {
         const theme = useSelector((state: RootState) => state.theme)
         return <div className={theme.value}>
-
-            <div className="absolute top-4 right-4">
-                <Button onClick={() => dispatch(nextTheme())}>Change theme</Button>
-            </div>
             <Component {...pageProps} />
         </div>
     }
+
 
     return <Provider store={store}>
         <ThemeAware/>
