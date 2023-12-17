@@ -1,7 +1,7 @@
 "use client"
 import {useServerState} from "@/tic-tac-toe/websockets"
 import {useEffect, useRef, useState} from "react"
-import {getQuiz, getQuizList} from "@/tic-tac-toe/api"
+import {getTemplate, getTemplateList} from "@/tic-tac-toe/api"
 import {Quiz, TemplateInfo} from "@/tic-tac-toe/types"
 
 /**
@@ -12,8 +12,8 @@ export default function ApiTest() {
     const [allQuizzes, setAllQuizzes] = useState<TemplateInfo[]>()
 
     useEffect(() => {
-        getQuiz("ABCD").then(q => { console.log(q); setQuiz(q) })
-        getQuizList().then(q => setAllQuizzes(q))
+        getTemplate("ABCD").then(q => { console.log(q); setQuiz(q) })
+        getTemplateList().then(q => setAllQuizzes(q))
     }, [])
 
     return <>

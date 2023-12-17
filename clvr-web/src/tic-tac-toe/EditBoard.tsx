@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {createQuiz} from "@/tic-tac-toe/api"
+import {createTemplate} from "@/tic-tac-toe/api"
 
 
 interface SquareProp {
@@ -245,7 +245,7 @@ export function EditBoard({onCreate}: {onCreate: () => void}) {
             </form>
 
             <button onClick={() => {
-                createQuiz({
+                createTemplate({
                     name: state.gameName,
                     comment: state.gameDetails,
                     board: state.squares.map((square, index) => ({

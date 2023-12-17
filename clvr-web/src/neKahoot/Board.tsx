@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {GameState} from "@/neKahoot/types"
+import {useServerState} from "@/neKahoot/websockets"
 
 
 interface BoardProps {
@@ -51,94 +52,7 @@ function AnswerOption({answer, onClick, selected, correct}: {
 }
 
 export function Board({isHost, sessionId}: BoardProps) {
-    // const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
-
-    const [game, setGame] = useState<GameState>({
-        state: "_LOADING",
-    })
-
-    useEffect(() => {
-        const h1 = setTimeout(() => setGame({
-            state: "OPENED_QUESTION",
-            question: "What is the best programming language?",
-            answerOptions: [
-                "JavaScript",
-                "Java",
-                "Python",
-                "C++",
-            ],
-            timeLimit: new Date(Date.now() + 10000),
-        }), 0)
-        const h2 = setTimeout(() => setGame({
-            state: "SHOW_QUESTION_ANSWER",
-            question: "What is the best programming language?",
-            answerOptions: [
-                "JavaScript",
-                "Java",
-                "Python",
-                "C++",
-            ],
-            answer: "JavaScript",
-            givenAnswer: game.state == "OPENED_QUESTION" ? game.givenAnswer : undefined,
-            timeLimit: new Date(Date.now() + 5000),
-        }), 10000)
-
-        const h3 = setTimeout(() => setGame({
-            state: "OPENED_QUESTION",
-            question: "What's 9 + 10?",
-            answerOptions: [
-                "19",
-                "21",
-            ],
-            timeLimit: new Date(Date.now() + 10000),
-        }), 15000)
-
-        const h4 = setTimeout(() => setGame({
-            state: "SHOW_QUESTION_ANSWER",
-            question: "What's 9 + 10?",
-            answerOptions: [
-                "19",
-                "21",
-            ],
-            answer: "21",
-            answerDescription: "<a href='https://youtu.be/UFu8UV2DRlU?si=9GD8JyC7OJfy98wp'>тык</a>",
-            timeLimit: new Date(Date.now() + 15000),
-        }), 25000)
-
-        const h5 = setTimeout(() => setGame({
-            state: "OPENED_QUESTION",
-            question: "Сколько баллов надо поставить нашей команде?",
-            answerOptions: [
-                "0",
-                "посмотрим",
-                "5+5+5+3",
-                "¯\\_(ツ)_/¯",
-            ],
-            timeLimit: new Date(Date.now() + 10000),
-        }), 40000)
-
-        const h6 = setTimeout(() => setGame({
-            state: "SHOW_QUESTION_ANSWER",
-            question: "Сколько баллов надо поставить нашей команде?",
-            answerOptions: [
-                "5+5+5+3",
-                "5+5+5+3",
-                "5+5+5+3",
-                "5+5+5+3",
-            ],
-            answer: "5+5+5+3",
-            timeLimit: new Date(Date.now() + 5553555355535553),
-        }), 50000)
-
-        return () => {
-            clearTimeout(h1)
-            clearTimeout(h2)
-            clearTimeout(h3)
-            clearTimeout(h4)
-            clearTimeout(h5)
-            clearTimeout(h6)
-        }
-    }, [])
+    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
     let content
     if (game.state == "_LOADING") {
@@ -152,9 +66,9 @@ export function Board({isHost, sessionId}: BoardProps) {
             <div className="flex">
                 {game.answerOptions.map((answer, i) =>
                     <AnswerOption
-                        onClick={() => setGame({
-                            ...game,
-                            givenAnswer: answer,
+                        onClick={() => sendMessage({
+                            kind: "GIVE_ANSWER",
+                            answer: answer,
                         })}
                         key={i}
                         answer={answer}
