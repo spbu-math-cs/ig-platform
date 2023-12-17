@@ -46,3 +46,18 @@ export type GameState = {
     timeLimit: Date
     givenAnswer?: string
 }
+
+type TemplateInfo = {
+    name: string
+    id: string
+    comment: string
+}
+
+export type Role = "host" | "player"
+
+export type Request = {
+    kind: "GIVE_ANSWER",
+    answer: string,
+} | {
+    kind: "NEXT_QUESTION",
+}

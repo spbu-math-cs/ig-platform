@@ -2,14 +2,14 @@ import {GameConfig, ProtoQuiz, Quiz, TemplateInfo, Session} from "@/tic-tac-toe/
 
 const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
 
-export async function getQuizList(): Promise<TemplateInfo[]> {
+export async function getTemplateList(): Promise<TemplateInfo[]> {
     const response = await fetch(new URL("tic-tac-toe/template-list", API_ENDPOINT))
     const json = await response.json()
 
     return json["template-list"]
 }
 
-export async function getQuiz(quizId: string): Promise<Quiz> {
+export async function getTemplate(quizId: string): Promise<Quiz> {
     const response = await fetch(new URL(`tic-tac-toe/template/${quizId}`, API_ENDPOINT))
     const json = await response.json()
     return json as Quiz
@@ -21,8 +21,8 @@ export async function createGame(quizId: string, config: GameConfig): Promise<Se
         body: JSON.stringify({
             template_id: quizId,
             game_configuration: {
-                replace_marks: config.replaceMarks,
-                open_multiple_questions: config.openMultipleQuestions
+                replace_marks: config.replaceMarks ? "ENABLED" : "DISABLED",
+                open_multiple_questions: config.openMultipleQuestions ? "ENABLED" : "DISABLED",
             }
         }),
         headers: {
@@ -35,7 +35,7 @@ export async function createGame(quizId: string, config: GameConfig): Promise<Se
     return json.session
 }
 
-export async function createQuiz(quiz: ProtoQuiz): Promise<string> {
+export async function createTemplate(quiz: ProtoQuiz): Promise<string> {
     const response = await fetch(new URL(`tic-tac-toe/template`, API_ENDPOINT), {
         method: "POST",
         body: JSON.stringify(quiz),

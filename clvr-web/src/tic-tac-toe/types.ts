@@ -77,8 +77,8 @@ export type ProtoQuiz = {
 }
 
 export type GameConfig = {
-    replaceMarks: EnabledDisabled
-    openMultipleQuestions: EnabledDisabled
+    replaceMarks: boolean
+    openMultipleQuestions: boolean
 }
 
 /**

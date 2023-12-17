@@ -1,27 +1,10 @@
-import {useEffect, useState} from "react"
+import {Error, GameState, Session, Request, Role} from "@/neKahoot/types"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {GameState, Session, Error} from "./types"
-import {Request} from "./wsRequests"
+import {useEffect, useState} from "react"
 import {checkExhausted} from "@/utils"
 
-type Role = "host" | "client"
-
-/**
- * Connects to the game server and returns the current game state and a function to send requests.
- *
- * This function works as a React hook and should not be used multiple times. Instead, the returned
- * values should be passed down to child components as props or context.
- *
- * Reconnecting is handled automatically.
- *
- * See app/api-test/page.ts for an example.
- *
- * @param role The role being played
- * @param session The session to connect with (returned by POST /api/game-session endpoint)
- * @returns A tuple containing the current game state and a function to send requests
- */
 export function useServerState(role: Role, session: Session): [GameState, Error[], (action: Request) => void] {
-    const url = new URL(`ws/tic-tac-toe/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+    const url = new URL(`ws/nekahoot/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
         shouldReconnect: () => true,
@@ -44,48 +27,38 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
         if (msg === null) return
 
         const state: string = msg.state
-        if (state === "OPENED_QUESTION_HOST") {
+        if (state === "OPENED_QUESTION") {
+            const q = msg.payload.question as any
+            if (q.answer !== undefined) {
+                setGameState({
+                    state: state,
+                    info: {
+                        answer: q.answer,
+                        answerDescription: q["answer_description"],
+                        answered: q.answered,
+                    },
+                    timeLimit: new Date(Date.now() + q.time),
+                    answerOptions: q["answer_options"],
+                    question: q.question
+                })
+            } else {
+                setGameState({
+                    state: state,
+                    timeLimit: new Date(Date.now() + q.time),
+                    answerOptions: q["answer_options"],
+                    question: q.question,
+                    givenAnswer: q.given_answer,
+                })
+            }
+        } else if (state === "SHOW_QUESTION_ANSWER") {
             const q = msg.payload.question as any
             setGameState({
                 state: state,
-                board: msg.payload.board,
-                question: {
-                    row: q.row,
-                    column: q.column,
-                    question: q.question,
-                    answer: q.answer,
-                    hints: q.hints,
-                    currentHintsNum: q["current_hints_num"],
-                },
-            })
-        } else if (state === "OPENED_QUESTION_CLIENT") {
-            const q = msg.payload.question as any
-            setGameState({
-                state: state,
-                board: msg.payload.board,
-                question: {
-                    row: q.row,
-                    column: q.column,
-                    question: q.question,
-                    currentHints: q["current_hints"],
-                },
-            })
-        } else if (state === "OPENED_QUESTION_WITH_ANSWER") {
-            const q = msg.payload.question as any
-            setGameState({
-                state: state,
-                board: msg.payload.board,
-                question: {
-                    row: q.row,
-                    column: q.column,
-                    question: q.question,
-                    answer: q.answer,
-                },
-            })
-        } else if (state === "MAIN_BOARD") {
-            setGameState({
-                state: state,
-                board: msg.payload.board,
+                question: q.question,
+                answer: q.answer,
+                answerDescription: q["answer_description"],
+                answerOptions: q["answer_options"],
+                timeLimit: new Date(Date.now() + q.time),
             })
         } else if (state == "ERROR") {
             console.log("ERROR: " + msg.payload.message)
@@ -107,43 +80,16 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
     return [gameState, errors, (action: Request) => {
         let request: any
 
-        if (action.type == "OPEN_QUESTION") {
+        if (action.kind == "NEXT_QUESTION") {
             request = {
-                session: session,
-                type: "OPEN_QUESTION",
-                payload: {
-                    row: action.row,
-                    column: action.column,
-                },
+                type: action.kind
             }
-        } else if (action.type == "SET_FIELD") {
+        } else if (action.kind == "GIVE_ANSWER") {
             request = {
-                session: session,
-                type: "SET_FIELD",
+                type: action.kind,
                 payload: {
-                    row: action.row,
-                    column: action.column,
-                    mark: action.mark,
-                },
-            }
-        } else if (action.type == "SHOW_ANSWER") {
-            request = {
-                session: session,
-                type: "SHOW_ANSWER",
-                payload: {
-                    row: action.row,
-                    column: action.column,
-                },
-            }
-        } else if (action.type == "SHOW_NEXT_HINT") {
-            request = {
-                session: session,
-                type: "SHOW_NEXT_HINT",
-                payload: {
-                    row: action.row,
-                    column: action.column,
-                    // "current_hints_num": action.currentHintsNum,
-                },
+                    answer: action.answer
+                }
             }
         } else {
             checkExhausted(action)

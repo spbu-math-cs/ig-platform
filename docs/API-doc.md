@@ -779,8 +779,8 @@ CONNECT /ws/nekahoot/player/{session_id}
 
 #### Request 
 
-```json 
-{ 
+```json
+{
   "state": "GIVE_ANSWER",
   "payload": {
     "answer": "?<number of answer OR answer itself>?"
