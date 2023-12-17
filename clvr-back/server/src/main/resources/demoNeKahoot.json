@@ -1,0 +1,37 @@
+[
+  {
+    "id": {
+      "activityName": "nekahoot",
+      "id": "KAHOOT"
+    },
+    "questions": [
+      {
+        "question": "Choose the correct answer",
+        "answer": "Correct",
+        "answer_description": "This is the correct answer",
+        "answer_options": [
+          "Correct",
+          "Wrong",
+          "Wrong",
+          "Wrong"
+        ],
+        "time": 20
+      },
+      {
+        "question": "Choose the incorrect answer",
+        "answer": "Incorrect",
+        "answer_description": "This is the incorrect answer",
+        "answer_options": [
+          "Wrong",
+          "Correct",
+          "Incorrect",
+          "wrong"
+        ],
+        "time": 10
+      }
+    ],
+    "templateTitle": "Demo template",
+    "templateComment": "For demo purposes",
+    "templateAuthor": "clvr"
+  }
+]
