@@ -8,6 +8,7 @@ postgresVersion="42.5.1"
 h2Version="2.1.214"
 kotlinLoggingVersion="1.8.3"
 jupiterVersion="5.8.1"
+bcryptVersion="0.10.2"
 
 [libraries]
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationVersion" }
@@ -25,6 +26,8 @@ ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "k
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktorVersion" }
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktorVersion" }
 ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktorVersion" }
+
+bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcryptVersion" }
 
 kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlinLoggingVersion" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logbackVersion" }

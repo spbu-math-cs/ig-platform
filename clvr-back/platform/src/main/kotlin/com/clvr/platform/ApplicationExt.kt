@@ -4,16 +4,18 @@ import com.clvr.platform.api.ActivityInstaller
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.db.DBType
+import com.clvr.platform.api.model.UserCookie
 import com.clvr.platform.impl.InMemorySessionStorage
+import com.clvr.platform.impl.aufManager
+import com.clvr.platform.impl.configureAuf
 import com.clvr.platform.impl.plugins.*
 import com.clvr.platform.impl.plugins.MonitoringPlugin
 import com.clvr.platform.impl.plugins.addWebsocketRouting
 import com.clvr.platform.impl.plugins.configureCallLogging
 import com.clvr.platform.impl.plugins.configureSerialization
 import com.clvr.platform.impl.plugins.configureSockets
-import com.clvr.platform.impl.plugins.configureTemplateDatabase
+import com.clvr.platform.impl.plugins.configureDatabase
 import com.clvr.platform.impl.plugins.templateDatabase
-import com.clvr.platform.impl.plugins.userDatabase
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
@@ -40,7 +42,7 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
         anyHost()
     }
     install(Sessions) {
-        cookie<UserSession>(cookieName) {
+        cookie<UserCookie>(cookieName) {
             cookie.path = "/"
         }
     }
@@ -48,9 +50,11 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
 
     configureCallLogging()
     configureSerialization()
-    configureTemplateDatabase(dbType)
+    configureDatabase(dbType)
     configureSockets()
-    configureAuthRouting()
+
+    configureAuf()
+    configureAufRouting()
 }
 
 fun <Req: RequestEvent, Resp: ResponseEvent> Application.installActivity(
@@ -60,7 +64,7 @@ fun <Req: RequestEvent, Resp: ResponseEvent> Application.installActivity(
     addWebsocketRouting(installer.activityName, sessionStorage)
     routing {
         route("/${installer.activityName}") {
-            installer.install(this, templateDatabase, userDatabase, sessionStorage)
+            installer.install(this, templateDatabase, application.aufManager, sessionStorage)
         }
     }
 }

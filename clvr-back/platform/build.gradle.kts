@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.sessions)
+    implementation(libs.bcrypt)
 
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.ktor.client.contentNegotiation)
