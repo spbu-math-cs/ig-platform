@@ -1,6 +1,7 @@
 package com.clvr.platform.impl
 
 import at.favre.lib.crypto.bcrypt.BCrypt
+import at.favre.lib.crypto.bcrypt.LongPasswordStrategies
 import com.clvr.platform.api.db.*
 import com.clvr.platform.api.exceptions.NoSuchUserException
 import com.clvr.platform.api.exceptions.ValidationException
@@ -14,7 +15,7 @@ class AufManager(
     private val userDatabase: UserDatabase
 ) {
     fun addUser(userName: String, password: String): UserInfoWithCookie {
-        val passwordHash = genPasswordHash(password)
+        val passwordHash = genPasswordHash(userName, password)
         val userInfo = userDatabase.addUser(userName, passwordHash)
         return UserInfoWithCookie(userInfo, getUserCookieByUserInfo(userInfo))
     }
@@ -29,7 +30,7 @@ class AufManager(
 
     fun getUserInfoWithCookie(userName: String, password: String): UserInfoWithCookie {
         val passwordHash = userDatabase.getUserPasswordHash(userName) ?: throw NoSuchUserException()
-        if (!verifyPassword(password, passwordHash)) throw ValidationException()
+        if (!verifyPassword(userName, password, passwordHash)) throw ValidationException()
 
         // getUser should never be null. The only when it is possible if the user was deleted right after password verification.
         val userInfo = userDatabase.getUser(userName) ?: throw NoSuchUserException()
@@ -37,16 +38,24 @@ class AufManager(
     }
 
     companion object {
-        private fun genPasswordHash(password: String): String {
-            return String(BCrypt.withDefaults().hash(10, password.toCharArray()))
+        private const val salt = "https://youtu.be/dQw4w9WgXcQ?si=xUb7-Uy8wUHLt13c"
+        private val BCryptHasher = BCrypt.with(LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A))
+        private val BCryptVerifier = BCrypt.verifyer(BCrypt.Version.VERSION_2A, LongPasswordStrategies.hashSha512(BCrypt.Version.VERSION_2A))
+
+        private fun genPasswordHash(userName: String, password: String): String {
+            return String(BCryptHasher.hash(10, getStringToHash(userName, password).toCharArray()))
         }
 
-        private fun verifyPassword(password: String, passwordHash: String): Boolean {
-            return BCrypt.verifyer().verify(password.toCharArray(), passwordHash.toCharArray()).verified
+        private fun verifyPassword(userName: String, password: String, passwordHash: String): Boolean {
+            return BCryptVerifier.verify(getStringToHash(userName, password).toCharArray(), passwordHash.toCharArray()).verified
         }
 
         private fun getUserCookieByUserInfo(userInfo: UserInfo): UserCookie {
             return UserCookie(userInfo)
+        }
+
+        private fun getStringToHash(userName: String, password: String): String {
+            return password + salt + userName
         }
     }
 }
