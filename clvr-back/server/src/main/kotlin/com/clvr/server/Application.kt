@@ -27,29 +27,29 @@ fun main() {
     mainLogger.info { "Launching the server" }
 
     // generate ssl certificate
-    val keyStoreFile = File(Config.getString(Config.SSL_PATH_TO_KEY_STORE_ENV))
-    val keyStore = buildKeyStore {
-        certificate(Config.getString(Config.SSL_ALIAS_NAME_ENV)) {
-            password = Config.getString(Config.SSL_PASSWORD_ENV)
-            domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
-        }
-    }
-    keyStore.saveToFile(keyStoreFile, Config.getString(Config.SSL_KEY_STORE_PASSWORD_ENV))
+//    val keyStoreFile = File(Config.getString(Config.SSL_PATH_TO_KEY_STORE_ENV))
+//    val keyStore = buildKeyStore {
+//        certificate(Config.getString(Config.SSL_ALIAS_NAME_ENV)) {
+//            password = Config.getString(Config.SSL_PASSWORD_ENV)
+//            domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
+//        }
+//    }
+//    keyStore.saveToFile(keyStoreFile, Config.getString(Config.SSL_KEY_STORE_PASSWORD_ENV))
 
     // setup server environment
     val serverEnvironment = applicationEngineEnvironment {
         connector {
             port = 8080
         }
-        sslConnector(
-            keyStore = keyStore,
-            keyAlias = Config.getString(Config.SSL_ALIAS_NAME_ENV),
-            keyStorePassword = { Config.getString(Config.SSL_KEY_STORE_PASSWORD_ENV).toCharArray() },
-            privateKeyPassword = { Config.getString(Config.SSL_PASSWORD_ENV).toCharArray() }
-        ) {
-            port = 443                   // default https port
-            keyStorePath = keyStoreFile
-        }
+//        sslConnector(
+//            keyStore = keyStore,
+//            keyAlias = Config.getString(Config.SSL_ALIAS_NAME_ENV),
+//            keyStorePassword = { Config.getString(Config.SSL_KEY_STORE_PASSWORD_ENV).toCharArray() },
+//            privateKeyPassword = { Config.getString(Config.SSL_PASSWORD_ENV).toCharArray() }
+//        ) {
+//            port = 443                   // default https port
+//            keyStorePath = keyStoreFile
+//        }
         module(Application::module)
     }
 
