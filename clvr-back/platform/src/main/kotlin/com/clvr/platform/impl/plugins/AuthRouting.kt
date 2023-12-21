@@ -46,7 +46,7 @@ fun Application.configureAufRouting() {
             call.sessions.set(userInfoWithCookie.userCookie)
             call.respond(
                 HttpStatusCode.OK,
-                userInfoWithCookie.userInfo
+                userInfoToUserInfoResponse(userInfoWithCookie.userInfo)
             )
         }
 
@@ -74,7 +74,7 @@ fun Application.configureAufRouting() {
 
             call.respond(
                 HttpStatusCode.OK,
-                UserInfoResponse(userInfo.name, userInfo.uuid.toString())
+                userInfoToUserInfoResponse(userInfo)
             )
         }
 

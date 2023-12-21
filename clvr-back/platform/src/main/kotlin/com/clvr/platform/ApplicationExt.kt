@@ -36,6 +36,7 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Get)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader(HttpHeaders.AccessControlAllowCredentials)
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Cookie)
         allowCredentials = true
@@ -44,8 +45,12 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
     install(Sessions) {
         cookie<UserCookie>(cookieName) {
             cookie.path = "/"
+            cookie.secure = false
+            cookie.extensions["SameSite"] = "none"
+            cookie.extensions["Secure"] = "false"
         }
     }
+
     install(MonitoringPlugin)
 
     configureCallLogging()
