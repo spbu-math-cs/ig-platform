@@ -5,6 +5,7 @@ import com.clvr.platform.api.ClvrGameController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
@@ -14,8 +15,9 @@ class NeKahootGameController(private val game: GameState) :
     ClvrGameController<NeKahootRequest, NeKahootResponseWithPayload<*>> {
 
     private fun sendQuestionResponses(manager: NeKahootSessionParticipantsCommunicator) {
-        val hostQuestionView = HostQuestionView.fromGameState(game)
-        val clientQuestionView = ClientQuestionView.fromGameState(game)
+        val timestamp = System.currentTimeMillis()
+        val hostQuestionView = HostQuestionView.fromGameState(game, timestamp)
+        val clientQuestionView = ClientQuestionView.fromGameState(game, timestamp)
 
         val hostResponse = NeKahootResponseWithPayload(
             HostQuestionResponse(hostQuestionView)
@@ -41,8 +43,9 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     private fun sendAnswerResponses(manager: NeKahootSessionParticipantsCommunicator, clientName: String) {
-        val hostAnswerView = HostQuestionView.fromGameState(game)
-        val clientAnswerView = ClientQuestionView.fromGameState(game, clientName)
+        val timestamp = System.currentTimeMillis()
+        val hostAnswerView = HostQuestionView.fromGameState(game, timestamp)
+        val clientAnswerView = ClientQuestionView.fromGameState(game, timestamp, clientName)
 
         val hostResponse = NeKahootResponseWithPayload(
             HostQuestionResponse(hostAnswerView)
@@ -73,7 +76,7 @@ class NeKahootGameController(private val game: GameState) :
                 coroutineScope {
                     game.openQuestion(System.currentTimeMillis())
                     sendQuestionResponses(communicator)
-                    delay(game.getTime().seconds)
+                    delay(game.getTime().milliseconds)
                     sendCorrectAnswerResponses(communicator)
                     game.closeQuestion()
                 }

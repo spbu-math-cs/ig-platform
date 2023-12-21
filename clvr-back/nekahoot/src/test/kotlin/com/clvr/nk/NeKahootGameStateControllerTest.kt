@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlinx.coroutines.test.runTest
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class NeKahootGameStateControllerTest {
@@ -183,7 +184,7 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
 
@@ -223,7 +224,7 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
 
@@ -238,7 +239,7 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
 
@@ -283,7 +284,7 @@ class NeKahootGameStateControllerTest {
 
         game.openQuestion(System.currentTimeMillis())
         var currentQuestion = launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
         var options = game.getAnswerOptions()
@@ -300,7 +301,7 @@ class NeKahootGameStateControllerTest {
         game.nextQuestion()
         game.openQuestion(System.currentTimeMillis())
         currentQuestion = launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
         options = game.getAnswerOptions()
@@ -317,7 +318,7 @@ class NeKahootGameStateControllerTest {
         game.nextQuestion()
         game.openQuestion(System.currentTimeMillis())
         currentQuestion = launch {
-            delay(game.getTime().toLong().seconds)
+            delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
         options = game.getAnswerOptions()

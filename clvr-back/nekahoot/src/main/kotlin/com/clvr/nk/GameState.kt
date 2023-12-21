@@ -2,6 +2,7 @@ package com.clvr.nk
 
 import com.clvr.nk.common.NeKahootTemplate
 import kotlinx.serialization.Serializable
+import kotlin.math.max
 
 @Serializable
 data class PlayerResult(
@@ -40,6 +41,14 @@ class GameState(private val template: NeKahootTemplate) {
     fun getTime(): Int =
         template.questions[currentQuestionNumber].time
 
+    fun getLeftTime(timestamp: Long): Int {
+        return if (isQuestionOpened) {
+            max(0, template.questions[currentQuestionNumber].time - (timestamp - questionOpenTimestamp).toInt())
+        } else {
+            template.questions[currentQuestionNumber].time
+        }
+    }
+
     fun getTemplateTitle(): String? =
         template.templateTitle
 
@@ -54,7 +63,7 @@ class GameState(private val template: NeKahootTemplate) {
             val (timestamp, answerText) = answer
             val isCorrect = answerText == getAnswer()
             val (score, correctQuestions) = playerResults.getOrPut(playerName) { 0 to 0 }
-            val newScore = score + if (isCorrect) 1000 - (timestamp - questionOpenTimestamp).toInt() / getTime() else 0
+            val newScore = score + if (isCorrect) 1000 - (timestamp - questionOpenTimestamp).toInt() * 1000 / getTime() else 0
             val newCorrectQuestions = correctQuestions + if (isCorrect) 1 else 0
             playerResults[playerName] = newScore to newCorrectQuestions
         }
