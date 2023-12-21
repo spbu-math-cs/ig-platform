@@ -37,17 +37,17 @@ data class NeKahootResponseWithPayload<T: NeKahootResponsePayload> private const
     val payload: T,
 ): ResponseEvent {
     constructor(payload: T): this(payload.state, payload)
-}
 
-// TODO: remove this method and implement normal one
-@Suppress("UNCHECKED_CAST")
-fun encodeNKEventToJson(event: NeKahootResponseWithPayload<*>): String {
-    return when (event.payload) {
-        is HostQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<HostQuestionResponse>)
-        is ClientQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<ClientQuestionResponse>)
-        is ShowAnswerEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ShowAnswerEvent>)
-        is ResultsEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ResultsEvent>)
-        is GameError -> Json.encodeToString(event as NeKahootResponseWithPayload<GameError>)
+    @Suppress("UNCHECKED_CAST")
+    override fun encodeToJson(json: Json): String {
+        return when (payload) {
+            is HostQuestionResponse -> json.encodeToString(this as NeKahootResponseWithPayload<HostQuestionResponse>)
+            is ClientQuestionResponse -> json.encodeToString(this as NeKahootResponseWithPayload<ClientQuestionResponse>)
+            is ShowAnswerEvent -> json.encodeToString(this as NeKahootResponseWithPayload<ShowAnswerEvent>)
+            is ResultsEvent -> json.encodeToString(this as NeKahootResponseWithPayload<ResultsEvent>)
+            is GameError -> json.encodeToString(this as NeKahootResponseWithPayload<GameError>)
+            else -> error("Unexpected payload: $payload")
+        }
     }
 }
 

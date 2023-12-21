@@ -15,6 +15,10 @@ class TicTacToeInstaller(
 ) : ActivityInstaller<TicTacToeRequest<*>, TicTacToeResponse<*>> {
     override val activityName: String = ACTIVITY_ID
 
+    override fun decodeJsonToEvent(jsonString: String): TicTacToeRequest<*> {
+        return decodeJsonToTTTEvent(jsonString)
+    }
+
     override fun install(
         route: Route,
         templateDatabase: TemplateDatabase,

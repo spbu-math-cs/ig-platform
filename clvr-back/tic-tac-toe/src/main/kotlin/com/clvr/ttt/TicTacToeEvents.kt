@@ -35,17 +35,17 @@ data class TicTacToeResponse<T: TicTacToeResponsePayload> private constructor (
     val payload: T
 ): ResponseEvent {
     constructor(payload: T): this(payload.state, payload)
-}
 
-// TODO: remove this method and implement normal one
-@Suppress("UNCHECKED_CAST")
-fun encodeTTTEventToJson(event: TicTacToeResponse<*>): String {
-    return when (event.payload) {
-        is HostQuestionResponse -> Json.encodeToString(event as TicTacToeResponse<HostQuestionResponse>)
-        is ClientQuestionResponse -> Json.encodeToString(event as TicTacToeResponse<ClientQuestionResponse>)
-        is SetFieldResponse -> Json.encodeToString(event as TicTacToeResponse<SetFieldResponse>)
-        is ShowAnswerResponse -> Json.encodeToString(event as TicTacToeResponse<ShowAnswerResponse>)
-        is GameError -> Json.encodeToString(event as TicTacToeResponse<GameError>)
+    @Suppress("UNCHECKED_CAST")
+    override fun encodeToJson(json: Json): String {
+        return when (payload) {
+            is HostQuestionResponse -> json.encodeToString(this as TicTacToeResponse<HostQuestionResponse>)
+            is ClientQuestionResponse -> json.encodeToString(this as TicTacToeResponse<ClientQuestionResponse>)
+            is SetFieldResponse -> json.encodeToString(this as TicTacToeResponse<SetFieldResponse>)
+            is ShowAnswerResponse -> json.encodeToString(this as TicTacToeResponse<ShowAnswerResponse>)
+            is GameError -> json.encodeToString(this as TicTacToeResponse<GameError>)
+            else -> error("Unexpected payload $payload")
+        }
     }
 }
 

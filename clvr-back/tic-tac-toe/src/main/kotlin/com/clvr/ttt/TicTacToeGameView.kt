@@ -49,12 +49,4 @@ class TicTacToeGameView(private val game: GameState): ClvrGameView<TicTacToeRequ
 
             return listOf(boardStateEvent, lastQuestionViewEvent)
         }
-
-    override fun decodeJsonToEvent(jsonString: String): TicTacToeRequest<*> {
-        return decodeJsonToTTTEvent(jsonString)
-    }
-
-    override fun encodeEventToJson(event: TicTacToeResponse<*>): String {
-        return encodeTTTEventToJson(event)
-    }
 }

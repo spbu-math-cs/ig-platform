@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
-        SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>
+        SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>
 
 class NeKahootGameController(private val game: GameState) :
     ClvrGameController<NeKahootRequest, NeKahootResponseWithPayload<*>> {
@@ -67,7 +67,7 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     override fun handle(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
+        communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>,
         event: NeKahootRequest
     ) = try {
         fun nextStep() = when {
@@ -107,7 +107,7 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     override fun handleFromClient(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
+        communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>,
         clientEndpoint: String,
         event: NeKahootRequest
     ) = try {
@@ -138,5 +138,9 @@ class NeKahootGameController(private val game: GameState) :
                 GameError(e.message ?: "Unknown error occurred!")
             )
         )
+    }
+
+    override fun handleGameStart(communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>) {
+        // TODO("Not yet implemented")
     }
 }

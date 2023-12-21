@@ -14,6 +14,9 @@ class NeKahootInstaller(
     private val templateFiles: List<File>
 ) : ActivityInstaller<NeKahootRequest, NeKahootResponseWithPayload<*>> {
     override val activityName: String = ACTIVITY_ID
+    override fun decodeJsonToEvent(jsonString: String): NeKahootRequest {
+        return decodeJsonToNKEvent(jsonString)
+    }
 
     override fun install(
         route: Route,
