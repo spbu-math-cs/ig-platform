@@ -82,14 +82,21 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
 
         if (action.kind == "NEXT_QUESTION") {
             request = {
+                session: session,
                 type: action.kind
             }
         } else if (action.kind == "GIVE_ANSWER") {
             request = {
+                session: session,
                 type: action.kind,
                 payload: {
                     answer: action.answer
                 }
+            }
+        } else if (action.kind == "START_GAME") {
+            request = {
+                session: session,
+                type: action.kind,
             }
         } else {
             checkExhausted(action)
