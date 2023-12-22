@@ -15,7 +15,7 @@ internal lateinit var templateDatabase: TemplateDatabase
 internal lateinit var userDatabase: UserDatabase
     private set
 
-internal fun Application.configureTemplateDatabase(dbType: DBType = DBType.EMBEDDED) {
+internal fun Application.configureDatabase(dbType: DBType = DBType.EMBEDDED) {
     val dbQueryExecutor = when(dbType) {
         DBType.EMBEDDED -> DBQueryExecutor(connectToPostgres(embedded = true))
         DBType.REMOTE -> DBQueryExecutor(connectToPostgres(embedded = false))
