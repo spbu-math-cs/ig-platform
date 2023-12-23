@@ -7,7 +7,33 @@ export type team = "X" | "O" | "None"
 
 
 let players = Array(["Nick239", "X"], ["Fedor", "X"], ["Petr", "O"], ["AAA", "O"], ["SSSS", "O"], ["EEE", "X"])
-
+type GameId = "tic_tac_toe" | "nekahoot"
+type AppState = {
+    kind: "main_page"
+    modal: undefined | GameId
+    sessionId: string
+} | {
+    kind: "joining"
+    sessionId: string
+} | {
+    kind: "fatal"
+    error: Node | string
+} | {
+    kind: "logging"
+} | {
+    kind: "playing"
+    game: GameId
+    sessionId: string
+    isHost: boolean
+} | {
+    kind: "constructor"
+    game: GameId
+} | {
+    kind: "lobby"
+    game: GameId
+    sessionId: string
+    isHost: boolean
+}
 
 interface ChooseTeamModalProps {
     ChooseTeam(t: team): void
@@ -15,13 +41,14 @@ interface ChooseTeamModalProps {
     isHost: boolean
     sessionId: string
     game: string
+    setState() : void
 }
 
-export const ChooseTeamModal = ({ChooseTeam, isHost, sessionId, game}: ChooseTeamModalProps) => {
+export const ChooseTeamModal = ({ChooseTeam, isHost, sessionId, game, setState}: ChooseTeamModalProps) => {
     return (
         <div className={"relative w-[1000px]"}>
             <div className={"blur-lg"}>
-                <PlayersList game={game} sessionId={sessionId} isHost={isHost}/>
+                <PlayersList game={game} sessionId={sessionId} isHost={isHost} setState={setState}/>
             </div>
             <div className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"}>
                 <div
@@ -91,9 +118,10 @@ interface PlayersListProps {
     isHost: boolean
     sessionId: string
     game: string
+    setState() : void
 }
 
-export const PlayersList = ({isHost, sessionId, game}: PlayersListProps) => {
+export const PlayersList = ({isHost, sessionId, game, setState}: PlayersListProps) => {
     return (
         <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square h-auto mt-8 pb-10 pt-4">
             <div className={`px-20 flex items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
@@ -103,8 +131,7 @@ export const PlayersList = ({isHost, sessionId, game}: PlayersListProps) => {
                             JOINED PLAYERS
                         </p>
                         {isHost ?
-                            <button onClick={() => {
-                            }}
+                            <button onClick={() => setState()}
                                     className={`button hover:ring-4 py-1 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
                                 START GAME
                             </button>
@@ -150,14 +177,15 @@ export const PlayersList = ({isHost, sessionId, game}: PlayersListProps) => {
     )
 }
 
-
 interface LobbyProps {
     isHost: boolean
     sessionId: string
     game: string
+    setState() :void
 }
 
-export const Lobby = ({isHost, sessionId, game}: LobbyProps) => {
+
+export const Lobby = ({isHost, sessionId, game, setState}: LobbyProps) => {
     const [Team, setTeam] = useState<team>("None")
 
     function chooseTeam(t: team) {
@@ -171,10 +199,11 @@ export const Lobby = ({isHost, sessionId, game}: LobbyProps) => {
                     <ChooseTeamModal
                         ChooseTeam={chooseTeam}
                         game={game} sessionId={sessionId} isHost={isHost}
+                        setState={setState}
                     />
                 </div>
                 :
-                <PlayersList game={game} sessionId={sessionId} isHost={isHost}/>
+                <PlayersList game={game} sessionId={sessionId} isHost={isHost} setState ={setState}/>
             }
         </div>)
 }

@@ -306,7 +306,14 @@ const Home: NextPage = () => {
             })
         }
     } else if (state.kind == "lobby") {
-        content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}/>
+        content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}
+        setState = {() => setState({
+                kind: "playing",
+                game: state.game,
+                sessionId: state.sessionId,
+                isHost: true,
+            })
+        }/>
     } else {
         checkExhausted(state)
     }
