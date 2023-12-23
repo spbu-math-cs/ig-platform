@@ -299,11 +299,9 @@ const Home: NextPage = () => {
         if (constructor === undefined) {
             console.error("No constructor available (should be unreachable)")
         } else {
-            content = React.createElement(constructor, {
-                onCreate: () => {
-                    runAction({kind: "go_to_creating", game: state.game})
-                },
-            })
+            content = <EditBoard
+                setState = {() => setState({kind: "main_page", sessionId: "", modal: undefined})} />
+
         }
     } else if (state.kind == "lobby") {
         content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}
