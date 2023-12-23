@@ -79,10 +79,10 @@ interface LobbyProps {
 
 export const PlayersList = () => {
     return (
-        <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square h-auto mt-8">
-            <div className={`px-20 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
-                <div className={"flex flex-col space-y-1"}>
-                    <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold py-4 text-4xl  `}>
+        <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square h-auto mt-8 pb-10 pt-4">
+            <div className={`px-20 flex items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+                <div className={"flex flex-col space-y-1 mt-0"}>
+                    <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold py-2 text-4xl  `}>
                         JOINED PLAYERS
                     </p>
                     <hr className="w-[844px] h-1 mx-auto my-4 bg-JoinGameTxt border-0 rounded md:my-10 "/>
