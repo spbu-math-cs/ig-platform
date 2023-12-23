@@ -11,17 +11,17 @@ let players = Array(["Nick239", "X"], ["Fedor", "X"], ["Petr", "O"], ["AAA", "O"
 
 interface ChooseTeamModalProps {
     ChooseTeam(t: team): void
+
+    isHost: boolean
+    sessionId: string
+    game: string
 }
 
-interface PlayersProps {
-    template: string[]
-}
-
-export const ChooseTeamModal = ({ChooseTeam}: ChooseTeamModalProps) => {
+export const ChooseTeamModal = ({ChooseTeam, isHost, sessionId, game}: ChooseTeamModalProps) => {
     return (
         <div className={"relative w-[1000px]"}>
             <div className={"blur-lg"}>
-                <PlayersList/>
+                <PlayersList game={game} sessionId={sessionId} isHost={isHost}/>
             </div>
             <div className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"}>
                 <div
@@ -52,60 +52,112 @@ export const ChooseTeamModal = ({ChooseTeam}: ChooseTeamModalProps) => {
     )
 }
 
+interface PlayersProps {
+    template: string[]
+    game : string
+}
 
-export function Players({template}: PlayersProps) {
+export function Players({template, game}: PlayersProps) {
     return (
-        <div
-            className="border-2 border-back w-[200px]  h-[200px] rounded-2xl py-2 px-4 flex flex-col items-center mb-2">
-            <div className="rounded-2xl py-2 px-4 flex flex-row mb-1">
-                <p className="font-bold text-3xl text-center">{template[0]}</p>
+        game == "tic_tac_toe" ? (
+        <div className="border-2 border-back w-[200px]  h-[200px] rounded-2xl py-2 px-4 flex flex-col items-center mb-2">
+            <div className={"items-center flex flex-col justify-items-center"}>
+                <div className="rounded-2xl py-2 px-4 flex flex-row mb-1">
+                    <p className="font-bold text-3xl text-center">{template[0]}</p>
+                </div>
+                {
+                    template[1] == "X" ?
+                        <XIcon/>
+                        :
+                        <OIcon/>
 
+                }
             </div>
-            {
-                template[1] == "X" ?
-                    <XIcon/>
-                    :
-                    <OIcon/>
-
-            }
         </div>
+        )
+            :
+            <div className="border-2 border-back w-[844px] rounded-2xl py-2 px-4 flex flex-col items-start mb-2">
+                <div className="rounded-2xl flex flex-row">
+                    <div className="rounded-2xl py-2 px-4 flex flex-row mb-1 space-x-30 w-[810px]">
+                        <p className="font-bold text-2xl">{template[0]}</p>
+                    </div>
+                </div>
+            </div>
     )
 }
 
-interface LobbyProps {
+
+interface PlayersListProps {
     isHost: boolean
     sessionId: string
+    game: string
 }
 
-export const PlayersList = () => {
+export const PlayersList = ({isHost, sessionId, game}: PlayersListProps) => {
     return (
         <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square h-auto mt-8 pb-10 pt-4">
             <div className={`px-20 flex items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
                 <div className={"flex flex-col space-y-1 mt-0"}>
-                    <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold py-2 text-4xl  `}>
-                        JOINED PLAYERS
-                    </p>
+                    <div className={"flex flex-row justify-between pb-2"}>
+                        <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold py-2 text-4xl  `}>
+                            JOINED PLAYERS
+                        </p>
+                        {isHost ?
+                            <button onClick={() => {
+                            }}
+                                    className={`button hover:ring-4 py-1 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
+                                START GAME
+                            </button>
+                            : <div/>
+                        }
+                    </div>
                     <hr className="w-[844px] h-1 mx-auto my-4 bg-JoinGameTxt border-0 rounded md:my-10 "/>
                 </div>
             </div>
-            <div
-                className="
+            {game == "tic_tac_toe" ?
+                <div
+                    className="
                     grid grid-cols-4 gap-4  justify-items-start py-10 rounded
                     mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
                     max-h-[60vh] bg-square">
-                {
-                    players?.map(quiz =>
-                        <Players
-                            template={quiz}
-                        />
-                    )
-                }
-            </div>
+                    {
+                        players?.map(quiz =>
+                            <Players
+                                template={quiz}
+                                game = {game}
+                            />
+                        )
+                    }
+                </div>
+                :
+                <div
+                    className="
+                    flex flex-col justify-items-start py-10 px-100 rounded
+                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
+                    max-h-[60vh] bg-square">
+                    {
+                        players?.map(quiz =>
+                            <Players
+                                template={quiz}
+                                game = {game}
+                            />
+                        )
+                    }
+                </div>
+            }
         </div>
+
     )
 }
 
-export const Lobby = ({isHost, sessionId}: LobbyProps) => {
+
+interface LobbyProps {
+    isHost: boolean
+    sessionId: string
+    game: string
+}
+
+export const Lobby = ({isHost, sessionId, game}: LobbyProps) => {
     const [Team, setTeam] = useState<team>("None")
 
     function chooseTeam(t: team) {
@@ -114,14 +166,15 @@ export const Lobby = ({isHost, sessionId}: LobbyProps) => {
 
     return (
         <div>
-            {(Team == "None" && !isHost) ?
+            {(Team == "None" && !isHost && game == "tic_tac_toe") ?
                 <div>
                     <ChooseTeamModal
                         ChooseTeam={chooseTeam}
+                        game={game} sessionId={sessionId} isHost={isHost}
                     />
                 </div>
                 :
-                <PlayersList/>
+                <PlayersList game={game} sessionId={sessionId} isHost={isHost}/>
             }
         </div>)
 }
