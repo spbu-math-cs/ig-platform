@@ -152,6 +152,8 @@ const Home: NextPage = () => {
 
     let content
     if (state.kind == "main_page") {
+        // @ts-ignore
+        // @ts-ignore
         content = <div>
             <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
                 <div className="w-full flex flex-row space-x-10 gap-4 m-8">
@@ -190,10 +192,11 @@ const Home: NextPage = () => {
                                     <img src="/kahoot.ico" className=" mt-2 mr-3 h-10 sm:h-12 rounded-xl" alt={""}/>
                                 </a>
 
-                                <div className="mt-2 w-full flex justify-end">
+                                <div className="mt-2 w-full flex justify-end"> {
                                     <Button onClick={() => setState({...state, modal: "nekahoot"})}>
                                         BROWSE GAMES
                                     </Button>
+                                }
                                 </div>
                             </div>
                         </div>
@@ -303,7 +306,7 @@ const Home: NextPage = () => {
             })
         }
     } else if (state.kind == "lobby") {
-        content = <Lobby isHost={state.isHost} sessionId={state.sessionId}/>
+        content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}/>
     } else {
         checkExhausted(state)
     }
@@ -313,6 +316,7 @@ const Home: NextPage = () => {
         // do nothing
     } else {
         const game = state.modal
+        // @ts-ignore
         modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
             <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
                 <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
@@ -340,6 +344,7 @@ const Home: NextPage = () => {
                         : templates[game]?.map(quiz =>
                             <TemplateCard
                                 template={quiz} key={quiz.id}
+                                 /*
                                 handleSelect={async (id: string) => {
                                     const sessionId = (await games[game].createGame(id, options[game])).id
                                     setState({
@@ -347,6 +352,15 @@ const Home: NextPage = () => {
                                         game: game,
                                         sessionId: sessionId,
                                         isHost: true,
+                                    })
+                                }} */
+                                handleSelect={async (id: string) => {
+                                    const sessionId = (await games[game].createGame(id, options[game])).id
+                                    setState({
+                                        kind: "lobby",
+                                        game: game,
+                                        sessionId: sessionId,
+                                        isHost: true
                                     })
                                 }}/>,
                         )
