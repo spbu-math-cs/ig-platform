@@ -16,6 +16,7 @@ import {Session} from "@/neKahoot/types"
 import {Board as TicTacToeBoard} from "@/tic-tac-toe/Board"
 import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
+import {Lobby} from "@/components/Lobby";
 
 type GameId = "tic_tac_toe" | "nekahoot"
 
@@ -89,6 +90,11 @@ type AppState = {
 } | {
     kind: "constructor"
     game: GameId
+} | {
+    kind: "lobby"
+    game: GameId
+    sessionId: string
+    isHost: boolean
 }
 
 export type AppAction = {
@@ -147,7 +153,7 @@ const Home: NextPage = () => {
     let content
     if (state.kind == "main_page") {
         content = <div>
-            <div className="mt-10 md:mt-16 w-[1000px] flex flex-col items-center justify-center mx-auto">
+            <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
                 <div className="w-full flex flex-row space-x-10 gap-4 m-8">
                     <div className="grow space-y-4">
                         <div
@@ -192,15 +198,16 @@ const Home: NextPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col mt-0 space-y-4">
                         <div
-                            className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            className="text-3xl text-txt font-bold w-full text-center rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
                             JOIN A GAME
                         </div>
                         <form
                             onSubmit={e => {
                                 setState({
-                                    kind: "playing",
+
+                                    kind: "lobby",
                                     game: "tic_tac_toe",
                                     sessionId: state.sessionId,
                                     isHost: false,
@@ -295,6 +302,8 @@ const Home: NextPage = () => {
                 },
             })
         }
+    } else if (state.kind == "lobby") {
+        content = <Lobby isHost={state.isHost} sessionId={state.sessionId}/>
     } else {
         checkExhausted(state)
     }
@@ -310,7 +319,7 @@ const Home: NextPage = () => {
                     CHOOSE EXISTING GAME
                 </p>
 
-                { games[game].constructorComponent !== undefined &&
+                {games[game].constructorComponent !== undefined &&
                     <button onClick={() => setState({
                         kind: "constructor",
                         game: game,
