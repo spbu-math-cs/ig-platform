@@ -73,6 +73,11 @@ class TicTacToeGameController(private val game: GameState) :
     )
 
     override fun handleGameStart(communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>) {
-        // TODO("Not yet implemented")
+        val gameResult = game.currentResult()
+        val response = TicTacToeResponse(
+            SetFieldResponse(gameResult, BoardView.fromGameState(game))
+        )
+        communicator.sendToHost(response)
+        communicator.sendToClients(response)
     }
 }

@@ -1,4 +1,4 @@
-package com.clvr.platform.impl.lobby
+package com.clvr.platform.api.lobby
 
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent

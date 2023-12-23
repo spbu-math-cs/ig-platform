@@ -7,8 +7,8 @@ import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.impl.SessionManager
-import com.clvr.platform.impl.lobby.EnterLobbyEvent
-import com.clvr.platform.impl.lobby.LobbyRequestEvent
+import com.clvr.platform.api.lobby.EnterLobbyEvent
+import com.clvr.platform.api.lobby.LobbyRequestEvent
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
