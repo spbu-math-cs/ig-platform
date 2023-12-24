@@ -4,8 +4,13 @@ import com.clvr.platform.api.*
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
+import com.clvr.platform.api.*
+import com.clvr.platform.api.lobby.StartGameEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -17,17 +22,21 @@ class SessionManagerTest {
 
         val echoSessionManager = SessionManager(
             object: ClvrGameController<DummyRequest, DummyResponse> {
-                override fun handle(communicator: SessionParticipantsCommunicator<DummyRequest, DummyResponse>, event: DummyRequest) {
+                override fun handle(communicator: SessionParticipantsCommunicator<DummyResponse>, event: DummyRequest) {
                     when (event.payload) {
                         is TestHostPayload -> communicator.sendToHost(DummyResponse(event.payload))
                         is TestClientPayload -> communicator.sendToClients(DummyResponse(event.payload))
                     }
                 }
-                override fun handleFromClient(communicator: SessionParticipantsCommunicator<DummyRequest, DummyResponse>, clientEndpoint: String, event: DummyRequest) {
+                override fun handleFromClient(communicator: SessionParticipantsCommunicator<DummyResponse>, clientEndpoint: String, event: DummyRequest) {
                     communicator.sendToClient(clientEndpoint, DummyResponse(event.payload))
                 }
+
+                override fun handleGameStart(communicator: SessionParticipantsCommunicator<DummyResponse>) = Unit
             }
         )
+
+        echoSessionManager.handleHostLobbyEvent(StartGameEvent(SessionId("1")))
 
         val firstClientChannel = echoSessionManager.registerClient("client-1")
         val hostChannel = echoSessionManager.hostChannel
@@ -36,7 +45,7 @@ class SessionManagerTest {
 
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {
-            assertEquals(clientEvent.payload, firstClientChannel.receive().payload)
+            assertEquals(clientEvent.payload, (firstClientChannel.receive() as DummyResponse).payload)
             assertTrue(hostChannel.isEmpty)
         }
 
@@ -44,8 +53,15 @@ class SessionManagerTest {
         clientEvent = DummyRequest(sessionId, TestClientPayload("client-2 data"))
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {
-            assertEquals(clientEvent.payload, firstClientChannel.receive().payload)
-            assertEquals(clientEvent.payload, secondClientChannel.receive().payload)
+            assertEquals(clientEvent.payload, (firstClientChannel.receive() as DummyResponse).payload)
+            assertEquals(clientEvent.payload, (secondClientChannel.receive() as DummyResponse).payload)
+        }
+
+        clientEvent = DummyRequest(sessionId, TestClientPayload("only to client-2"))
+        echoSessionManager.handleClientEvent("client-2", clientEvent)
+        runBlocking {
+            assertEquals(clientEvent.payload, (secondClientChannel.receive() as DummyResponse).payload)
+            assertTrue(firstClientChannel.isEmpty)
         }
 
         clientEvent = DummyRequest(sessionId, TestClientPayload("only to client-2"))
@@ -61,7 +77,7 @@ class SessionManagerTest {
         val hostEvent = DummyRequest(sessionId, TestHostPayload("host data"))
         echoSessionManager.handleHostEvent(hostEvent)
         runBlocking {
-            assertEquals(hostEvent.payload, hostChannel.receive().payload)
+            assertEquals(hostEvent.payload, (hostChannel.receive() as DummyResponse).payload)
             assertTrue(secondClientChannel.isEmpty)
         }
     }
@@ -73,10 +89,15 @@ class SessionManagerTest {
         override val type: String = payload.type
     }
 
+    @Serializable
     data class DummyResponse(
         val payload: DummyPayload
     ): ResponseEvent {
         override val state: String = payload.type
+
+        override fun encodeToJson(json: Json): String {
+            return json.encodeToString(this)
+        }
     }
 
     sealed interface DummyPayload {

@@ -37,17 +37,17 @@ data class NeKahootResponseWithPayload<T: NeKahootResponsePayload> private const
     val payload: T,
 ): ResponseEvent {
     constructor(payload: T): this(payload.state, payload)
-}
 
-// TODO: remove this method and implement normal one
-@Suppress("UNCHECKED_CAST")
-fun encodeNKEventToJson(event: NeKahootResponseWithPayload<*>): String {
-    return when (event.payload) {
-        is HostQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<HostQuestionResponse>)
-        is ClientQuestionResponse -> Json.encodeToString(event as NeKahootResponseWithPayload<ClientQuestionResponse>)
-        is ShowAnswerEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ShowAnswerEvent>)
-        is ResultsEvent -> Json.encodeToString(event as NeKahootResponseWithPayload<ResultsEvent>)
-        is GameError -> Json.encodeToString(event as NeKahootResponseWithPayload<GameError>)
+    @Suppress("UNCHECKED_CAST")
+    override fun encodeToJson(json: Json): String {
+        return when (payload) {
+            is HostQuestionResponse -> json.encodeToString(this as NeKahootResponseWithPayload<HostQuestionResponse>)
+            is ClientQuestionResponse -> json.encodeToString(this as NeKahootResponseWithPayload<ClientQuestionResponse>)
+            is ShowAnswerEvent -> json.encodeToString(this as NeKahootResponseWithPayload<ShowAnswerEvent>)
+            is ResultsEvent -> json.encodeToString(this as NeKahootResponseWithPayload<ResultsEvent>)
+            is GameError -> json.encodeToString(this as NeKahootResponseWithPayload<GameError>)
+            else -> error("Unexpected payload: $payload")
+        }
     }
 }
 
@@ -55,7 +55,6 @@ fun decodeJsonToNKEvent(jsonString: String): NeKahootRequest {
     val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
     return when (jsonObject["type"]!!.jsonPrimitive.content) {
-        StartGameRequest.type -> Json.decodeFromString<StartGameRequest>(jsonString)
         QuestionRequest.type -> Json.decodeFromString<QuestionRequest>(jsonString)
         AnswerRequest.type -> Json.decodeFromString<NeKahootRequestWithPayload<AnswerRequest>>(jsonString)
         else -> throw IllegalArgumentException("Unknown type of event")
@@ -74,13 +73,13 @@ data class HostQuestionView(
     val answered: Int,
 ) {
     companion object {
-        fun fromGameState(game: GameState): HostQuestionView =
+        fun fromGameState(game: GameState, timestamp: Long): HostQuestionView =
             HostQuestionView(
                 game.getQuestion(),
                 game.getAnswer(),
                 game.getAnswerDescription(),
                 game.getAnswerOptions(),
-                game.getTime(),
+                game.getLeftTime(timestamp),
                 game.getNumberOfAnswers(),
             )
     }
@@ -96,11 +95,11 @@ data class ClientQuestionView(
     val givenAnswer: String,
 ) {
     companion object {
-        fun fromGameState(game: GameState, clientName: String? = null): ClientQuestionView =
+        fun fromGameState(game: GameState, timestamp: Long, clientName: String? = null): ClientQuestionView =
             ClientQuestionView(
                 game.getQuestion(),
                 game.getAnswerOptions(),
-                game.getTime(),
+                game.getLeftTime(timestamp),
                 game.getAnswerOfPlayer(clientName),
             )
     }
@@ -125,17 +124,6 @@ data class QuestionWithAnswerView(
                 game.getAnswerOptions(),
                 game.getTime(),
             )
-    }
-}
-
-@Serializable
-data class StartGameRequest(
-    override val session: SessionId
-) : NeKahootRequest {
-    @EncodeDefault
-    override val type: String = Companion.type
-    companion object {
-        const val type: String = "START_GAME"
     }
 }
 

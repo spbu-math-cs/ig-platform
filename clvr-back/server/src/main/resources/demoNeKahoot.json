@@ -15,7 +15,7 @@
           "Wrong",
           "Wrong"
         ],
-        "time": 20
+        "time": 20000
       },
       {
         "question": "Choose the incorrect answer",
@@ -27,7 +27,7 @@
           "Incorrect",
           "wrong"
         ],
-        "time": 10
+        "time": 10000
       }
     ],
     "templateTitle": "Demo template",

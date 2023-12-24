@@ -18,6 +18,7 @@ import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
 import {Lobby} from "@/components/Lobby";
 
+
 type GameId = "tic_tac_toe" | "nekahoot"
 
 type GameComponentProps = {
@@ -42,6 +43,7 @@ type Game<Options> = {
     gameIconPng?: string
 }
 
+    
 // @ts-ignore
 const games: { [key in GameId]: Game<any> } = {
     tic_tac_toe: {
@@ -50,7 +52,7 @@ const games: { [key in GameId]: Game<any> } = {
         getTemplates: getTicTacToeTemplateList,
         defaultOptions: {
             replaceMarks: true,
-            openMultipleQuestions: true
+            openMultipleQuestions: true,
         },
         optionCaptions: {
             replaceMarks: "Replace marks",
@@ -210,7 +212,6 @@ const Home: NextPage = () => {
                         <form
                             onSubmit={e => {
                                 setState({
-
                                     kind: "lobby",
                                     game: "tic_tac_toe",
                                     sessionId: state.sessionId,

@@ -1,7 +1,5 @@
 import React, {useState} from 'react'
 import {createTemplate} from "@/tic-tac-toe/api"
-import {PlayersList} from "@/components/Lobby";
-import {Gantari} from "next/dist/compiled/@next/font/dist/google";
 
 interface SquareProp {
     tsk: string
@@ -300,6 +298,5 @@ export function GameInfo({defState, setState1}: GameInfoProps) {
                 </button>
             </div>
         </div>
-
     )
 }

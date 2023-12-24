@@ -60,4 +60,6 @@ export type Request = {
     answer: string,
 } | {
     kind: "NEXT_QUESTION",
+} | {
+    kind: "START_GAME",
 }

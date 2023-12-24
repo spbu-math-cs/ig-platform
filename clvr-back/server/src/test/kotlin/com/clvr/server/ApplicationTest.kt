@@ -3,6 +3,8 @@ package com.clvr.server
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.configurePlatform
+import com.clvr.platform.api.lobby.EnterLobbyEvent
+import com.clvr.platform.api.lobby.StartGameEvent
 import com.clvr.platform.installActivity
 import com.clvr.ttt.*
 import com.clvr.ttt.common.Config
@@ -41,7 +43,7 @@ class ApplicationTest {
         val hostClient = getClient()
         val playerClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
 
         // Check initial event for host
         val initialEvent = hostSession.receiveResponse<SetFieldResponse>()
@@ -131,7 +133,7 @@ class ApplicationTest {
         val hostClient = getClient()
         val playerClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
         val playerSession = createPlayerWebSocketSession(playerClient, sessionId)
 
         hostSession.receiveResponse<SetFieldResponse>()
@@ -175,7 +177,7 @@ class ApplicationTest {
         setupServer()
         val hostClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
 
         hostSession.receiveResponse<SetFieldResponse>()
 
@@ -283,8 +285,11 @@ class ApplicationTest {
         }
     }
 
-    private suspend fun createHostWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
-        return client.webSocketSession("/ws/tic-tac-toe/host/${sessionId.id}")
+    private suspend fun createHostWebSocketSessionAndStartGame(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
+        val session = client.webSocketSession("/ws/tic-tac-toe/host/${sessionId.id}")
+        session.incoming.receive() // Receiving response with empty lobby
+        session.outgoing.send(Frame.Text(Json.encodeToString(StartGameEvent(sessionId))))
+        return session
     }
 
     private suspend fun createPlayerWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
