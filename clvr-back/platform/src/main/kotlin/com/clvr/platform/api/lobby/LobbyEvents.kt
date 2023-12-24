@@ -8,6 +8,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {  }
 
 sealed interface LobbyRequestEvent : RequestEvent {
     companion object {
@@ -15,6 +18,7 @@ sealed interface LobbyRequestEvent : RequestEvent {
             return try {
                 Json.decodeFromString<StartGameEvent>(jsonString)
             } catch (_: IllegalArgumentException) {
+                logger.trace { "Failed to decode event as LobbyEvent" }
                 null
             }
         }

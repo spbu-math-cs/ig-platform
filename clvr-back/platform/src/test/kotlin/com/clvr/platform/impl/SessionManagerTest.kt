@@ -4,6 +4,7 @@ import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.api.*
+import com.clvr.platform.api.lobby.StartGameEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -33,6 +34,8 @@ class SessionManagerTest {
                 override fun handleGameStart(communicator: SessionParticipantsCommunicator<DummyResponse>) = Unit
             }
         )
+
+        echoSessionManager.handleHostLobbyEvent(StartGameEvent(SessionId("1")))
 
         val firstClientChannel = echoSessionManager.registerClient("client-1")
         val hostChannel = echoSessionManager.hostChannel

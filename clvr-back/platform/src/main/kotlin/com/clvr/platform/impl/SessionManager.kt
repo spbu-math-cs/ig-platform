@@ -13,6 +13,9 @@ import com.clvr.platform.api.lobby.StartGameEvent
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     private val clvrGameController: ClvrGameController<Req, Resp>
@@ -24,19 +27,35 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     var gameStarted: Boolean = false
         private set
 
+    private fun checkGameStarted() {
+        if (!gameStarted) {
+            logger.warn { "Unexpected game-specific event when game is not started" }
+        }
+    }
+
+    private fun checkGameNotStarted() {
+        if (gameStarted) {
+            logger.warn { "Unexpected lobby event when game is started" }
+        }
+    }
+
     fun handleHostEvent(event: Req) {
+        checkGameStarted()
         clvrGameController.handle(this, event)
     }
 
     fun handleClientEvent(clientEndpoint: String, event: Req) {
+        checkGameStarted()
         clvrGameController.handleFromClient(this, clientEndpoint, event)
     }
 
     fun handleHostLobbyEvent(event: LobbyRequestEvent) {
+        checkGameNotStarted()
         lobbyGameController.handle(this, event)
     }
 
     fun handleClientLobbyEvent(clientEndpoint: String, event: LobbyRequestEvent) {
+        checkGameNotStarted()
         lobbyGameController.handleFromClient(this, clientEndpoint, event)
     }
 
