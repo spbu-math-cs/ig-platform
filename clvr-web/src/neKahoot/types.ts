@@ -20,6 +20,9 @@ export type Error = {
 export type GameState = {
     state: "_LOADING"
 } | {
+    state: "PREPARING"
+    players: {name: string}[]
+} | {
     state: "OPENED_QUESTION"
     question: string
     info?: {

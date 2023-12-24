@@ -2,7 +2,6 @@ import React, {useState} from 'react'
 import {OIcon} from 'tic-tac-toe/OIcon'
 import {XIcon} from 'tic-tac-toe/XIcon'
 import {GameId} from "@/pages"
-import {Request} from '@/tic-tac-toe/wsRequests'
 
 export type Team = "X" | "O" | undefined
 type Player = {
@@ -18,14 +17,14 @@ interface ChooseTeamModalProps {
     game: string
     players: Player[]
 
-    sendMessage: (msg: Request) => void
+    sendMessage: () => void
 }
 
 export const ChooseTeamModal = ({ChooseTeam, isHost, sessionId, players, game, sendMessage}: ChooseTeamModalProps) => {
     return (
         <div className={"relative w-[1000px]"}>
             <div className={"blur-lg"}>
-                <PlayersList game={game} sessionId={sessionId} players={players} isHost={isHost} sendMessage={sendMessage}/>
+                <PlayersList game={game} sessionId={sessionId} players={players} isHost={isHost} startGame={sendMessage}/>
             </div>
             <div className={"absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"}>
                 <div
@@ -96,10 +95,10 @@ interface PlayersListProps {
     game: string
     players: Player[]
 
-    sendMessage: (msg: Request) => void
+    startGame: () => void
 }
 
-export const PlayersList = ({isHost, sessionId, game, players, sendMessage}: PlayersListProps) => {
+export const PlayersList = ({isHost, sessionId, game, players, startGame}: PlayersListProps) => {
     return (
         <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square h-auto mt-8 pb-10 pt-4">
             <div className={`px-20 flex items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
@@ -114,9 +113,7 @@ export const PlayersList = ({isHost, sessionId, game, players, sendMessage}: Pla
                             </p>
                         </div>
                         {isHost ?
-                            <button onClick={() => sendMessage({
-                                type: "START_GAME"
-                            })}
+                            <button onClick={startGame}
                                     className={`button hover:ring-4 py-1 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
                                 START GAME
                             </button>
@@ -170,11 +167,11 @@ interface LobbyProps {
     game: GameId
     players: Player[]
 
-    sendMessage: (msg: Request) => void
+    startGame: () => void
 }
 
 
-export const Lobby = ({isHost, sessionId, game, players, sendMessage}: LobbyProps) => {
+export const Lobby = ({isHost, sessionId, game, players, startGame}: LobbyProps) => {
     const [Team, setTeam] = useState<Team>(undefined)
 
     function chooseTeam(t: Team) {
@@ -189,7 +186,7 @@ export const Lobby = ({isHost, sessionId, game, players, sendMessage}: LobbyProp
                         ChooseTeam={chooseTeam}
                         players={players}
                         game={game} sessionId={sessionId} isHost={isHost}
-                        sendMessage={sendMessage}
+                        sendMessage={startGame}
                     />
                 </div>
                 :
@@ -198,7 +195,7 @@ export const Lobby = ({isHost, sessionId, game, players, sendMessage}: LobbyProp
                     sessionId={sessionId}
                     isHost={isHost}
                     players={players}
-                    sendMessage={sendMessage}
+                    startGame={startGame}
                 />
             }
         </div>)

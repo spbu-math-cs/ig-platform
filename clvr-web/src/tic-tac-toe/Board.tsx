@@ -106,7 +106,8 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
             isHost={isHost}
             sessionId={sessionId}
             game="tic_tac_toe"
-            sendMessage={sendMessage}
+            players={game.players.map(p => ({name: p.name, team: undefined}))}
+            startGame={() => sendMessage({type: "START_GAME"})}
         />
     }
 

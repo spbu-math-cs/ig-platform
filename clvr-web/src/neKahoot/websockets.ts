@@ -74,6 +74,11 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                     return newErrors
             })
             }, 5000)
+        } else if (state == "PREPARING") {
+            setGameState({
+                state: state,
+                players: msg.payload.players
+            })
         }
     }, [lastJsonMessage])
 
