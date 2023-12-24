@@ -61,6 +61,7 @@ fun Application.configureAufRouting() {
                 call.sessions.get(cookieName) as UserCookie
             } catch (e: Exception) {
                 logger.error { "Failed to get cookie $e" }
+                call.respond(HttpStatusCode.Forbidden)
                 return@get
             }
 

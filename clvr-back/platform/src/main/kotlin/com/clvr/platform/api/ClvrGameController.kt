@@ -1,5 +1,7 @@
 package com.clvr.platform.api
 
+import com.clvr.platform.api.model.UserInfo
+
 interface ClvrGameController<Req: RequestEvent, Resp: ResponseEvent> {
     fun handleGameStart(communicator: SessionParticipantsCommunicator<Resp>)
 
@@ -12,4 +14,5 @@ interface SessionParticipantsCommunicator<in Resp: ResponseEvent>{
     fun sendToHost(event: Resp)
     fun sendToClients(event: Resp)
     fun sendToClient(clientEndpoint: String, event: Resp)
+    fun getClientInfo(clientEndpoint: String): UserInfo?
 }

@@ -9,10 +9,13 @@ import com.clvr.platform.api.SessionId
 import com.clvr.platform.impl.SessionManager
 import com.clvr.platform.api.lobby.EnterLobbyEvent
 import com.clvr.platform.api.lobby.LobbyRequestEvent
+import com.clvr.platform.api.model.UserCookie
+import com.clvr.platform.impl.aufManager
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.cancel
@@ -101,7 +104,9 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
     val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
     val sessionManager: SessionManager<Req, Resp> = sessionStorage.getSessionManager(sessionId)
     val gameView: ClvrGameView<Req, Resp> = sessionStorage.getGameView(sessionId)
-    val clientChannel = sessionManager.registerClient(clientEndpoint)
+    val userInfo = call.sessions.get(cookieName)?.let { application.aufManager.getUserInfoByCookie(it as UserCookie) }
+
+    val clientChannel = sessionManager.registerClient(clientEndpoint, userInfo)
     logger.info { "Client $clientEndpoint connected to game $sessionId" }
 
     if (sessionManager.gameStarted) {
