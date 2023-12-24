@@ -42,6 +42,7 @@ type Game<Options> = {
     gameIconPng?: string
 }
 
+// @ts-ignore
 const games: { [key in GameId]: Game<any> } = {
     tic_tac_toe: {
         id: "tic_tac_toe",
@@ -49,7 +50,7 @@ const games: { [key in GameId]: Game<any> } = {
         getTemplates: getTicTacToeTemplateList,
         defaultOptions: {
             replaceMarks: true,
-            openMultipleQuestions: true,
+            openMultipleQuestions: true
         },
         optionCaptions: {
             replaceMarks: "Replace marks",
@@ -323,7 +324,7 @@ const Home: NextPage = () => {
         const game = state.modal
         // @ts-ignore
         modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
-            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+            <div className={`px-8 flex flex-row justify-between w-[1000px] rounded-2xl bg-square space-x-96`}>
                 <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
                     CHOOSE EXISTING GAME
                 </p>
@@ -340,7 +341,7 @@ const Home: NextPage = () => {
             </div>
             <div
                 className="
-                    flex flex-col justify-items-start py-10 px-100 rounded
+                    flex flex-col justify-items-start py-10 px-8 rounded
                     mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
                     max-h-[60vh] bg-square">
                 {
@@ -394,15 +395,15 @@ const Home: NextPage = () => {
     }
 
     return <div
-        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
-        <div className={`flex flex-row justify-between items-center`}>
-            <div className="flex flex-row items-center ">
+        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen`}>
+        <div className={`flex flex-row justify-between items-center mt-0`}>
+            <div className="flex flex-row items-center mt-0 ">
                 <img src={
                     state.kind != "playing" && state.kind != "constructor" ? "/clover.PNG"
                         : games[state.game].gameIconPng || "/clover.PNG"}
                      className="h-20" alt={""}/>
                 <a href={"/"}>
-                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
+                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-2 text-primary`}>
                         C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
                     </h1>
                 </a>

@@ -30,9 +30,8 @@ function Square({tsk, ans, topic, onClick}: SquareProp) {
         <button
             className="flex-col py-3 px-3 space-y-2 h-[190px] w-[190px] items-start place-items-start text-txt font-bold bg-square rounded-2xl hover:bg-[#18272e]"
             onClick={onClick}>
-            <div className="w-full text-center h-5">{topic}</div>
-            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {tsk} </p>
-            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip overflow-hidden hyphens-auto"> {ans} </p>
+            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip text-xl overflow-hidden hyphens-auto"> {tsk} </p>
+            <p className="place-items-start text-left text-txt h-[80px] w-[170px] text-clip text-xl overflow-hidden hyphens-auto"> {ans} </p>
         </button>
     )
 }
@@ -42,7 +41,7 @@ interface EditBoardProps {
 }
 
 
-export function EditBoard({setState} : EditBoardProps) {
+export function EditBoard({setState}: EditBoardProps) {
     const [defState, setDefState] = useState<BoardState>({
         squares: Array(9).fill({
             question: '',
@@ -61,16 +60,16 @@ export function EditBoard({setState} : EditBoardProps) {
         return <Square
             onClick={() => setEditingNum(i)}
             topic={defState.squares[i].topic}
-            tsk={'Q: ' + defState.squares[i].question}
-            ans={'A: ' + defState.squares[i].answer}
+            tsk={'Q ' + defState.squares[i].question}
+            ans={'A ' + defState.squares[i].answer}
         />
     }
     return (
         !isCreated ?
-            <div className={`flex flex-col`}>
-                <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
+            <div className={`flex flex-col items-center py-0`}>
+                <div className="flex-row mt-6 w-screen rounded-lg mx-auto flex justify-center items-start space-x-16">
                     <div
-                        className="mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
+                        className="mt-20 flex h-[450px] ml-16 md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-2xl bg-back">
                         <div className="board-row">
                             {renderSquare(0)}
                             {renderSquare(1)}
@@ -216,19 +215,20 @@ export function EditBoard({setState} : EditBoardProps) {
                     </div>
                 </div>
                 <button
-                    className={`button hover:ring-4 py-1 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}
-                onClick={() => setIsCreated(true)}>
+                    className={`items-center mt-8 button hover:ring-4 py-1 w-[200px] h-16 hover:ring-cyan-300 rounded-2xl px-6 bg-[#f3b236] hover:bg-square`}
+                    onClick={() => setIsCreated(true)}>
                     CREATE GAME!
                 </button>
             </div> :
             <GameInfo setState1={setState}
                       defState={defState}
-                     ></GameInfo>
+            ></GameInfo>
     )
 }
 
 interface GameInfoProps {
     defState: BoardState
+
     setState1(): void
 }
 
@@ -240,42 +240,45 @@ export function GameInfo({defState, setState1}: GameInfoProps) {
                 <EditBoard setState={setState1}/>
             </div>
             <div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 py-8 flex-col space-y-10 w-[600px] rounded-2xl flex items-center justify-start h-auto bg-back">
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 py-8 flex-col space-y-8 w-[600px] h-auto rounded-2xl flex items-center justify-start bg-back">
                 <form
                     onChange={e => e.preventDefault()}
-                    onSubmit={e => e.preventDefault()}>
-                    <div
-                        className=" w-[300px] h-[150px] flex flex-col items-center justofy-center space-y-4 mx-auto">
-                        <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
-                            NAME </p>
-                        <input
-                            type="text"
-                            className={`breakWord border w-[500px] h-[150px] rounded-xl px-2 bg-panel outline-0
+                    onSubmit={e => e.preventDefault()}
+                    className={`flex-col space-y-8 flex`}>
+                    <div className=" w-[300px] h-auto flex flex-col items-center justify-center space-y-8 mx-auto">
+                        <div>
+                            <p className="text-3xl font-bold text-center text-createcol outline-none"> ENTER GAME
+                                NAME </p>
+                            <input
+                                type="text"
+                                className={`breakWord border w-[500px] h-[150px] rounded-xl px-2 bg-panel outline-0
                                     text-3xl font-bold text-center break-words text-txt outline-none `}
-                            onChange={e => {
-                                setState({
-                                    ...state,
-                                    gameName: e.currentTarget.value,
-                                })
-                            }}
-                        />
+                                onChange={e => {
+                                    setState({
+                                        ...state,
+                                        gameName: e.currentTarget.value,
+                                    })
+                                }}
+                            />
+                        </div>
                     </div>
-                    <div
-                        className=" w-[300px] h-[200px] flex flex-col items-center justofy-center mx-auto space-y-4">
-                        <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
-                            GAME
-                            DESCRIPTION </p>
-                        <textarea
-                            className={`breakWord border w-[500px] h-[200px] rounded-xl p-2 bg-panel outline-0
+                    <div className=" w-[300px] h-auto flex flex-col items-center justofy-center mx-auto space-y-4">
+                        <div>
+                            <p className="text-3xl font-bold w-[500px] text-center text-createcol outline-none"> ENTER
+                                GAME
+                                DESCRIPTION </p>
+                            <textarea
+                                className={`breakWord border w-[500px] h-[200px] rounded-xl p-2 bg-panel outline-0
                                     text-2xl font-bold text-center break-words text-txt outline-none `}
-                            onChange={e => {
-                                setState({
-                                    ...state,
-                                    gameDetails: e.currentTarget.value,
-                                })
-                            }}
-                        />
-                    </div>
+                                onChange={e => {
+                                    setState({
+                                        ...state,
+                                        gameDetails: e.currentTarget.value,
+                                    })
+                                }}
+                            />
+                        </div>
+                        </div>
                 </form>
 
                 <button onClick={() => {
@@ -292,7 +295,7 @@ export function GameInfo({defState, setState1}: GameInfoProps) {
                         })),
                     }).then(setState1())
                 }}
-                        className={`px-8 button hover:ring-4 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
+                        className={`px-8 button hover:ring-4 mt-0 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
                     CREATE GAME
                 </button>
             </div>
