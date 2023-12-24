@@ -1,7 +1,5 @@
 import React, {useState} from 'react'
 import {createTemplate} from "@/tic-tac-toe/api"
-import {PlayersList} from "@/components/Lobby";
-import {Gantari} from "next/dist/compiled/@next/font/dist/google";
 
 interface SquareProp {
     tsk: string
@@ -37,11 +35,11 @@ function Square({tsk, ans, topic, onClick}: SquareProp) {
 }
 
 interface EditBoardProps {
-    setState(): void
+    onCreate(): void
 }
 
 
-export function EditBoard({setState}: EditBoardProps) {
+export function EditBoard({onCreate}: EditBoardProps) {
     const [defState, setDefState] = useState<BoardState>({
         squares: Array(9).fill({
             question: '',
@@ -220,7 +218,7 @@ export function EditBoard({setState}: EditBoardProps) {
                     CREATE GAME!
                 </button>
             </div> :
-            <GameInfo setState1={setState}
+            <GameInfo onCreate={onCreate}
                       defState={defState}
             ></GameInfo>
     )
@@ -229,15 +227,15 @@ export function EditBoard({setState}: EditBoardProps) {
 interface GameInfoProps {
     defState: BoardState
 
-    setState1(): void
+    onCreate(): void
 }
 
-export function GameInfo({defState, setState1}: GameInfoProps) {
+export function GameInfo({defState, onCreate}: GameInfoProps) {
     const [state, setState] = useState<BoardState>(defState)
     return (
         <div className={`relative w-[1000px]`}>
             <div className={"blur-2xl pointer-events-none"}>
-                <EditBoard setState={setState1}/>
+                <EditBoard onCreate={onCreate}/>
             </div>
             <div
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 py-8 flex-col space-y-8 w-[600px] h-auto rounded-2xl flex items-center justify-start bg-back">
@@ -293,7 +291,7 @@ export function GameInfo({defState, setState1}: GameInfoProps) {
                             hints: square.hints,
                             topic: square.topic,
                         })),
-                    }).then(setState1())
+                    }).then(onCreate)
                 }}
                         className={`px-8 button hover:ring-4 mt-0 py-3  mx-auto text-center rounded-2xl bg-[#f3b236] hover:bg-panel`}>
                     CREATE GAME

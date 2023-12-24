@@ -3,6 +3,7 @@ import {OIcon} from './OIcon'
 import {XIcon} from './XIcon'
 import {useServerState} from "@/tic-tac-toe/websockets"
 import {ErrorSnackbar} from '@/components/Errors'
+import {Lobby} from "@/components/Lobby"
 
 const rows = 3
 const cols = 3
@@ -41,7 +42,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
     function value(i: number) {
         let value
         let board
-        if (game.state !== "_LOADING") {
+        if (game.state !== "_LOADING" && game.state !== "PREPARING") {
             board = game.board
         }
 
@@ -98,6 +99,15 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
 
     function setO() {
         setCurrentPlayer("O")
+    }
+
+    if (game.state == "PREPARING") {
+        return <Lobby
+            isHost={isHost}
+            sessionId={sessionId}
+            game="tic_tac_toe"
+            sendMessage={sendMessage}
+        />
     }
 
     return (

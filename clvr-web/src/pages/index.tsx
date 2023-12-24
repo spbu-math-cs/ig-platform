@@ -18,7 +18,7 @@ import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
 import {Lobby} from "@/components/Lobby";
 
-type GameId = "tic_tac_toe" | "nekahoot"
+export type GameId = "tic_tac_toe" | "nekahoot"
 
 type GameComponentProps = {
     sessionId: string
@@ -91,11 +91,6 @@ type AppState = {
 } | {
     kind: "constructor"
     game: GameId
-} | {
-    kind: "lobby"
-    game: GameId
-    sessionId: string
-    isHost: boolean
 }
 
 export type AppAction = {
@@ -210,8 +205,7 @@ const Home: NextPage = () => {
                         <form
                             onSubmit={e => {
                                 setState({
-
-                                    kind: "lobby",
+                                    kind: "playing",
                                     game: "tic_tac_toe",
                                     sessionId: state.sessionId,
                                     isHost: false,
@@ -301,18 +295,9 @@ const Home: NextPage = () => {
             console.error("No constructor available (should be unreachable)")
         } else {
             content = <EditBoard
-                setState = {() => setState({kind: "main_page", sessionId: "", modal: undefined})} />
+                onCreate= {() => setState({kind: "main_page", sessionId: "", modal: undefined})} />
 
         }
-    } else if (state.kind == "lobby") {
-        content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}
-        setState = {() => setState({
-                kind: "playing",
-                game: state.game,
-                sessionId: state.sessionId,
-                isHost: true,
-            })
-        }/>
     } else {
         checkExhausted(state)
     }
@@ -363,7 +348,7 @@ const Home: NextPage = () => {
                                 handleSelect={async (id: string) => {
                                     const sessionId = (await games[game].createGame(id, options[game])).id
                                     setState({
-                                        kind: "lobby",
+                                        kind: "playing",
                                         game: game,
                                         sessionId: sessionId,
                                         isHost: true

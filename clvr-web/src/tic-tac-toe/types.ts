@@ -87,6 +87,9 @@ export type GameConfig = {
 export type GameState = {
     state: "_LOADING"
 } | {
+    state: "PREPARING"
+    players: {name: string}[]
+} | {
     state: "MAIN_BOARD"
     board: Board
 } | {

@@ -101,13 +101,23 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                     return newErrors
             })
             }, 5000)
+        } else if (state == "PREPARING") {
+            setGameState({
+                state: state,
+                players: msg.payload.players,
+            })
         }
     }, [lastJsonMessage])
 
     return [gameState, errors, (action: Request) => {
         let request: any
 
-        if (action.type == "OPEN_QUESTION") {
+        if (action.type == "START_GAME") {
+            request = {
+                session: session,
+                type: "START_GAME",
+            }
+        } else if (action.type == "OPEN_QUESTION") {
             request = {
                 session: session,
                 type: "OPEN_QUESTION",
