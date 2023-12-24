@@ -74,13 +74,13 @@ data class HostQuestionView(
     val answered: Int,
 ) {
     companion object {
-        fun fromGameState(game: GameState): HostQuestionView =
+        fun fromGameState(game: GameState, timestamp: Long): HostQuestionView =
             HostQuestionView(
                 game.getQuestion(),
                 game.getAnswer(),
                 game.getAnswerDescription(),
                 game.getAnswerOptions(),
-                game.getTime(),
+                game.getLeftTime(timestamp),
                 game.getNumberOfAnswers(),
             )
     }
@@ -96,11 +96,11 @@ data class ClientQuestionView(
     val givenAnswer: String,
 ) {
     companion object {
-        fun fromGameState(game: GameState, clientName: String? = null): ClientQuestionView =
+        fun fromGameState(game: GameState, timestamp: Long, clientName: String? = null): ClientQuestionView =
             ClientQuestionView(
                 game.getQuestion(),
                 game.getAnswerOptions(),
-                game.getTime(),
+                game.getLeftTime(timestamp),
                 game.getAnswerOfPlayer(clientName),
             )
     }
