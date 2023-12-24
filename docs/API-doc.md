@@ -502,9 +502,33 @@ CONNECT ws/tic-tac-toe/board/{session_id}
 
 ## Game session as client 
 
-CONNECT /ws/tic-tac-toe/player/{session_id}/{team}
+CONNECT /ws/tic-tac-toe/player/{session_id}/
 
-Здесь и далее `team` это X или O. 
+### Choose team
+
+#### Request
+```json
+{
+  "session": {
+    "id": "<session_id>"
+  }
+  "type": "TEAM_SELECTION"
+  "payload": {
+    "team": "<X or O>"
+  }
+}
+```
+
+#### Response (to host and clients)
+```json
+{
+  "state": "TEAM_SELECTED",
+  "payload": {
+    "player": "<player name>",
+    "team": "<X or O>"
+  }
+}
+```
 
 ### Press Button
 
