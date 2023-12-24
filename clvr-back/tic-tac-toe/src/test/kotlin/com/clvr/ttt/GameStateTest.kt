@@ -2,7 +2,7 @@ package com.clvr.ttt
 
 import com.clvr.ttt.common.Config
 import com.clvr.ttt.common.OpenMultipleQuestions
-import com.clvr.ttt.common.QuizQuestion
+import com.clvr.ttt.common.TemplateQuestion
 import com.clvr.ttt.common.ReplaceMarks
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -71,7 +71,7 @@ class GameStateTest {
     fun testChangeQuestion() {
         val gameState = GameState(quiz, config)
         
-        gameState.changeQuestion(1, 1, QuizQuestion("a", "a", "a", listOf()))
+        gameState.changeQuestion(1, 1, TemplateQuestion("a", "a", "a", listOf()))
         assertEquals("a", gameState.getQuestionAnswer(1, 1))
     }
 

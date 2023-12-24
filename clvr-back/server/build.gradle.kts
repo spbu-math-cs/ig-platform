@@ -14,6 +14,7 @@ application {
 dependencies {
     implementation(project(":platform"))
     implementation(project(":tic-tac-toe"))
+    implementation(project(":nekahoot"))
 
     implementation(libs.postgres)
     implementation(libs.h2)
@@ -26,6 +27,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.tls)
 
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.ktor.client.contentNegotiation)

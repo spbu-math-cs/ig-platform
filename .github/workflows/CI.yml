@@ -77,8 +77,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./tic-tac-toe-web
+        working-directory: ./clvr-web
 
       - name: Build Web
         run: npm run build
-        working-directory: ./tic-tac-toe-web
+        working-directory: ./clvr-web

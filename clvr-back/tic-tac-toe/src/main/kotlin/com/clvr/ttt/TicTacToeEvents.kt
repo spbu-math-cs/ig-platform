@@ -1,8 +1,8 @@
 package com.clvr.ttt
 
-import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
+import com.clvr.platform.api.SessionId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -10,30 +10,53 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-sealed interface TicTacToeRequestPayload: EventPayloadInterface
+sealed interface TicTacToeRequestPayload {
+    val type: String
+}
 
-sealed interface TicTacToeResponsePayload: EventPayloadInterface
+sealed interface TicTacToeResponsePayload {
+    val state: String
+}
 
-// TODO: remove this method and implement normal one
-@Suppress("UNCHECKED_CAST")
-fun encodeTTTEventToJson(event: ResponseEvent<TicTacToeResponsePayload>): String {
-    return when (event.payload) {
-        is HostQuestionResponse -> Json.encodeToString(event as ResponseEvent<HostQuestionResponse>)
-        is ClientQuestionResponse -> Json.encodeToString(event as ResponseEvent<ClientQuestionResponse>)
-        is SetFieldResponse -> Json.encodeToString(event as ResponseEvent<SetFieldResponse>)
-        is ShowAnswerResponse -> Json.encodeToString(event as ResponseEvent<ShowAnswerResponse>)
-        is GameError -> Json.encodeToString(event as ResponseEvent<GameError>)
+// The hack with private constructor is used to ensure that properties are serialized in correct order,
+//  but type is pre-defined by payload
+@Serializable
+data class TicTacToeRequest<T: TicTacToeRequestPayload> private constructor (
+    override val session: SessionId,
+    override val type: String,
+    val payload: T,
+): RequestEvent {
+    constructor(session: SessionId, payload: T): this(session, payload.type, payload)
+}
+
+@Serializable
+data class TicTacToeResponse<T: TicTacToeResponsePayload> private constructor (
+    override val state: String,
+    val payload: T
+): ResponseEvent {
+    constructor(payload: T): this(payload.state, payload)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun encodeToJson(json: Json): String {
+        return when (payload) {
+            is HostQuestionResponse -> json.encodeToString(this as TicTacToeResponse<HostQuestionResponse>)
+            is ClientQuestionResponse -> json.encodeToString(this as TicTacToeResponse<ClientQuestionResponse>)
+            is SetFieldResponse -> json.encodeToString(this as TicTacToeResponse<SetFieldResponse>)
+            is ShowAnswerResponse -> json.encodeToString(this as TicTacToeResponse<ShowAnswerResponse>)
+            is GameError -> json.encodeToString(this as TicTacToeResponse<GameError>)
+            else -> error("Unexpected payload $payload")
+        }
     }
 }
 
-fun decodeJsonToTTTEvent(jsonString: String): RequestEvent<TicTacToeRequestPayload> {
+fun decodeJsonToTTTEvent(jsonString: String): TicTacToeRequest<*> {
     val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
     return when (jsonObject["type"]!!.jsonPrimitive.content) {
-        QuestionRequest.type -> Json.decodeFromString<RequestEvent<QuestionRequest>>(jsonString)
-        SetFieldRequest.type -> Json.decodeFromString<RequestEvent<SetFieldRequest>>(jsonString)
-        NextHintRequest.type -> Json.decodeFromString<RequestEvent<NextHintRequest>>(jsonString)
-        ShowAnswerRequest.type -> Json.decodeFromString<RequestEvent<ShowAnswerRequest>>(jsonString)
+        QuestionRequest.type -> Json.decodeFromString<TicTacToeRequest<QuestionRequest>>(jsonString)
+        SetFieldRequest.type -> Json.decodeFromString<TicTacToeRequest<SetFieldRequest>>(jsonString)
+        NextHintRequest.type -> Json.decodeFromString<TicTacToeRequest<NextHintRequest>>(jsonString)
+        ShowAnswerRequest.type -> Json.decodeFromString<TicTacToeRequest<ShowAnswerRequest>>(jsonString)
         else -> error("Request expected")
     }
 }
@@ -133,10 +156,10 @@ data class HostQuestionResponse(
     @SerialName("board")
     val boardView: BoardView
 ): TicTacToeResponsePayload {
-    override val type: String = Companion.type
+    override val state: String = Companion.state
 
     companion object {
-        const val type: String = "OPENED_QUESTION_HOST"
+        const val state: String = "OPENED_QUESTION_HOST"
     }
 }
 
@@ -148,10 +171,10 @@ data class ClientQuestionResponse(
     @SerialName("board")
     val boardView: BoardView
 ): TicTacToeResponsePayload {
-    override val type: String = Companion.type
+    override val state: String = Companion.state
 
     companion object {
-        const val type: String = "OPENED_QUESTION_CLIENT"
+        const val state: String = "OPENED_QUESTION_CLIENT"
     }
 }
 
@@ -159,7 +182,7 @@ data class ClientQuestionResponse(
 data class SetFieldRequest(
     val row: Int,
     val column: Int,
-    val mark: CellContent
+    val mark: CellContent,
 ): TicTacToeRequestPayload {
     override val type: String = Companion.type
 
@@ -175,10 +198,10 @@ data class SetFieldResponse(
     @SerialName("board")
     val boardView: BoardView
 ): TicTacToeResponsePayload {
-    override val type: String = Companion.type
+    override val state: String = Companion.state
 
     companion object {
-        const val type: String = "MAIN_BOARD"
+        const val state: String = "MAIN_BOARD"
     }
 }
 
@@ -213,18 +236,18 @@ data class ShowAnswerResponse(
     @SerialName("board")
     val boardView: BoardView
 ) : TicTacToeResponsePayload {
-    override val type: String = Companion.type
+    override val state: String = Companion.state
 
     companion object {
-        const val type: String = "OPENED_QUESTION_WITH_ANSWER"
+        const val state: String = "OPENED_QUESTION_WITH_ANSWER"
     }
 }
 
 @Serializable
 data class GameError(val message: String) : TicTacToeResponsePayload {
-    override val type: String = Companion.type
+    override val state: String = Companion.state
 
     companion object {
-        const val type: String = "ERROR"
+        const val state: String = "ERROR"
     }
 }

@@ -1,15 +1,15 @@
 package com.clvr.server
 
 import com.clvr.platform.api.TemplateId
-import com.clvr.platform.api.RequestEvent
-import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.configurePlatform
+import com.clvr.platform.api.lobby.EnterLobbyEvent
+import com.clvr.platform.api.lobby.StartGameEvent
 import com.clvr.platform.installActivity
 import com.clvr.ttt.*
 import com.clvr.ttt.common.Config
 import com.clvr.ttt.common.OpenMultipleQuestions
-import com.clvr.ttt.common.QuizCompleteInfo
+import com.clvr.ttt.common.TemplateCompleteInfo
 import com.clvr.ttt.common.ReplaceMarks
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
-// TODO: add test quiz description to test/resources & read it from file; do not use hard-coded strings for tests
+// TODO: add test template description to test/resources & read it from file; do not use hard-coded strings for tests
 class ApplicationTest {
     @Test
     fun `test events simple`() = testApplication {
@@ -43,7 +43,7 @@ class ApplicationTest {
         val hostClient = getClient()
         val playerClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
 
         // Check initial event for host
         val initialEvent = hostSession.receiveResponse<SetFieldResponse>()
@@ -52,7 +52,7 @@ class ApplicationTest {
         (0..8).forEach { assertEquals(CellContent.NOT_OPENED, initialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Set field event
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(1, 1, CellContent.X)))
         val setFieldEvent = hostSession.receiveResponse<SetFieldResponse>()
         assertEquals(GameResult.EMPTY, setFieldEvent.payload.win)
         assertEquals(CellContent.X, setFieldEvent.payload.boardView.cellStateViews[4].mark)
@@ -67,7 +67,7 @@ class ApplicationTest {
         (0..8).forEach { if (it != 4) assertEquals(CellContent.NOT_OPENED, playerInitialEvent.payload.boardView.cellStateViews[it].mark) }
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 1)))
         var openedQuestionHostEvent = hostSession.receiveResponse<HostQuestionResponse>()
         assertEquals(0, openedQuestionHostEvent.payload.questionView.row)
         assertEquals(1, openedQuestionHostEvent.payload.questionView.column)
@@ -84,7 +84,7 @@ class ApplicationTest {
         assertEquals(0, openedQuestionPlayerEvent.payload.questionView.currentHints.size)
 
         // Show next hint
-        hostSession.sendRequest(RequestEvent(sessionId, NextHintRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, NextHintRequest(0, 1)))
         openedQuestionHostEvent = hostSession.receiveResponse<HostQuestionResponse>()
         assertEquals(0, openedQuestionHostEvent.payload.questionView.row)
         assertEquals(1, openedQuestionHostEvent.payload.questionView.column)
@@ -99,7 +99,7 @@ class ApplicationTest {
         assertEquals(listOf("hint: На каком языке написана следующая программа"), openedQuestionPlayerEvent.payload.questionView.currentHints)
 
         // Show answer
-        hostSession.sendRequest(RequestEvent(sessionId, ShowAnswerRequest(0, 1)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, ShowAnswerRequest(0, 1)))
         val questionAnswerHostEvent = hostSession.receiveResponse<ShowAnswerResponse>()
         assertEquals(0, questionAnswerHostEvent.payload.question.row)
         assertEquals(1, questionAnswerHostEvent.payload.question.column)
@@ -110,16 +110,16 @@ class ApplicationTest {
         assertEquals(questionAnswerHostEvent, questionAnswerPlayerEvent)
 
         // Make win X win
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.X)))
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(2, 2, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(2, 2, CellContent.X)))
         hostSession.receiveResponse<SetFieldResponse>() // skip
-        val finalHostResponseEvent = hostSession.receiveResponse<SetFieldResponse>()
-        assertEquals(GameResult.X, finalHostResponseEvent.payload.win)
+        val finalHostTicTacToeResponse = hostSession.receiveResponse<SetFieldResponse>()
+        assertEquals(GameResult.X, finalHostTicTacToeResponse.payload.win)
 
         // Check client receives events with game result
         playerSession.receiveResponse<SetFieldResponse>() // skip
-        val finalPlayerResponseEvent = playerSession.receiveResponse<SetFieldResponse>()
-        assertEquals(GameResult.X, finalPlayerResponseEvent.payload.win)
+        val finalPlayerTicTacToeResponse = playerSession.receiveResponse<SetFieldResponse>()
+        assertEquals(GameResult.X, finalPlayerTicTacToeResponse.payload.win)
     }
 
     @Test
@@ -133,19 +133,19 @@ class ApplicationTest {
         val hostClient = getClient()
         val playerClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
         val playerSession = createPlayerWebSocketSession(playerClient, sessionId)
 
         hostSession.receiveResponse<SetFieldResponse>()
         playerSession.receiveResponse<SetFieldResponse>()
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 0)))
         hostSession.receiveResponse<HostQuestionResponse>()
         playerSession.receiveResponse<ClientQuestionResponse>()
 
         // Set other cell => error
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(1, 1, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(1, 1, CellContent.X)))
         assertEquals(
             "Set mark in the opened cell before opening the next one",
             hostSession.receiveResponse<GameError>().payload.message
@@ -153,12 +153,12 @@ class ApplicationTest {
         assertTrue(playerSession.incoming.isEmpty)
 
         // Set correct cell
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.X)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.X)))
         hostSession.receiveResponse<SetFieldResponse>()
         playerSession.receiveResponse<SetFieldResponse>()
 
         // Set that cell again => error
-        hostSession.sendRequest(RequestEvent(sessionId, SetFieldRequest(0, 0, CellContent.O)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, SetFieldRequest(0, 0, CellContent.O)))
         assertEquals(
             "Changing result in the cell is forbidden",
             hostSession.receiveResponse<GameError>().payload.message
@@ -177,12 +177,12 @@ class ApplicationTest {
         setupServer()
         val hostClient = getClient()
         val sessionId = SessionId(createGameSession(hostClient, config))
-        val hostSession = createHostWebSocketSession(hostClient, sessionId)
+        val hostSession = createHostWebSocketSessionAndStartGame(hostClient, sessionId)
 
         hostSession.receiveResponse<SetFieldResponse>()
 
         // Open question
-        hostSession.sendRequest(RequestEvent(sessionId, QuestionRequest(0, 0)))
+        hostSession.sendRequest(TicTacToeRequest(sessionId, QuestionRequest(0, 0)))
         hostSession.receiveResponse<HostQuestionResponse>()
 
         // New client connects
@@ -199,24 +199,24 @@ class ApplicationTest {
     }
 
     @Test
-    fun `quizzes creation api test`() = testApplication {
+    fun `templates creation api test`() = testApplication {
                 setupServer()
         val client = getClient()
 
-        val quizId = createQuiz(client)
-        val quiz = client
-            .get("/tic-tac-toe/quiz-list/${quizId.id}")
-            .body<QuizCompleteInfo>()
+        val templateId = createTemplate(client)
+        val template = client
+            .get("/tic-tac-toe/template/${templateId.id}")
+            .body<TemplateCompleteInfo>()
 
-        assertEquals(quizId.id, quiz.id)
-        assertEquals("template name", quiz.name)
-        assertEquals("template comment", quiz.comment)
-        assertEquals(createTemplate.board, quiz.board)
+        assertEquals(templateId.id, template.id)
+        assertEquals("template name", template.name)
+        assertEquals("template comment", template.comment)
+        assertEquals(createTemplate.board, template.board)
 
-        deleteQuiz(client, quizId)
+        deleteTemplate(client, templateId)
         assertEquals(
             HttpStatusCode.NotFound,
-            client.get("/tic-tac-toe/quiz-list/${quizId.id}").status
+            client.get("/tic-tac-toe/template/${templateId.id}").status
         )
     }
 
@@ -225,57 +225,57 @@ class ApplicationTest {
         setupServer()
         val client = getClient()
 
-        val quizList = client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList
-        assertEquals(1, quizList.size)
-        assertEquals("Random template", quizList[0].name)
-        assertEquals("ABCD", quizList[0].id)
-        assertEquals("", quizList[0].comment)
+        val templateList = client.get("/tic-tac-toe/template-list").body<TemplateListResponse>().templateList
+        assertEquals(1, templateList.size)
+        assertEquals("Random template", templateList[0].name)
+        assertEquals("ABCD", templateList[0].id)
+        assertEquals("", templateList[0].comment)
 
-        assertEquals(HttpStatusCode.NotFound, client.get("/tic-tac-toe/quiz-list/KEK").status)
-        assertEquals(HttpStatusCode.OK, client.get("/tic-tac-toe/quiz-list/ABCD").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/tic-tac-toe/template/KEK").status)
+        assertEquals(HttpStatusCode.OK, client.get("/tic-tac-toe/template/ABCD").status)
 
-        val quizInfo = client.get("/tic-tac-toe/quiz-list/ABCD").body<QuizCompleteInfo>()
-        assertEquals("ABCD", quizInfo.id)
+        val templateInfo = client.get("/tic-tac-toe/template/ABCD").body<TemplateCompleteInfo>()
+        assertEquals("ABCD", templateInfo.id)
 
-        val addedId = createQuiz(client).id
+        val addedId = createTemplate(client).id
 
-        assertEquals(2, client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList.size)
+        assertEquals(2, client.get("/tic-tac-toe/template-list").body<TemplateListResponse>().templateList.size)
 
-        deleteQuiz(client, TicTacToeInstaller.templateId("ABCD"))
+        deleteTemplate(client, TicTacToeInstaller.templateId("ABCD"))
 
-        val quizListAfterUpdates = client.get("/tic-tac-toe/quiz-list").body<QuizListResponse>().quizList
-        assertEquals(1, quizListAfterUpdates.size)
-        assertEquals(addedId, quizListAfterUpdates[0].id)
+        val templateListAfterUpdates = client.get("/tic-tac-toe/template-list").body<TemplateListResponse>().templateList
+        assertEquals(1, templateListAfterUpdates.size)
+        assertEquals(addedId, templateListAfterUpdates[0].id)
 
-        assertEquals(HttpStatusCode.OK, client.get("/tic-tac-toe/quiz-list/$addedId").status)
-        assertEquals(HttpStatusCode.NotFound, client.get("/tic-tac-toe/quiz-list/ABCD").status)
+        assertEquals(HttpStatusCode.OK, client.get("/tic-tac-toe/template/$addedId").status)
+        assertEquals(HttpStatusCode.NotFound, client.get("/tic-tac-toe/template/ABCD").status)
     }
 
-    private suspend fun createQuiz(client: HttpClient): TemplateId {
-        client.post("/tic-tac-toe/api/quiz") {
+    private suspend fun createTemplate(client: HttpClient): TemplateId {
+        client.post("/tic-tac-toe/template") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createTemplate))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
             val jsonObject: JsonObject = Json.decodeFromString(bodyAsText())
-            val quiz = jsonObject["quiz-id"] as JsonObject
+            val template = jsonObject["id"] as JsonObject
             return TicTacToeInstaller.templateId(
-                quiz["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null")
+                template["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("id cannot be null")
             )
         }
     }
 
-    private suspend fun deleteQuiz(client: HttpClient, templateId: TemplateId) {
-        client.delete("/tic-tac-toe/api/quiz/${templateId.id}").apply {
+    private suspend fun deleteTemplate(client: HttpClient, templateId: TemplateId) {
+        client.delete("/tic-tac-toe/template/${templateId.id}").apply {
             assertEquals(HttpStatusCode.OK, status)
         }
     }
 
     private suspend fun createGameSession(client: HttpClient, config: Config): String {
-        client.post("/tic-tac-toe/api/game-session") {
+        client.post("/tic-tac-toe/game") {
             contentType(ContentType.Application.Json)
-            setBody(QuizRequest("ABCD", config))
+            setBody(TemplateRequest("ABCD", config))
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
 
@@ -285,8 +285,11 @@ class ApplicationTest {
         }
     }
 
-    private suspend fun createHostWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
-        return client.webSocketSession("/ws/tic-tac-toe/host/${sessionId.id}")
+    private suspend fun createHostWebSocketSessionAndStartGame(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
+        val session = client.webSocketSession("/ws/tic-tac-toe/host/${sessionId.id}")
+        session.incoming.receive() // Receiving response with empty lobby
+        session.outgoing.send(Frame.Text(Json.encodeToString(StartGameEvent(sessionId))))
+        return session
     }
 
     private suspend fun createPlayerWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
@@ -296,12 +299,12 @@ class ApplicationTest {
     private fun ApplicationTestBuilder.setupServer() {
         application {
             configurePlatform()
-            installActivity(TicTacToeInstaller(listOf(testQuizFile)))
+            installActivity(TicTacToeInstaller(listOf(testTemplateFile)))
         }
     }
 
-    private val testQuizFile = File(
-        Application::class.java.classLoader.getResource("applicationTestQuizCollection.json")!!.toURI()
+    private val testTemplateFile = File(
+        Application::class.java.classLoader.getResource("applicationTestTemplateCollection.json")!!.toURI()
     )
 
     private fun ApplicationTestBuilder.getClient(): HttpClient {
@@ -313,38 +316,38 @@ class ApplicationTest {
         }
     }
 
-    private suspend fun ClientWebSocketSession.sendRequest(event: RequestEvent<TicTacToeRequestPayload>) {
-        outgoing.send(Frame.Text(encodeRequestEventToJson(event)))
+    private suspend fun ClientWebSocketSession.sendRequest(event: TicTacToeRequest<TicTacToeRequestPayload>) {
+        outgoing.send(Frame.Text(encodeTicTacToeRequestToJson(event)))
     }
 
     @Suppress("UNCHECKED_CAST")
-    private suspend inline fun <reified T: TicTacToeResponsePayload> ClientWebSocketSession.receiveResponse(): ResponseEvent<T> {
+    private suspend inline fun <reified T: TicTacToeResponsePayload> ClientWebSocketSession.receiveResponse(): TicTacToeResponse<T> {
         val frame = incoming.receive()
         assertTrue(frame is Frame.Text)
         val event = decodeResponseJsonToEvent((frame as Frame.Text).readText())
         assertTrue(event.payload is T)
-        return event as ResponseEvent<T>
+        return event as TicTacToeResponse<T>
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun encodeRequestEventToJson(event: RequestEvent<TicTacToeRequestPayload>): String {
+    private fun encodeTicTacToeRequestToJson(event: TicTacToeRequest<TicTacToeRequestPayload>): String {
         return when (event.payload) {
-            is QuestionRequest -> Json.encodeToString(event as RequestEvent<QuestionRequest>)
-            is SetFieldRequest -> Json.encodeToString(event as RequestEvent<SetFieldRequest>)
-            is NextHintRequest -> Json.encodeToString(event as RequestEvent<NextHintRequest>)
-            is ShowAnswerRequest -> Json.encodeToString(event as RequestEvent<ShowAnswerRequest>)
+            is QuestionRequest -> Json.encodeToString(event as TicTacToeRequest<QuestionRequest>)
+            is SetFieldRequest -> Json.encodeToString(event as TicTacToeRequest<SetFieldRequest>)
+            is NextHintRequest -> Json.encodeToString(event as TicTacToeRequest<NextHintRequest>)
+            is ShowAnswerRequest -> Json.encodeToString(event as TicTacToeRequest<ShowAnswerRequest>)
         }
     }
 
-    private fun decodeResponseJsonToEvent(jsonString: String): ResponseEvent<TicTacToeResponsePayload> {
+    private fun decodeResponseJsonToEvent(jsonString: String): TicTacToeResponse<*> {
         val jsonObject: JsonObject = Json.decodeFromString(jsonString)
 
         return when (jsonObject["state"]!!.jsonPrimitive.content) {
-            HostQuestionResponse.type -> Json.decodeFromString<ResponseEvent<HostQuestionResponse>>(jsonString)
-            ClientQuestionResponse.type -> Json.decodeFromString<ResponseEvent<ClientQuestionResponse>>(jsonString)
-            SetFieldResponse.type -> Json.decodeFromString<ResponseEvent<SetFieldResponse>>(jsonString)
-            ShowAnswerResponse.type -> Json.decodeFromString<ResponseEvent<ShowAnswerResponse>>(jsonString)
-            GameError.type -> Json.decodeFromString<ResponseEvent<GameError>>(jsonString)
+            HostQuestionResponse.state -> Json.decodeFromString<TicTacToeResponse<HostQuestionResponse>>(jsonString)
+            ClientQuestionResponse.state -> Json.decodeFromString<TicTacToeResponse<ClientQuestionResponse>>(jsonString)
+            SetFieldResponse.state -> Json.decodeFromString<TicTacToeResponse<SetFieldResponse>>(jsonString)
+            ShowAnswerResponse.state -> Json.decodeFromString<TicTacToeResponse<ShowAnswerResponse>>(jsonString)
+            GameError.state -> Json.decodeFromString<TicTacToeResponse<GameError>>(jsonString)
             else -> error("Response expected")
         }
     }

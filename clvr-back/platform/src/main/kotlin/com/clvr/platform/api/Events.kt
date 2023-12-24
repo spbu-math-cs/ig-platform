@@ -1,29 +1,17 @@
 package com.clvr.platform.api
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
-interface EventPayloadInterface {
+sealed interface Event
+
+interface RequestEvent : Event {
+    val session: SessionId
+
     val type: String
 }
 
-// TODO: this doesn't allow payload = null (issue #93)
-sealed interface Event<out T: EventPayloadInterface> {
-    val payload: T
-}
+interface ResponseEvent {
+    val state: String
 
-@Serializable
-data class RequestEvent<out T: EventPayloadInterface> private constructor (
-    val session: SessionId,
-    val type: String,
-    override val payload: T
-): Event<T> {
-    constructor(session: SessionId, payload: T): this(session, payload.type, payload)
-}
-
-@Serializable
-data class ResponseEvent<out T: EventPayloadInterface> private constructor (
-    val state: String,
-    override val payload: T
-): Event<T> {
-    constructor(payload: T): this(payload.type, payload)
+    fun encodeToJson(json: Json): String
 }

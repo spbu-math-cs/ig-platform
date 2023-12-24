@@ -624,7 +624,7 @@ GET /nekahoot/template/{template-id}
     "answer": "<answer>",
     "answer_description": "<description for answer (optional)>",
     "answer_options": ["<option1>", "<option2>", ...],
-    "time": "<time for question in seconds>"
+    "time": "<time for question in milliseconds>"
   }, ...]
 }
 ```
@@ -648,7 +648,7 @@ POST /nekahoot/template
     "answer": "<answer>",
     "answer_description": "<description for answer (optional)>",
     "answer_options": ["<option1>", "<option2>", ...],
-    "time": "<time for question in seconds>"
+    "time": "<time for question in milliseconds>"
   }, ...]
 }
 ```
@@ -722,7 +722,7 @@ CONNECT /ws/nekahoot/host/{session_id}
       "answer": "<answer>",
       "answer_description": "<description for answer (optional)>",
       "answer_options": ["<option1>", "<option2>", ...],
-      "time": "<left time for question in seconds>",
+      "time": "<left time for question in milliseconds>",
       "answered": "<number of people who already answered question>"
     }
   }
@@ -737,7 +737,7 @@ CONNECT /ws/nekahoot/host/{session_id}
     "question": {
       "question": "<question text>",
       "answer_options": ["<option1>", "<option2>", ...],
-      "time": "<left time for question in seconds>",
+      "time": "<left time for question in milliseconds>",
       "given_answer": "<empty if player has not given answer | number of given answer OR answer itself>"
     }
   }
@@ -756,7 +756,7 @@ CONNECT /ws/nekahoot/host/{session_id}
       "answer": "<answer>",
       "answer_description": "<description for answer (optional)>",
       "answer_options": ["<option1>", "<option2>", ...],
-      "time": "<left time for question in seconds>"
+      "time": "<left time for question in milliseconds>"
     }
   }
 }
@@ -780,13 +780,15 @@ CONNECT /ws/nekahoot/host/{session_id}
 ```json
 {
   "state": "RESULT",
-  "payload": [
-    {
-      "player_name": "<player name>",
-      "score": "<total score>",
-      "correct_question": "<total number of correct answered questions>"
-    }
-  ]
+  "payload": {
+    "results": [
+      {
+        "player_name": "<player name>",
+        "score": "<total score>",
+        "correct_question": "<total number of correct answered questions>"
+      }
+    ]
+  }
 }
 ```
 
@@ -803,8 +805,8 @@ CONNECT /ws/nekahoot/player/{session_id}
 
 #### Request 
 
-```json 
-{ 
+```json
+{
   "state": "GIVE_ANSWER",
   "payload": {
     "answer": "?<number of answer OR answer itself>?"

@@ -1,7 +1,5 @@
 package com.clvr.ttt
 
-import com.clvr.platform.api.EventPayloadInterface
-import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.SessionId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -15,9 +13,9 @@ class EventTest {
 
     @Test
     fun `check json format corresponds docs API`() {
-        val event: RequestEvent<DummyRequestPayload> = RequestEvent(
+        val event = DummyRequestEvent(
                 SessionId("1703"),
-                DummyRequestPayload("very important information")
+                DummyRequestPayload("very important information"),
         )
         val expectedJsonString =
 """{
@@ -35,7 +33,7 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event = RequestEvent(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
+        val event: TicTacToeRequest<SetFieldRequest> = TicTacToeRequest(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {
@@ -55,11 +53,26 @@ class EventTest {
         assertEquals(event, decodedEvent)
     }
 
+    interface MyRequest {
+        val session: SessionId
+        val type: String
+    }
+
+    @Serializable
+    private data class DummyRequestEvent private constructor(
+        override val session: SessionId,
+        override val type: String,
+        val payload: DummyRequestPayload,
+    ) : MyRequest {
+        constructor(session: SessionId, payload: DummyRequestPayload): this(
+            session,
+            "MAIN_BOARD", // Just a random one
+            payload)
+    }
+
     @Serializable
     private data class DummyRequestPayload(
             @SerialName("field")
             val importantField: String
-    ) : EventPayloadInterface {
-        override val type: String = "MAIN_BOARD" // Just a random one
-    }
+    )
 }

@@ -3,23 +3,30 @@ package com.clvr.platform.impl.plugins
 import com.clvr.platform.impl.ClvrSessionStorage
 import com.clvr.platform.api.ClvrGameView
 import com.clvr.platform.logger
-import com.clvr.platform.api.EventPayloadInterface
 import com.clvr.platform.api.RequestEvent
+import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.impl.SessionManager
+import com.clvr.platform.api.lobby.EnterLobbyEvent
+import com.clvr.platform.api.lobby.LobbyRequestEvent
+import com.clvr.platform.api.model.UserCookie
+import com.clvr.platform.impl.aufManager
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.lang.Exception
 
-private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> DefaultWebSocketServerSession.configureHostSession(
-    sessionStorage: ClvrSessionStorage<Req, Resp>
+private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketServerSession.configureHostSession(
+    sessionStorage: ClvrSessionStorage<Req, Resp>,
+    requestDecoder: (String) -> Req,
 ) {
     val logger = application.logger
 
@@ -35,15 +42,19 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
 
     logger.info { "Host $hostEndpoint connected to game $sessionId" }
 
-    gameView.hostView.forEach { initialEvent ->
-        outgoing.send(Frame.Text(gameView.encodeEventToJson(initialEvent)))
+    if (sessionManager.gameStarted) {
+        gameView.hostView.forEach { initialEvent ->
+            outgoing.send(Frame.Text(initialEvent.encodeToJson(Json)))
+        }
+    } else {
+        sessionManager.handleHostLobbyEvent(EnterLobbyEvent(sessionId))
     }
 
     coroutineScope {
         launch {
             for (event in hostChannel) {
                 try {
-                    val jsonEvent: String = gameView.encodeEventToJson(event)
+                    val jsonEvent: String = event.encodeToJson(Json)
                     outgoing.send(Frame.Text(jsonEvent))
                     logger.debug { "Send event $jsonEvent to host $hostEndpoint in $sessionId game" }
                 } catch (e: Exception) {
@@ -63,8 +74,12 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
                     val jsonEvent: String = frame.readText()
                     logger.debug { "Receive event $jsonEvent from host $hostEndpoint in $sessionId game" }
 
-                    val event: RequestEvent<Req> = gameView.decodeJsonToEvent(jsonEvent)
-                    sessionManager.handleHostEvent(event)
+                    LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
+                        sessionManager.handleHostLobbyEvent(it)
+                    } ?: run {
+                        val event: Req = requestDecoder(jsonEvent)
+                        sessionManager.handleHostEvent(event)
+                    }
                 } catch (e: Exception) {
                     logger.error { "Failed to process event incoming frame because of error $e" }
                 }
@@ -77,8 +92,9 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
     }
 }
 
-private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> DefaultWebSocketServerSession.configureClientSession(
-    sessionStorage: ClvrSessionStorage<Req, Resp>
+private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketServerSession.configureClientSession(
+    sessionStorage: ClvrSessionStorage<Req, Resp>,
+    requestDecoder: (String) -> Req,
 ) {
     val logger = application.logger
 
@@ -88,11 +104,17 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
     val clientEndpoint: String = call.request.origin.remoteAddress + ":" + call.request.origin.remotePort
     val sessionManager: SessionManager<Req, Resp> = sessionStorage.getSessionManager(sessionId)
     val gameView: ClvrGameView<Req, Resp> = sessionStorage.getGameView(sessionId)
-    val clientChannel = sessionManager.registerClient(clientEndpoint)
+    val userInfo = call.sessions.get(cookieName)?.let { application.aufManager.getUserInfoByCookie(it as UserCookie) }
+
+    val clientChannel = sessionManager.registerClient(clientEndpoint, userInfo)
     logger.info { "Client $clientEndpoint connected to game $sessionId" }
 
-    gameView.clientView.forEach { initialEvent ->
-        outgoing.send(Frame.Text(gameView.encodeEventToJson(initialEvent)))
+    if (sessionManager.gameStarted) {
+        gameView.clientView.forEach { initialEvent ->
+            outgoing.send(Frame.Text(initialEvent.encodeToJson(Json)))
+        }
+    } else {
+        sessionManager.handleClientLobbyEvent(clientEndpoint, EnterLobbyEvent(sessionId))
     }
 
     try {
@@ -100,11 +122,33 @@ private suspend fun <Req: EventPayloadInterface, Resp: EventPayloadInterface> De
             launch {
                 for (event in clientChannel) {
                     try {
-                        val jsonEvent: String = gameView.encodeEventToJson(event)
+                        val jsonEvent: String = event.encodeToJson(Json)
                         outgoing.send(Frame.Text(jsonEvent))
                         logger.debug { "Send event $jsonEvent to client $clientEndpoint in $sessionId game" }
                     } catch (e: Exception) {
                         logger.error { "Failed to send event to client $clientEndpoint because of $e" }
+                    }
+                }
+            }
+
+            launch {
+                for (frame in incoming) {
+                    try {
+                        if (frame !is Frame.Text) {
+                            continue
+                        }
+
+                        val jsonEvent: String = frame.readText()
+                        logger.debug { "Receive event $jsonEvent from client $clientEndpoint in $sessionId game" }
+
+                        LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
+                            sessionManager.handleClientLobbyEvent(clientEndpoint, it)
+                        } ?: run {
+                            val event: Req = requestDecoder(jsonEvent)
+                            sessionManager.handleClientEvent(clientEndpoint, event)
+                        }
+                    } catch (e: Exception) {
+                        logger.error { "Failed to process event incoming frame because of error $e" }
                     }
                 }
             }
@@ -141,15 +185,19 @@ internal fun Application.configureSockets() {
     }
 }
 
-internal fun Application.addWebsocketRouting(activityName: String, storage: ClvrSessionStorage<*, *>) {
+internal fun <Req: RequestEvent, Resp: ResponseEvent> Application.addWebsocketRouting(
+    activityName: String,
+    storage: ClvrSessionStorage<Req, Resp>,
+    requestDecoder: (String) -> Req
+) {
 
     routing {
         webSocket("/ws/${activityName}/host/{session_id}") {
-            configureHostSession(storage)
+            configureHostSession(storage, requestDecoder)
         }
 
         webSocket("/ws/${activityName}/client/{session_id}") {
-            configureClientSession(storage)
+            configureClientSession(storage, requestDecoder)
         }
     }
 }

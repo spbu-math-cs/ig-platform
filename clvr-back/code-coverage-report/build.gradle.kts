@@ -7,6 +7,7 @@ dependencies {
     jacocoAggregation(project(":platform"))
     jacocoAggregation(project(":server"))
     jacocoAggregation(project(":tic-tac-toe"))
+    jacocoAggregation(project(":nekahoot"))
 }
 
 reporting {
