@@ -2,7 +2,7 @@ package com.clvr.ttt
 
 import com.clvr.platform.api.ClvrGameView
 
-class TicTacToeGameView(private val game: GameState): ClvrGameView<TicTacToeRequest<*>, TicTacToeResponse<*>> {
+class TicTacToeGameView(private val game: GameState): ClvrGameView<TicTacToeRequest, TicTacToeResponse<*>> {
     private val lastQuestionView: Pair<HostQuestionView, ClientQuestionView>?
         get() {
             val (row, column) = game.currentQuestionPosition ?: return null

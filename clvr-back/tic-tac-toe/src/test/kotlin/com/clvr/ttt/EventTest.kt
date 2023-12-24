@@ -33,7 +33,7 @@ class EventTest {
 
     @Test
     fun `check some request from API-doc`() {
-        val event: TicTacToeRequest<SetFieldRequest> = TicTacToeRequest(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
+        val event: TicTacToeRequestWithPayload<SetFieldRequest> = TicTacToeRequestWithPayload(SessionId("1723"), SetFieldRequest(1, 1, CellContent.X))
         val expectedJsonString =
 """{
     "session": {

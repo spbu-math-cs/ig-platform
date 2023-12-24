@@ -37,7 +37,7 @@ class TicTacToeGameStateControllerTest {
         val communicator = MockCommunicator()
         val hostChannel = communicator.hostChannel
         val clientChannel = communicator.clientChannel
-        controller.handle(communicator, TicTacToeRequest(SessionId("0"), requestPayload))
+        controller.handle(communicator, TicTacToeRequestWithPayload(SessionId("0"), requestPayload))
 
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()
