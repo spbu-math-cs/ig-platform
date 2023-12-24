@@ -85,7 +85,7 @@ module.exports = {
                         colors: {
                             'primary': '#f3b236',
                             'O': '#f3b236',
-                            'X': '#565584',
+                            'X': '#9191c7',
                             'task': '#455677',
                             'answerPanel': '#303759',
                             'back': '#7C81AD',
@@ -166,7 +166,7 @@ module.exports = {
                         colors: {
                             'primary': '#f8bb4b',
                           //  'O': '#186F65',
-                            'O' : '#042f2b',
+                            'O' : '#f8bb4b',
                             'X': '#e1836d',
                             'task': '#fcdda7',
                             'answerPanel': '#f8bb4b',

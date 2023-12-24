@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class EventTest {
     private val quiz = basicTestTemplate
     private val jsonPrettyFormatter = Json { prettyPrint = true }
-
+    
     @Test
     fun `question request`() {
         val event = QuestionRequest(SessionId("142"))

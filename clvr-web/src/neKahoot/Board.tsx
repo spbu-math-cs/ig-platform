@@ -17,7 +17,6 @@ function Countdown({timeLimit}: { timeLimit: Date }) {
         }, 100)
         return () => clearInterval(interval)
     }, [timeLimit])
-
     return (
         <p className="text-primary font-bold text-6xl">{timeLeft}</p>
     )
@@ -59,7 +58,6 @@ export function Board({isHost, sessionId}: BoardProps) {
             kind: "START_GAME"
         } as any), 100)
     }, [])
-
     let content
     if (game.state == "_LOADING") {
         content = <p className="bold text-primary font-bold text-6xl">Loading...</p>

@@ -134,7 +134,6 @@ class NeKahootGameController(private val game: GameState) :
             )
         )
     }
-
     override fun handleGameStart(communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>) {
         game.startGame()
         nextStep(communicator)

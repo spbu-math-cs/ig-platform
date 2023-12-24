@@ -74,6 +74,7 @@ class GameStateTest {
         Assertions.assertEquals(2, gameState.getNumberOfAnswers())
         Assertions.assertEquals("opt1", gameState.getAnswerOfPlayer("player1"))
         Assertions.assertEquals("opt2", gameState.getAnswerOfPlayer("player2"))
+
         Assertions.assertEquals(0, gameState.getLeftTime(start + 2000))
 
         gameState.closeQuestion()

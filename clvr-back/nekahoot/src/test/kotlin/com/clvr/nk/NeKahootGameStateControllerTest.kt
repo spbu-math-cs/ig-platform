@@ -22,6 +22,7 @@ class NeKahootGameStateControllerTest {
             it.payload
         }
 
+
         val clientEvents = clientsToChannels.mapValues { (_, channel) ->
             generateSequence {
                 channel.tryReceive().getOrNull()
@@ -51,6 +52,7 @@ class NeKahootGameStateControllerTest {
     ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
         val controller = NeKahootGameController(game)
         val communicator = MockCommunicator()
+
         controller.handleFromClient(communicator, clientEndpoint, request)
 
         return communicator.readEvents()
@@ -64,6 +66,7 @@ class NeKahootGameStateControllerTest {
         controller.handleGameStart(communicator)
 
         return communicator.readEvents()
+
     }
 
     private fun makeRequestWithPayload(
@@ -101,6 +104,7 @@ class NeKahootGameStateControllerTest {
     @Test
     fun `question close logic`() = runTest(timeout = 5.seconds) {
         val game = GameState(quiz)
+
         val (hostEvents, clientsToEvents) = startGame(game)
         checkCloseOfQuestion(hostEvents, clientsToEvents)
 
@@ -179,7 +183,9 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
+
             delay(game.getTime().milliseconds)
+
             game.closeQuestion()
         }
 
@@ -219,6 +225,7 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
+
             delay(game.getTime().milliseconds)
             game.closeQuestion()
         }
@@ -234,7 +241,9 @@ class NeKahootGameStateControllerTest {
         game.startGame()
         game.openQuestion(System.currentTimeMillis())
         launch {
+
             delay(game.getTime().milliseconds)
+
             game.closeQuestion()
         }
 

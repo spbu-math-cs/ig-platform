@@ -16,6 +16,8 @@ import {Session} from "@/neKahoot/types"
 import {Board as TicTacToeBoard} from "@/tic-tac-toe/Board"
 import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
+import {Lobby} from "@/components/Lobby";
+
 
 type GameId = "tic_tac_toe" | "nekahoot"
 
@@ -41,6 +43,8 @@ type Game<Options> = {
     gameIconPng?: string
 }
 
+    
+// @ts-ignore
 const games: { [key in GameId]: Game<any> } = {
     tic_tac_toe: {
         id: "tic_tac_toe",
@@ -89,6 +93,11 @@ type AppState = {
 } | {
     kind: "constructor"
     game: GameId
+} | {
+    kind: "lobby"
+    game: GameId
+    sessionId: string
+    isHost: boolean
 }
 
 export type AppAction = {
@@ -146,8 +155,10 @@ const Home: NextPage = () => {
 
     let content
     if (state.kind == "main_page") {
+        // @ts-ignore
+        // @ts-ignore
         content = <div>
-            <div className="mt-10 md:mt-16 w-[1000px] flex flex-col items-center justify-center mx-auto">
+            <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
                 <div className="w-full flex flex-row space-x-10 gap-4 m-8">
                     <div className="grow space-y-4">
                         <div
@@ -184,23 +195,24 @@ const Home: NextPage = () => {
                                     <img src="/kahoot.ico" className=" mt-2 mr-3 h-10 sm:h-12 rounded-xl" alt={""}/>
                                 </a>
 
-                                <div className="mt-2 w-full flex justify-end">
+                                <div className="mt-2 w-full flex justify-end"> {
                                     <Button onClick={() => setState({...state, modal: "nekahoot"})}>
                                         BROWSE GAMES
                                     </Button>
+                                }
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col mt-0 space-y-4">
                         <div
-                            className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            className="text-3xl text-txt font-bold w-full text-center rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
                             JOIN A GAME
                         </div>
                         <form
                             onSubmit={e => {
                                 setState({
-                                    kind: "playing",
+                                    kind: "lobby",
                                     game: "tic_tac_toe",
                                     sessionId: state.sessionId,
                                     isHost: false,
@@ -289,12 +301,19 @@ const Home: NextPage = () => {
         if (constructor === undefined) {
             console.error("No constructor available (should be unreachable)")
         } else {
-            content = React.createElement(constructor, {
-                onCreate: () => {
-                    runAction({kind: "go_to_creating", game: state.game})
-                },
-            })
+            content = <EditBoard
+                setState = {() => setState({kind: "main_page", sessionId: "", modal: undefined})} />
+
         }
+    } else if (state.kind == "lobby") {
+        content = <Lobby isHost={state.isHost} sessionId={state.sessionId} game={state.game}
+        setState = {() => setState({
+                kind: "playing",
+                game: state.game,
+                sessionId: state.sessionId,
+                isHost: true,
+            })
+        }/>
     } else {
         checkExhausted(state)
     }
@@ -304,13 +323,14 @@ const Home: NextPage = () => {
         // do nothing
     } else {
         const game = state.modal
+        // @ts-ignore
         modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
-            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+            <div className={`px-8 flex flex-row justify-between w-[1000px] rounded-2xl bg-square space-x-96`}>
                 <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
                     CHOOSE EXISTING GAME
                 </p>
 
-                { games[game].constructorComponent !== undefined &&
+                {games[game].constructorComponent !== undefined &&
                     <button onClick={() => setState({
                         kind: "constructor",
                         game: game,
@@ -322,7 +342,7 @@ const Home: NextPage = () => {
             </div>
             <div
                 className="
-                    flex flex-col justify-items-start py-10 px-100 rounded
+                    flex flex-col justify-items-start py-10 px-8 rounded
                     mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
                     max-h-[60vh] bg-square">
                 {
@@ -331,6 +351,7 @@ const Home: NextPage = () => {
                         : templates[game]?.map(quiz =>
                             <TemplateCard
                                 template={quiz} key={quiz.id}
+                                 /*
                                 handleSelect={async (id: string) => {
                                     const sessionId = (await games[game].createGame(id, options[game])).id
                                     setState({
@@ -338,6 +359,15 @@ const Home: NextPage = () => {
                                         game: game,
                                         sessionId: sessionId,
                                         isHost: true,
+                                    })
+                                }} */
+                                handleSelect={async (id: string) => {
+                                    const sessionId = (await games[game].createGame(id, options[game])).id
+                                    setState({
+                                        kind: "lobby",
+                                        game: game,
+                                        sessionId: sessionId,
+                                        isHost: true
                                     })
                                 }}/>,
                         )
@@ -366,15 +396,15 @@ const Home: NextPage = () => {
     }
 
     return <div
-        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
-        <div className={`flex flex-row justify-between items-center`}>
-            <div className="flex flex-row items-center ">
+        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen`}>
+        <div className={`flex flex-row justify-between items-center mt-0`}>
+            <div className="flex flex-row items-center mt-0 ">
                 <img src={
                     state.kind != "playing" && state.kind != "constructor" ? "/clover.PNG"
                         : games[state.game].gameIconPng || "/clover.PNG"}
                      className="h-20" alt={""}/>
                 <a href={"/"}>
-                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
+                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-2 text-primary`}>
                         C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
                     </h1>
                 </a>

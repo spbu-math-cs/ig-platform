@@ -1,5 +1,6 @@
 package com.clvr.platform.impl
 
+import com.clvr.platform.api.*
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
@@ -62,6 +63,13 @@ class SessionManagerTest {
         echoSessionManager.handleClientEvent("client-2", clientEvent)
         runBlocking {
             assertEquals(clientEvent.payload, (secondClientChannel.receive() as DummyResponse).payload)
+            assertTrue(firstClientChannel.isEmpty)
+        }
+
+        clientEvent = DummyRequest(sessionId, TestClientPayload("only to client-2"))
+        echoSessionManager.handleClientEvent("client-2", clientEvent)
+        runBlocking {
+            assertEquals(clientEvent.payload, secondClientChannel.receive().payload)
             assertTrue(firstClientChannel.isEmpty)
         }
 
