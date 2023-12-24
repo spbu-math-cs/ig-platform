@@ -3,6 +3,7 @@ import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session, Error} from "./types"
 import {Request} from "./wsRequests"
 import {checkExhausted} from "@/utils"
+import {WEBSOCKET_GAME_SERVER_URL} from "@/config"
 
 type Role = "host" | "client"
 
@@ -21,7 +22,7 @@ type Role = "host" | "client"
  * @returns A tuple containing the current game state and a function to send requests
  */
 export function useServerState(role: Role, session: Session): [GameState, Error[], (action: Request) => void] {
-    const url = new URL(`ws/tic-tac-toe/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+    const url = new URL(`ws/tic-tac-toe/${role}/${session.id}`, WEBSOCKET_GAME_SERVER_URL)
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
         shouldReconnect: () => true,
