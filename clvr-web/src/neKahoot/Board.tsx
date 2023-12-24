@@ -1,184 +1,116 @@
 import React, {useEffect, useState} from 'react'
-import {useServerState} from "@/tic-tac-toe/websockets"
+import {GameState} from "@/neKahoot/types"
+import {useServerState} from "@/neKahoot/websockets"
 
-const rows = 2
-const cols = 2
 
 interface BoardProps {
     isHost: boolean
     sessionId: string
 }
 
-interface SquareProp {
-    value: any
-    selected: boolean
+function Countdown({timeLimit}: { timeLimit: Date }) {
+    const [timeLeft, setTimeLeft] = useState<number>(0)
 
-    onClick(): void
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimeLeft(Math.max(0, Math.round((timeLimit.getTime() - Date.now()) / 1000)))
+        }, 100)
+        return () => clearInterval(interval)
+    }, [timeLimit])
+
+    return (
+        <p className="text-primary font-bold text-6xl">{timeLeft}</p>
+    )
 }
 
-function Square({value, onClick, selected}: SquareProp) {
+function Question({question}: { question: string }) {
     return (
-        <button
-            className={`
-                flex h-[250px] w-[250px] md:h-[250px] md:w-[250px] items-center justify-center bg-square rounded-2xl
-                shadow-md active:scale-125 hover:bg-[#18272e] shadow-gray-400/30
-                transition-all duration-200 ease-in
-                ${selected && 'bg-quit'}
-            `}
-            onClick={onClick}>
-            {value}
+        <div className="bg-panel p-16 rounded-xl h-96 flex items-center">
+            <p className="text-primary font-bold text-6xl">{question}</p>
+        </div>
+    )
+}
+
+function AnswerOption({answer, onClick, selected, correct}: {
+    answer: string,
+    onClick: () => void,
+    selected?: boolean,
+    correct?: boolean
+}) {
+    return (
+        <button className={`bg-panel p-8 rounded-xl grow m-8 hover:scale-110 duration-500 
+            ${selected ? "bg-quit scale-105" : ""}
+            ${correct ? "bg-next scale-110" : ""}`}>
+            <p
+                onClick={onClick}
+                className={`text-primary font-bold text-6xl duration-500
+                    ${correct ? "text-X" : ""}`}>
+                {answer}
+            </p>
         </button>
     )
 }
 
-export const Board = ({isHost, sessionId}: BoardProps) => {
-    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
+export function Board({isHost, sessionId}: BoardProps) {
+    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
     useEffect(() => {
-        let k = new Audio("/LobbyMusic.mp3")
-
-        k.addEventListener("canplaythrough", (_) => {
-            k.play().then()
-        }, true)
+        setTimeout(() => sendMessage({
+            kind: "START_GAME"
+        } as any), 100)
     }, [])
 
-    function value(i: number) {
-        let value
-        let board
-        if (game.state !== "_LOADING") {
-            board = game.board
-        }
-
-        if (board === undefined) {
-            return undefined
-        } else if (board.cells[i].mark === "EMPTY" || board.cells[i].mark === "NOT_OPENED") {
-            value =
-                <p className={`text-md text-txt uppercase font-bold text-xl md:text-2xl space-y-12`}
-                   dangerouslySetInnerHTML={{__html: board.cells[i].topic}}>
-                </p>
-        } else {
-            console.log("Unexpected mark value " + board.cells[i].mark)
-            value = ""
-        }
-        return value
-    }
-
-    const renderSquare = (i: number) => {
-        return <Square
-            value={value(i)}
-            selected={
-                (game.state == "OPENED_QUESTION_CLIENT"
-                    || game.state == "OPENED_QUESTION_HOST"
-                    || game.state == "OPENED_QUESTION_WITH_ANSWER")
-                && i == game.question.row * 2 + game.question.column
+    let content
+    if (game.state == "_LOADING") {
+        content = <p className="bold text-primary font-bold text-6xl">Loading...</p>
+    } else if (game.state == "OPENED_QUESTION") {
+        content = <div>
+            <div className="flex justify-center">
+                <Countdown timeLimit={game.timeLimit}/>
+            </div>
+            <Question question={game.question}/>
+            <div className="flex">
+                {game.answerOptions.map((answer, i) =>
+                    <AnswerOption
+                        onClick={() => sendMessage({
+                            kind: "GIVE_ANSWER",
+                            answer: answer,
+                        })}
+                        key={i}
+                        answer={answer}
+                        selected={answer == game.givenAnswer}
+                    />)}
+            </div>
+        </div>
+    } else if (game.state == "SHOW_QUESTION_ANSWER") {
+        content = <div>
+            <div className="flex justify-center">
+                <Countdown timeLimit={game.timeLimit}/>
+            </div>
+            <Question question={game.question}/>
+            <div className="flex">
+                {game.answerOptions.map((answer, i) =>
+                    <AnswerOption
+                        onClick={() => undefined}
+                        key={i}
+                        answer={answer}
+                        selected={answer == game.givenAnswer}
+                        correct={answer == game.answer}
+                    />)}
+            </div>
+            {
+                game.answerDescription &&
+                <div className="p-8 rounded-xl text-4xl bg-panel text-primary"
+                     dangerouslySetInnerHTML={{__html: game.answerDescription || ""}}></div>
             }
-            onClick={() => {
-                if (!isHost) return
-
-                //  sendMessage({
-                //     type: "OPEN_QUESTION",
-                //      row: Math.floor(i / rows),
-                //      column: i % cols,
-                //  }) теперь здесь не названия вопросов, а вариант ответа
-
-            }}/>
+        </div>
+    } else {
+        console.error(game)
     }
 
     return (
-        <div className={"space-y-32 space-x-44"}>
-            <div className="w-[800px] md:[w-300px] rounded-lg flex items-center justify-center space-y-10  space-x-36">
-                <div className="flex-row w-max rounded-lg mx-auto flex justify-center items-start space-x-36">
-
-                    <div
-                        className=" mt-24 flex h-[450px] w-[350px] md:mt-16 md:h-[500px] flex-col items-center justify-center space-y-4 rounded-xl bg-back">
-                        <div className="grow"></div>
-                        <div className="w-[700px] md:[w-500px] rounded-lg flex items-center justify-center space-x-40">
-                            <div
-                                className="md:[w-400px] rounded-lg flex items-center justify-center space-x-4 ml-4">
-                            </div>
-                        </div>
-
-                        <div className="board-row">
-                            {renderSquare(0)}
-                            {renderSquare(1)}
-                        </div>
-
-                        <div className="board-row">
-                            {renderSquare(3)}
-                            {renderSquare(4)}
-
-                        </div>
-                    </div>
-
-                    <div className="flex-col space-y-5 w-[600px] rounded-lg flex items-center">
-                        <div
-                            className={`mt-16 w-[500px] min-h-[400px] h-auto md:[w-400px] px-30 py-30 bg-task rounded-lg flex items-top justify-center`}>
-                            <button className={`rounded-xl py-10 px-10 text-3xl font-extrabold text-txt`}
-                                    dangerouslySetInnerHTML={{
-                                        __html:
-                                            game.state === "OPENED_QUESTION_CLIENT"
-                                            || game.state === "OPENED_QUESTION_HOST"
-                                                ? game.question.question
-                                                : "",
-                                    }}>
-                            </button>
-                        </div>
-                        {game.state == "OPENED_QUESTION_HOST" || game.state == "OPENED_QUESTION_WITH_ANSWER" ?
-                            <div
-                                className={`w-[500px] min-h-[100px] h-auto  bg-answerPanel rounded-lg flex items-top justify-center`}>
-                                <button
-                                    className={`px-4 py-3 rounded-2xl text-2xl font-extrabold justify-center text-answerTxt`}
-                                    onClick={() => sendMessage({
-                                        type: "SHOW_ANSWER",
-                                        row: game.question.row,
-                                        column: game.question.column,
-                                    })}>
-                                    {game.question.answer}
-                                </button>
-                            </div>
-                            : <div></div>
-                        }
-
-                        {game.state == "OPENED_QUESTION_HOST" &&
-                            <>
-                                {
-                                    game.question.hints.map((hint, i) =>
-                                        <div key={i}
-                                             className="w-[500px] pt-3  min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel pb-2">
-                                            <div className="grow px-4" dangerouslySetInnerHTML={{__html: hint}}></div>
-                                            {
-                                                game.question.currentHintsNum == i &&
-                                                <button
-                                                    onClick={() => sendMessage({
-                                                        type: "SHOW_NEXT_HINT",
-                                                        currentHintsNum: i,
-                                                        row: game.question.row,
-                                                        column: game.question.column,
-                                                    })}
-                                                    className="flex ml-3 px-3 mt-1 hover:ring-4 hover:ring-cyan-300 hover:bg-answerPanel text-answerTxt rounded-xl py-1 outline outline-offset-2 outline-1 ">
-                                                    SHOW
-                                                </button>
-                                            }
-                                        </div>,
-                                    )
-                                }
-                            </>
-                        }
-                        {game.state == "OPENED_QUESTION_CLIENT" &&
-                            <div
-                                className="px-4 p-3 rounded-2xl w-[500px] min-h-[100px] py-3 font-extrabold h-auto text-xl  text-answerTxt bg-answerPanel">
-
-                                {
-                                    game.question.currentHints.map(hint =>
-                                        <div className="grow" key={hint} dangerouslySetInnerHTML={{__html: hint}}>
-                                        </div>,
-                                    )
-                                }
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
+        <div className="flex flex-col justify-center items-center h-full min-h-[500px]">
+            {content}
         </div>
     )
 }

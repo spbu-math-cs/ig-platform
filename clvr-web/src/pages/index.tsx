@@ -1,22 +1,77 @@
 import type {NextPage} from 'next'
-import React, {useEffect, useState} from 'react'
+import React, {FunctionComponent, JSX, useEffect, useReducer, useState} from 'react'
 import {XIcon} from "@/tic-tac-toe/XIcon"
 import {OIcon} from "@/tic-tac-toe/OIcon"
-import {createGame, getQuizList} from "@/tic-tac-toe/api"
+import {createGame as createTicTacToeGame, getTemplateList as getTicTacToeTemplateList} from "@/tic-tac-toe/api"
 import {TemplateCard} from "@/components/TemplateCard"
-import {TemplateInfo} from "@/tic-tac-toe/types"
-import {TicTacToe, TicTacToeState} from "@/components/TicTacToe"
-import {NeKahoot, NeKahootState} from "@/components/NeKahoot"
+import {GameConfig, TemplateInfo} from "@/tic-tac-toe/types"
 import Button from "@/components/Button"
 import {checkExhausted} from "@/utils"
-import {LogIn} from "@/components/Authorization";
-import {RootState, store} from "@/state/store";
-import {useSelector} from "react-redux";
+import {LogIn} from "@/components/Authorization"
+import {store} from "@/state/store"
 import {nextTheme} from "@/state/themeSlice"
+import Head from "next/head"
+import {createGame as createNekahootGame, getTemplateList as getNekahootTemplateList} from "@/neKahoot/api"
+import {Session} from "@/neKahoot/types"
+import {Board as TicTacToeBoard} from "@/tic-tac-toe/Board"
+import {Board as NekahootBoard} from "@/neKahoot/Board"
+import {EditBoard} from "@/tic-tac-toe/EditBoard"
+
+type GameId = "tic_tac_toe" | "nekahoot"
+
+type GameComponentProps = {
+    sessionId: string
+    isHost: boolean
+}
+
+type GameConstructorProps = {
+    onCreate: () => void
+}
+
+type Game<Options> = {
+    id: GameId
+    name: string | JSX.Element
+    getTemplates: () => Promise<TemplateInfo[]>
+    defaultOptions: Options
+    optionCaptions: { [key in keyof Options]: string }
+    createGame: (templateId: string, options: Options) => Promise<Session>
+    gameComponent: FunctionComponent<GameComponentProps>
+    constructorComponent?: FunctionComponent<GameConstructorProps>
+    gameIconIco?: string
+    gameIconPng?: string
+}
+
+const games: { [key in GameId]: Game<any> } = {
+    tic_tac_toe: {
+        id: "tic_tac_toe",
+        name: "Tic-Tac-Toe",
+        getTemplates: getTicTacToeTemplateList,
+        defaultOptions: {
+            replaceMarks: true,
+            openMultipleQuestions: true,
+        },
+        optionCaptions: {
+            replaceMarks: "Replace marks",
+            openMultipleQuestions: "Open multiple questions",
+        },
+        createGame: createTicTacToeGame,
+        gameComponent: TicTacToeBoard,
+        constructorComponent: EditBoard,
+    } as Game<GameConfig>,
+    nekahoot: {
+        id: "nekahoot",
+        name: "neKahoot",
+        getTemplates: getNekahootTemplateList,
+        defaultOptions: {},
+        optionCaptions: {},
+        createGame: createNekahootGame,
+        gameComponent: NekahootBoard,
+    } as Game<{}>,
+}
 
 type AppState = {
     kind: "main_page"
-    modal: undefined | "tic_tac_toe" | "neKahoot"
+    modal: undefined | GameId
     sessionId: string
 } | {
     kind: "joining"
@@ -25,21 +80,25 @@ type AppState = {
     kind: "fatal"
     error: Node | string
 } | {
-    kind: "tic_tac_toe"
-    state: TicTacToeState
-} | {
     kind: "logging"
 } | {
-    kind: "neKahoot"
-    state: NeKahootState
+    kind: "playing"
+    game: GameId
+    sessionId: string
+    isHost: boolean
+} | {
+    kind: "constructor"
+    game: GameId
 }
 
 export type AppAction = {
     kind: "go_to_main_page"
 } | {
     kind: "go_to_creating"
-    game: "tic_tac_toe" | "neKahoot"
+    game: GameId
 }
+
+type OptionsOf<GameId> = GameId extends keyof typeof games ? typeof games[GameId]["defaultOptions"] : never
 
 const Home: NextPage = () => {
     const [state, setState] = useState<AppState>({
@@ -48,33 +107,42 @@ const Home: NextPage = () => {
         modal: undefined,
     })
     const dispatch = store.dispatch
-    const theme = useSelector((state: RootState) => state.theme)
 
-    const [quizInfo, setQuizInfo] = useState<TemplateInfo[] | undefined>()
-    const [replaceMarksChecked, setReplaceMarks] = useState(false)
-    const [openMultipleQuestionsChecked, setOpenMultipleQuestions] = useState(false)
+    type TemplateMap = { [key in GameId]?: TemplateInfo[] }
+    const [templates, updateTemplates] = useReducer<
+        (templates: TemplateMap, newTemplates: { [game in GameId]?: TemplateInfo[] }) => TemplateMap
+    >((templates, newTemplates): TemplateMap => {
+        return {...templates, ...newTemplates}
+    }, {})
+
+    type OptionsMap = { [key in GameId]: typeof games[key]["defaultOptions"] }
+    const [options, updateOptions] = useReducer<
+        (options: OptionsMap, newOptions: { [game in GameId]?: OptionsOf<game> }) => OptionsMap
+    >((options, newOptions) => {
+        return {...options, ...newOptions}
+    }, Object.fromEntries(Object.keys(games).map(game => [game, games[game as GameId].defaultOptions])) as {
+        [key in GameId]: typeof games[key]["defaultOptions"]
+    })
+
+    useEffect(() => {
+        for (const game of Object.values(games)) {
+            game.getTemplates().then(info =>
+                updateTemplates({...templates, [game.id]: info}),
+            )
+        }
+    }, [])
 
     const runAction = (action: AppAction) => {
         if (action.kind == "go_to_main_page") {
             setState({kind: "main_page", sessionId: "", modal: undefined})
         } else if (action.kind == "go_to_creating") {
-            if (action.game == "tic_tac_toe") {
-                setState({kind: "main_page", sessionId: "", modal: "tic_tac_toe"})
-                getQuizList().then(quizInfo => setQuizInfo(quizInfo))
-            } else if (action.game == "neKahoot") {
-                setState({kind: "main_page", sessionId: "", modal: "neKahoot"})
-                getQuizList().then(quizInfo => setQuizInfo(quizInfo))
-            } else {
-                checkExhausted(action.game)
-            }
+            games[action.game].getTemplates().then(info =>
+                updateTemplates({[action.game]: info}),
+            )
         } else {
             checkExhausted(action)
         }
     }
-
-    useEffect(() => {
-        getQuizList().then(quizInfo => setQuizInfo(quizInfo))
-    }, [])
 
     let content
     if (state.kind == "main_page") {
@@ -117,7 +185,7 @@ const Home: NextPage = () => {
                                 </a>
 
                                 <div className="mt-2 w-full flex justify-end">
-                                    <Button onClick={() => setState({...state, modal: "neKahoot"})}>
+                                    <Button onClick={() => setState({...state, modal: "nekahoot"})}>
                                         BROWSE GAMES
                                     </Button>
                                 </div>
@@ -125,33 +193,36 @@ const Home: NextPage = () => {
                         </div>
                     </div>
                     <div className="flex flex-col space-y-4">
-                            <div className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
-                                JOIN A GAME
-                            </div>
-                            <form
-                                onSubmit={e => { setState({
-                                    kind: "tic_tac_toe",
-                                    state: {kind: "playing", sessionId: state.sessionId, role: "board"},
+                        <div
+                            className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            JOIN A GAME
+                        </div>
+                        <form
+                            onSubmit={e => {
+                                setState({
+                                    kind: "playing",
+                                    game: "tic_tac_toe",
+                                    sessionId: state.sessionId,
+                                    isHost: false,
                                 })
                                 e.preventDefault()
                             }}
-                                className="flex flex-col
-                                 items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
-                                <p className="text-2xl md:text-5xl font-extrabold m-4 text-primary">
-                                    ENTER GAME ID
-                                </p>
-                                <input
-                                    type="text"
-                                    className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
-                                    value={state.sessionId}
-                                    onChange={e => {
-                                        setState({kind: "joining", sessionId: e.target.value})
-                                    }}
-                                />
-                                <Button>
-                                    JOIN!
-                                </Button>
-                            </form>
+                            className="flex flex-col items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
+                            <p className="text-2xl md:text-5xl font-extrabold m-4 text-primary">
+                                ENTER GAME ID
+                            </p>
+                            <input
+                                type="text"
+                                className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
+                                value={state.sessionId}
+                                onChange={e => {
+                                    setState({kind: "main_page", sessionId: e.target.value, modal: undefined})
+                                }}
+                            />
+                            <Button>
+                                JOIN!
+                            </Button>
+                        </form>
                         <div
                             className="flex flex-row items-center justify-center py-4 space-x-8 rounded-xl h-40 outline-1 px-6 ring-4 ring-txt">
 
@@ -168,37 +239,15 @@ const Home: NextPage = () => {
                         </div>
                     </div>
                 </div>
-                {/*
-                <div
-                    className={`flex flex-col items-center py-12 w-[700px] md:w-[450px] h-64 md:h-72 rounded-2xl  bg-panel mt-6 space-y-8 md:space-y-8`}>
-                    <p className={`text-md text-txt uppercase font-extrabold md:text-3xl space-y-12 `}>
-                        SELECT MODE
-                    </p>
-                    <div
-                        className="bg-gray-800 flex items-center justify-evenly h-35 rounded-2xl p-2 ">
-                        <button onClick={() => {
-                            // setState({kind: "tic_tac_toe", state: {kind: "creating_game"}})
-                        }}
-                                className={`focus:bg-gray-300 hover:bg-[#ffe1a9]  transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6  text-3xl md:text-4xl font-extrabold mt-1 text-hostTxt `}>
-                            CREATE
-                        </button>
-
-                        <button onClick={() => {
-                            setState({kind: "joining", sessionId: ""})
-                        }}
-                                className={`focus:bg-gray-300 hover:bg-[#ffe1a9] transition duration-300 ease-in flex items-center justify-center rounded-xl px-6 py-6 text-3xl md:text-4xl font-extrabold mt-1 text-playerTxt`}>
-                            JOIN
-                        </button>
-                    </div>
-                </div>
-                */}
             </div>
         </div>
     } else if (state.kind == "joining") {
         content = <form onSubmit={e => {
             setState({
-                kind: "tic_tac_toe",
-                state: {kind: "playing", sessionId: state.sessionId, role: "board"},
+                kind: "playing",
+                game: "tic_tac_toe",
+                sessionId: state.sessionId,
+                isHost: false,
             })
             e.preventDefault()
         }}>
@@ -228,13 +277,24 @@ const Home: NextPage = () => {
         </form>
     } else if (state.kind == "fatal") {
         content = <div>TODO</div>
-    } else if (state.kind == "tic_tac_toe") {
-        content = <TicTacToe state={state.state} dispatch={runAction}/>
+    } else if (state.kind == "playing") {
+        content = React.createElement(games[state.game].gameComponent, {
+            sessionId: state.sessionId,
+            isHost: state.isHost,
+        })
     } else if (state.kind == "logging") {
-        content =
-            <LogIn switchPage={setState}></LogIn>
-    } else if (state.kind == "neKahoot") {
-        content = <NeKahoot state={state.state} dispatch={runAction}/>
+        content = <LogIn switchPage={setState}></LogIn>
+    } else if (state.kind == "constructor") {
+        let constructor = games[state.game].constructorComponent
+        if (constructor === undefined) {
+            console.error("No constructor available (should be unreachable)")
+        } else {
+            content = React.createElement(constructor, {
+                onCreate: () => {
+                    runAction({kind: "go_to_creating", game: state.game})
+                },
+            })
+        }
     } else {
         checkExhausted(state)
     }
@@ -242,135 +302,100 @@ const Home: NextPage = () => {
     let modalContent
     if (state.kind !== "main_page" || state.modal === undefined) {
         // do nothing
-    } else if (state.modal === "tic_tac_toe") {
-        modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
-            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
-                <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
-                    CHOOSE EXISTING GAME
-                </p>
-
-                <button onClick={() => setState({kind: "tic_tac_toe", state: {kind: "constructor"}})}
-                        className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
-                    or CREATE NEW QUIZ
-                </button>
-            </div>
-            <div
-                className="
-                    flex flex-col justify-items-start py-10 px-100 rounded
-                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
-                    max-h-[60vh] bg-square">
-                {
-                    quizInfo === undefined
-                        ? "Loading..."
-                        : quizInfo.map(quiz =>
-                            <TemplateCard
-                                template={quiz} key={quiz.id}
-                                handleSelect={async (id: string) => {
-                                    const sessionId = (await createGame(id, {
-                                        replaceMarks: replaceMarksChecked ? "ENABLED" : "DISABLED",
-                                        openMultipleQuestions: openMultipleQuestionsChecked ? "ENABLED" : "DISABLED",
-                                    })).id
-                                    setState({
-                                        kind: "tic_tac_toe",
-                                        state: {kind: "playing", sessionId: sessionId, role: "host"}
-                                    })
-                                }}/>,
-                        )}
-            </div>
-
-            <div style={{alignContent: "left", transform: "scale(1.5)"}}>
-                <ul>
-                    <li>
-                        <input
-                            type="checkbox"
-                            checked={replaceMarksChecked}
-                            onChange={() => setReplaceMarks(!replaceMarksChecked)}
-                        />
-                        <text className="text-txt font-bold">Enable replace marks</text>
-                    </li>
-                    <li>
-                        <input
-                            type="checkbox"
-                            checked={openMultipleQuestionsChecked}
-                            onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
-                        />
-                        <text className="text-txt font-bold">Enable open multiple questions</text>
-                    </li>
-                </ul>
-            </div>
-
-
-        </div>
-    } else if (state.modal === "neKahoot") {
-        modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
-            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
-                <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
-                    CHOOSE EXISTING GAME
-                </p>
-            </div>
-            <div
-                className="
-                    flex flex-col justify-items-start py-10 px-100 rounded
-                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
-                    max-h-[60vh] bg-square">
-                {
-                    quizInfo === undefined
-                        ? "Loading..."
-                        : quizInfo.map(quiz =>
-                            <TemplateCard
-                                template={quiz} key={quiz.id}
-                                handleSelect={async (id: string) => {
-                                    const sessionId = (await createGame(id, {
-                                        replaceMarks: replaceMarksChecked ? "ENABLED" : "DISABLED",
-                                        openMultipleQuestions: openMultipleQuestionsChecked ? "ENABLED" : "DISABLED",
-                                    })).id
-                                    setState({
-                                        kind: "neKahoot",
-                                        state: {kind: "playing", sessionId: sessionId, role: "host"}
-                                    })
-                                }}/>,
-                        )}
-            </div>
-
-            <div style={{alignContent: "left", transform: "scale(1.5)"}}>
-                <ul>
-                    <li>
-                        <input
-                            type="checkbox"
-                            checked={replaceMarksChecked}
-                            onChange={() => setReplaceMarks(!replaceMarksChecked)}
-                        />
-                        <text className="text-txt font-bold">Enable replace marks</text>
-                    </li>
-                    <li>
-                        <input
-                            type="checkbox"
-                            checked={openMultipleQuestionsChecked}
-                            onChange={() => setOpenMultipleQuestions(!openMultipleQuestionsChecked)}
-                        />
-                        <text className="text-txt font-bold">Enable open multiple questions</text>
-                    </li>
-                </ul>
-            </div>
-
-
-        </div>
     } else {
-        checkExhausted(state.modal)
+        const game = state.modal
+        modalContent = <div className="flex flex-col items-center w-[1000px] rounded-2xl bg-square">
+            <div className={`px-8 flex flex-row items-center w-[1000px] rounded-2xl bg-square space-x-96`}>
+                <p className={`justify-items-start text-md text-JoinGameTxt uppercase font-extrabold  md:text-2xl `}>
+                    CHOOSE EXISTING GAME
+                </p>
+
+                { games[game].constructorComponent !== undefined &&
+                    <button onClick={() => setState({
+                        kind: "constructor",
+                        game: game,
+                    })}
+                            className={`button hover:ring-4 py-2 hover:ring-cyan-300 rounded-xl px-6 bg-[#f3b236] hover:bg-square`}>
+                        or CREATE NEW QUIZ
+                    </button>
+                }
+            </div>
+            <div
+                className="
+                    flex flex-col justify-items-start py-10 px-100 rounded
+                    mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
+                    max-h-[60vh] bg-square">
+                {
+                    templates[game] === undefined
+                        ? "Loading..."
+                        : templates[game]?.map(quiz =>
+                            <TemplateCard
+                                template={quiz} key={quiz.id}
+                                handleSelect={async (id: string) => {
+                                    const sessionId = (await games[game].createGame(id, options[game])).id
+                                    setState({
+                                        kind: "playing",
+                                        game: game,
+                                        sessionId: sessionId,
+                                        isHost: true,
+                                    })
+                                }}/>,
+                        )
+                }
+            </div>
+
+            <div style={{alignContent: "left", transform: "scale(1.5)"}}>
+                {
+                    Object.keys(games[game].optionCaptions).map(option =>
+                        <div className="flex flex-row items-center space-x-2" key={option}>
+                            <input type="checkbox" checked={options[game][option]}
+                                   onChange={() => {
+                                       updateOptions({
+                                           [game]: {
+                                               ...options[game],
+                                               [option]: !options[game][option],
+                                           },
+                                       })
+                                   }}/>
+                            <span className="text-txt font-bold">{games[game].optionCaptions[option]}</span>
+                        </div>,
+                    )
+                }
+            </div>
+        </div>
     }
 
     return <div
         className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
         <div className={`flex flex-row justify-between items-center`}>
             <div className="flex flex-row items-center ">
-                <a href="/clover.PNG" className="flex items-center">
-                    <img src="/clover.PNG" className=" mt-4 h-20" alt={""}/>
+                <img src={
+                    state.kind != "playing" && state.kind != "constructor" ? "/clover.PNG"
+                        : games[state.game].gameIconPng || "/clover.PNG"}
+                     className="h-20" alt={""}/>
+                <a href={"/"}>
+                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
+                        C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
+                    </h1>
                 </a>
-                <h1 className={`text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
-                    C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
-                </h1>
             </div>
         </div>
+        {
+            state.kind == "playing" &&
+            <div className={`font-extrabold text-primary `}>
+                {"session: " + state.sessionId}
+            </div>
+        }
+
+        <Head>
+            <title>
+                {state.kind != "playing" && state.kind != "constructor" ? "CLVR" : games[state.game].name}
+            </title>
+            <link rel="icon" href={
+                state.kind != "playing" && state.kind != "constructor" ? "/clover.ico"
+                    : games[state.game].gameIconIco || "/clover.ico"
+            }/>
+        </Head>
 
         {state.kind === "main_page" && state.modal !== undefined &&
             <div className="

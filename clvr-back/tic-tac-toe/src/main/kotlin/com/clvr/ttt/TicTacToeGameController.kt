@@ -61,4 +61,14 @@ class TicTacToeGameController(private val game: GameState) :
             )
         )
     }
+
+    override fun handleFromClient(
+        communicator: SessionParticipantsCommunicator<TicTacToeRequest<*>, TicTacToeResponse<*>>,
+        clientEndpoint: String,
+        event: TicTacToeRequest<*>
+    ) = communicator.sendToClient(clientEndpoint,
+        TicTacToeResponse(
+            GameError("You are not allowed to send events to the server!")
+        )
+    )
 }

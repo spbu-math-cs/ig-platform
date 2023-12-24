@@ -18,6 +18,18 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
         clvrGameController.handle(this, event)
     }
 
+    fun handleClientEvent(clientEndpoint: String, event: Req) {
+        clvrGameController.handleFromClient(this, clientEndpoint, event)
+    }
+
+    override fun sendToClient(clientEndpoint: String, event: Resp) {
+        synchronized(clientChannels) {
+            runBlocking {
+                clientChannels[clientEndpoint]?.send(event)
+            }
+        }
+    }
+
     override fun sendToClients(event: Resp) {
         synchronized(clientChannels) {
             runBlocking {

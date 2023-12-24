@@ -3,6 +3,7 @@ package com.clvr.platform.impl
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
+import com.clvr.platform.api.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
@@ -14,12 +15,19 @@ class SessionManagerTest {
     fun `session manager simple test`() {
         val sessionId = SessionId("1")
 
-        val echoSessionManager = SessionManager<DummyRequest, DummyResponse> { manager, event ->
-            when (event.payload) {
-                is TestHostPayload -> manager.sendToHost(DummyResponse(event.payload))
-                is TestClientPayload -> manager.sendToClients(DummyResponse(event.payload))
+        val echoSessionManager = SessionManager(
+            object: ClvrGameController<DummyRequest, DummyResponse> {
+                override fun handle(communicator: SessionParticipantsCommunicator<DummyRequest, DummyResponse>, event: DummyRequest) {
+                    when (event.payload) {
+                        is TestHostPayload -> communicator.sendToHost(DummyResponse(event.payload))
+                        is TestClientPayload -> communicator.sendToClients(DummyResponse(event.payload))
+                    }
+                }
+                override fun handleFromClient(communicator: SessionParticipantsCommunicator<DummyRequest, DummyResponse>, clientEndpoint: String, event: DummyRequest) {
+                    communicator.sendToClient(clientEndpoint, DummyResponse(event.payload))
+                }
             }
-        }
+        )
 
         val firstClientChannel = echoSessionManager.registerClient("client-1")
         val hostChannel = echoSessionManager.hostChannel
@@ -38,6 +46,13 @@ class SessionManagerTest {
         runBlocking {
             assertEquals(clientEvent.payload, firstClientChannel.receive().payload)
             assertEquals(clientEvent.payload, secondClientChannel.receive().payload)
+        }
+
+        clientEvent = DummyRequest(sessionId, TestClientPayload("only to client-2"))
+        echoSessionManager.handleClientEvent("client-2", clientEvent)
+        runBlocking {
+            assertEquals(clientEvent.payload, secondClientChannel.receive().payload)
+            assertTrue(firstClientChannel.isEmpty)
         }
 
         echoSessionManager.unregisterClient("client-1")
