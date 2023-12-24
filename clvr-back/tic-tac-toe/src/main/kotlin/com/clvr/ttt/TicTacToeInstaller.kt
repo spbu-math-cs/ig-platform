@@ -12,10 +12,10 @@ import java.io.File
 
 class TicTacToeInstaller(
     private val templateFiles: List<File>
-) : ActivityInstaller<TicTacToeRequest<*>, TicTacToeResponse<*>> {
+) : ActivityInstaller<TicTacToeRequest, TicTacToeResponse<*>> {
     override val activityName: String = ACTIVITY_ID
 
-    override fun decodeJsonToEvent(jsonString: String): TicTacToeRequest<*> {
+    override fun decodeJsonToEvent(jsonString: String): TicTacToeRequest {
         return decodeJsonToTTTEvent(jsonString)
     }
 
@@ -23,7 +23,7 @@ class TicTacToeInstaller(
         route: Route,
         templateDatabase: TemplateDatabase,
         aufManager: AufManager,
-        sessionRegistry: ClvrSessionRegistry<TicTacToeRequest<*>, TicTacToeResponse<*>>
+        sessionRegistry: ClvrSessionRegistry<TicTacToeRequest, TicTacToeResponse<*>>
     ) {
         templateDatabase.preloadTemplates<TicTacToeTemplate>(templateFiles)
         with (route) {

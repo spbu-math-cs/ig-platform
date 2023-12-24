@@ -55,7 +55,7 @@ data class TemplateIdResponse(
 
 fun Route.routingSetup(
     templateDatabase: TemplateDatabase,
-    sessionRegistry: ClvrSessionRegistry<TicTacToeRequest<*>, TicTacToeResponse<*>>
+    sessionRegistry: ClvrSessionRegistry<TicTacToeRequest, TicTacToeResponse<*>>
 ) {
     options("game") {
         call.respond(HttpStatusCode.OK)

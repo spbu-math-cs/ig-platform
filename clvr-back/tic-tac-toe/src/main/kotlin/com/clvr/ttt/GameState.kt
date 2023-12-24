@@ -19,6 +19,7 @@ typealias GridState = Array<Array<CellState>>
 @Serializable
 enum class GameResult { EMPTY, X, O }
 
+@Serializable
 enum class Player { X, O }
 
 private fun oppositePlayer(player: Player) = if (player == Player.X) Player.O else Player.X
