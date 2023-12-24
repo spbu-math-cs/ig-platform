@@ -6,6 +6,7 @@ import com.clvr.platform.api.ClvrSessionRegistry
 import com.clvr.platform.api.TemplateId
 import com.clvr.platform.api.db.TemplateDatabase
 import com.clvr.platform.api.db.preloadTemplates
+import com.clvr.platform.impl.AufManager
 import io.ktor.server.routing.*
 import java.io.File
 
@@ -17,6 +18,7 @@ class NeKahootInstaller(
     override fun install(
         route: Route,
         templateDatabase: TemplateDatabase,
+        aufManager: AufManager,
         sessionRegistry: ClvrSessionRegistry<NeKahootRequest, NeKahootResponseWithPayload<*>>
     ) {
         templateDatabase.preloadTemplates<NeKahootTemplate>(templateFiles)
