@@ -5,6 +5,7 @@ import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
 import com.clvr.platform.api.*
 import com.clvr.platform.api.lobby.StartGameEvent
+import com.clvr.platform.api.model.UserInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -12,6 +13,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class SessionManagerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +39,7 @@ class SessionManagerTest {
 
         echoSessionManager.handleHostLobbyEvent(StartGameEvent(SessionId("1")))
 
-        val firstClientChannel = echoSessionManager.registerClient("client-1")
+        val firstClientChannel = echoSessionManager.registerClient("client-1", UserInfo(UUID.randomUUID(), "client-1"))
         val hostChannel = echoSessionManager.hostChannel
 
         var clientEvent = DummyRequest(sessionId, TestClientPayload("client-1 data"))
@@ -48,7 +50,7 @@ class SessionManagerTest {
             assertTrue(hostChannel.isEmpty)
         }
 
-        val secondClientChannel = echoSessionManager.registerClient("client-2")
+        val secondClientChannel = echoSessionManager.registerClient("client-2", UserInfo(UUID.randomUUID(), "client-2"))
         clientEvent = DummyRequest(sessionId, TestClientPayload("client-2 data"))
         echoSessionManager.handleHostEvent(clientEvent)
         runBlocking {

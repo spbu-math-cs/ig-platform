@@ -1,5 +1,6 @@
 package com.clvr.nk
 
+import com.clvr.platform.api.model.UserInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 
@@ -20,5 +21,9 @@ class MockCommunicator : NeKahootSessionParticipantsCommunicator {
 
     override fun sendToClient(clientEndpoint: String, event: NeKahootResponseWithPayload<*>) = runBlocking {
         getClientChannel(clientEndpoint).send(event)
+    }
+
+    override fun getClientInfo(clientEndpoint: String): UserInfo? {
+        return null
     }
 }

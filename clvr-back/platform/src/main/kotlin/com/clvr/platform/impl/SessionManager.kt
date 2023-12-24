@@ -10,6 +10,7 @@ import com.clvr.platform.api.lobby.LobbyResponseEvent
 import com.clvr.platform.api.lobby.Player
 import com.clvr.platform.api.lobby.PlayersInfo
 import com.clvr.platform.api.lobby.StartGameEvent
+import com.clvr.platform.api.model.UserInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
@@ -22,6 +23,7 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
 ): AutoCloseable, SessionParticipantsCommunicator<ResponseEvent> {
     val hostChannel: Channel<ResponseEvent> = Channel(Channel.UNLIMITED)
     private val clientChannels: MutableMap<String, Channel<ResponseEvent>> = mutableMapOf()
+    private val clientInfo: MutableMap<String, UserInfo> = mutableMapOf()
     private val lobbyGameController = LobbyGameController()
 
     var gameStarted: Boolean = false
@@ -83,8 +85,11 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
         }
     }
 
-    fun registerClient(clientEndpoint: String): ReceiveChannel<ResponseEvent> {
+    fun registerClient(clientEndpoint: String, userInfo: UserInfo?): ReceiveChannel<ResponseEvent> {
         synchronized(clientChannels) {
+            if (userInfo != null) {
+                clientInfo.putIfAbsent(clientEndpoint, userInfo)
+            }
             return clientChannels.computeIfAbsent(clientEndpoint) { Channel(Channel.UNLIMITED) }
         }
     }
@@ -93,6 +98,7 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
         synchronized(clientChannels) {
             clientChannels[clientEndpoint]?.close()
             clientChannels.remove(clientEndpoint)
+            clientInfo.remove(clientEndpoint)
         }
     }
 
@@ -109,7 +115,7 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     internal inner class LobbyGameController: ClvrGameController<LobbyRequestEvent, LobbyResponseEvent> {
         private val players: PlayersInfo
             get() = PlayersInfo(
-                clientChannels.keys.toList().map { Player(it) }
+                clientChannels.keys.toList().map { Player( getClientInfo(it)?.name ?: "unknown user" ) }
             )
 
         override fun handleGameStart(communicator: SessionParticipantsCommunicator<LobbyResponseEvent>) {
@@ -142,5 +148,9 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
                 is StartGameEvent -> error("Client doesn't have permission to start game")
             }
         }
+    }
+
+    override fun getClientInfo(clientEndpoint: String): UserInfo? {
+        return clientInfo[clientEndpoint]
     }
 }
