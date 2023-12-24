@@ -42,13 +42,4 @@ class NeKahootGameView(private val game: GameState): ClvrGameView<NeKahootReques
 
             return listOfNotNull(lastQuestionViewEvent, resultsEvent)
         }
-
-
-    override fun decodeJsonToEvent(jsonString: String): NeKahootRequest {
-        return decodeJsonToNKEvent(jsonString)
-    }
-
-    override fun encodeEventToJson(event: NeKahootResponseWithPayload<*>): String {
-        return encodeNKEventToJson(event)
-    }
 }

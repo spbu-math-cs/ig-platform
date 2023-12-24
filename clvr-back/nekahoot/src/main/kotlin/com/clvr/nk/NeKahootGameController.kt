@@ -9,7 +9,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
-        SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>
+        SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>
 
 class NeKahootGameController(private val game: GameState) :
     ClvrGameController<NeKahootRequest, NeKahootResponseWithPayload<*>> {
@@ -66,31 +66,27 @@ class NeKahootGameController(private val game: GameState) :
         manager.sendToClients(resultsEvent)
     }
 
-    override fun handle(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
-        event: NeKahootRequest
-    ) = try {
-        fun nextStep() = when {
-            game.isGameFinished() -> sendResultsResponses(communicator)
-            else -> runBlocking {
-                coroutineScope {
-                    game.openQuestion(System.currentTimeMillis())
-                    sendQuestionResponses(communicator)
-                    delay(game.getTime().milliseconds)
-                    sendCorrectAnswerResponses(communicator)
-                    game.closeQuestion()
-                }
+    private fun nextStep(communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>) = when {
+        game.isGameFinished() -> sendResultsResponses(communicator)
+        else -> runBlocking {
+            coroutineScope {
+                game.openQuestion(System.currentTimeMillis())
+                sendQuestionResponses(communicator)
+                delay(game.getTime().milliseconds)
+                sendCorrectAnswerResponses(communicator)
+                game.closeQuestion()
             }
         }
+    }
 
+    override fun handle(
+        communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>,
+        event: NeKahootRequest
+    ) = try {
         when (event) {
-            is StartGameRequest -> {
-                game.startGame()
-                nextStep()
-            }
             is QuestionRequest -> {
                 game.nextQuestion()
-                nextStep()
+                nextStep(communicator)
             }
             is NeKahootRequestWithPayload<*> -> {
                 when (event.payload) {
@@ -107,12 +103,11 @@ class NeKahootGameController(private val game: GameState) :
     }
 
     override fun handleFromClient(
-        communicator: SessionParticipantsCommunicator<NeKahootRequest, NeKahootResponseWithPayload<*>>,
+        communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>,
         clientEndpoint: String,
         event: NeKahootRequest
     ) = try {
         when (event) {
-            is StartGameRequest -> throw ClientStartGameException()
             is QuestionRequest -> throw ClientOpenQuestionException()
             is NeKahootRequestWithPayload<*> -> {
                 when (val payload = event.payload) {
@@ -138,5 +133,10 @@ class NeKahootGameController(private val game: GameState) :
                 GameError(e.message ?: "Unknown error occurred!")
             )
         )
+    }
+
+    override fun handleGameStart(communicator: SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>) {
+        game.startGame()
+        nextStep(communicator)
     }
 }

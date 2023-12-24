@@ -13,26 +13,16 @@ class NeKahootGameStateControllerTest {
     private val quiz = basicTestTemplate
 
     private val testSessionId = SessionId("0")
-    private val startGameRequest = StartGameRequest(testSessionId)
     private val questionRequest = QuestionRequest(testSessionId)
 
-    private fun makeRequest(
-        game: GameState,
-        request: NeKahootRequest
-    ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
-        val controller = NeKahootGameController(game)
-        val communicator = MockCommunicator()
-        val hostChannel = communicator.hostChannel
-        val clientChannel = communicator.clientsToChannels
-        controller.handle(communicator, request)
-
+    private fun MockCommunicator.readEvents(): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
         val hostEvents = generateSequence {
             hostChannel.tryReceive().getOrNull()
         }.map {
             it.payload
         }
 
-        val clientEvents = clientChannel.mapValues { (_, channel) ->
+        val clientEvents = clientsToChannels.mapValues { (_, channel) ->
             generateSequence {
                 channel.tryReceive().getOrNull()
             }.map {
@@ -43,6 +33,17 @@ class NeKahootGameStateControllerTest {
         return hostEvents.toList() to clientEvents.toMap()
     }
 
+    private fun makeRequest(
+        game: GameState,
+        request: NeKahootRequest
+    ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
+        val controller = NeKahootGameController(game)
+        val communicator = MockCommunicator()
+
+        controller.handle(communicator, request)
+        return communicator.readEvents()
+    }
+
     private fun makeRequestFromClient(
         game: GameState,
         clientEndpoint: String,
@@ -50,25 +51,19 @@ class NeKahootGameStateControllerTest {
     ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
         val controller = NeKahootGameController(game)
         val communicator = MockCommunicator()
-        val hostChannel = communicator.hostChannel
-        val clientChannel = communicator.clientsToChannels
         controller.handleFromClient(communicator, clientEndpoint, request)
 
-        val hostEvents = generateSequence {
-            hostChannel.tryReceive().getOrNull()
-        }.map {
-            it.payload
-        }
+        return communicator.readEvents()
+    }
 
-        val clientEvents = clientChannel.mapValues { (_, channel) ->
-            generateSequence {
-                channel.tryReceive().getOrNull()
-            }.map {
-                it.payload
-            }.toList()
-        }
+    private fun startGame(
+        game: GameState,
+    ): Pair<List<NeKahootResponsePayload>, Map<String, List<NeKahootResponsePayload>>> {
+        val controller = NeKahootGameController(game)
+        val communicator = MockCommunicator()
+        controller.handleGameStart(communicator)
 
-        return hostEvents.toList() to clientEvents.toMap()
+        return communicator.readEvents()
     }
 
     private fun makeRequestWithPayload(
@@ -106,7 +101,7 @@ class NeKahootGameStateControllerTest {
     @Test
     fun `question close logic`() = runTest(timeout = 5.seconds) {
         val game = GameState(quiz)
-        val (hostEvents, clientsToEvents) = makeRequest(game, startGameRequest)
+        val (hostEvents, clientsToEvents) = startGame(game)
         checkCloseOfQuestion(hostEvents, clientsToEvents)
 
         val (hostEvents2, clientsToEvents2) = makeRequest(game, questionRequest)
@@ -244,12 +239,8 @@ class NeKahootGameStateControllerTest {
         }
 
         val client1 = "client-1"
-        val (hostEvents, clientsToEvents) = makeRequestFromClient(game, client1, startGameRequest)
-        checkClientErrorResponse(ClientStartGameException(), client1, hostEvents, clientsToEvents)
-
-        val client2 = "client-2"
-        val (hostEvents2, clientsToEvents2) = makeRequestFromClient(game, client2, questionRequest)
-        checkClientErrorResponse(ClientOpenQuestionException(), client2, hostEvents2, clientsToEvents2)
+        val (hostEvents1, clientsToEvents1) = makeRequestFromClient(game, client1, questionRequest)
+        checkClientErrorResponse(ClientOpenQuestionException(), client1, hostEvents1, clientsToEvents1)
     }
 
     private fun checkResultsResponse(

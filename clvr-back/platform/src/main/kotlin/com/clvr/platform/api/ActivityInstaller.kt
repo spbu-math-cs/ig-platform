@@ -7,6 +7,8 @@ import io.ktor.server.routing.*
 interface ActivityInstaller<Req: RequestEvent, Resp: ResponseEvent> {
     val activityName: String
 
+    fun decodeJsonToEvent(jsonString: String): Req
+
     fun install(
         route: Route,
         templateDatabase: TemplateDatabase,

@@ -9,22 +9,6 @@ import org.junit.jupiter.api.Test
 class EventTest {
     private val quiz = basicTestTemplate
     private val jsonPrettyFormatter = Json { prettyPrint = true }
-    @Test
-    fun `start game request`() {
-        val event = StartGameRequest(SessionId("142"))
-        val expectedJsonString =
-"""{
-    "session": {
-        "id": "142"
-    },
-    "type": "START_GAME"
-}"""
-        val jsonString = jsonPrettyFormatter.encodeToString(event)
-        Assertions.assertEquals(expectedJsonString, jsonString)
-
-        val decodedEvent = decodeJsonToNKEvent(jsonString)
-        Assertions.assertEquals(event, decodedEvent)
-    }
 
     @Test
     fun `question request`() {

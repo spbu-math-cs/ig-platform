@@ -28,7 +28,7 @@ internal class InMemorySessionStorage<Req: RequestEvent, Resp: ResponseEvent>
 {
     private inner class GameRecord(
         val sessionManager: SessionManager<Req, Resp>,
-        val gameView: ClvrGameView<Req, Resp>
+        val gameView: ClvrGameView<Req, Resp>,
     )
 
     private val games: MutableMap<SessionId, GameRecord> = ConcurrentHashMap()

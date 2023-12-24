@@ -26,8 +26,4 @@ interface ClvrGameView<Req: RequestEvent, Resp: ResponseEvent> {
      * A list of events that will be sent to client when it connects
      */
     val clientView: List<Resp>
-
-    // TODO: do something smart than this
-    fun encodeEventToJson(event: Resp): String
-    fun decodeJsonToEvent(jsonString: String): Req
 }

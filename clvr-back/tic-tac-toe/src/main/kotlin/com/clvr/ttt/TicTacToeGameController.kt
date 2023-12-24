@@ -4,7 +4,7 @@ import com.clvr.platform.api.SessionParticipantsCommunicator
 import com.clvr.platform.api.ClvrGameController
 
 typealias TicTacToeSessionParticipantsCommunicator =
-    SessionParticipantsCommunicator<TicTacToeRequest<*>, TicTacToeResponse<*>>
+    SessionParticipantsCommunicator<TicTacToeResponse<*>>
 
 class TicTacToeGameController(private val game: GameState) :
     ClvrGameController<TicTacToeRequest<*>, TicTacToeResponse<*>> {
@@ -22,7 +22,7 @@ class TicTacToeGameController(private val game: GameState) :
         manager.sendToClients(clientResponse)
     }
 
-    override fun handle(communicator: SessionParticipantsCommunicator<TicTacToeRequest<*>, TicTacToeResponse<*>>, event: TicTacToeRequest<*>) = try {
+    override fun handle(communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>, event: TicTacToeRequest<*>) = try {
         when (val payload = event.payload) {
             is QuestionRequest -> {
                 val (row, column) = payload
@@ -63,7 +63,7 @@ class TicTacToeGameController(private val game: GameState) :
     }
 
     override fun handleFromClient(
-        communicator: SessionParticipantsCommunicator<TicTacToeRequest<*>, TicTacToeResponse<*>>,
+        communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>,
         clientEndpoint: String,
         event: TicTacToeRequest<*>
     ) = communicator.sendToClient(clientEndpoint,
@@ -71,4 +71,13 @@ class TicTacToeGameController(private val game: GameState) :
             GameError("You are not allowed to send events to the server!")
         )
     )
+
+    override fun handleGameStart(communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>) {
+        val gameResult = game.currentResult()
+        val response = TicTacToeResponse(
+            SetFieldResponse(gameResult, BoardView.fromGameState(game))
+        )
+        communicator.sendToHost(response)
+        communicator.sendToClients(response)
+    }
 }
