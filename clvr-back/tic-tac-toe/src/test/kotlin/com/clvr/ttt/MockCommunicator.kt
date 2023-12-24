@@ -1,5 +1,6 @@
 package com.clvr.ttt
 
+import com.clvr.platform.api.model.UserInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 
@@ -17,5 +18,9 @@ class MockCommunicator : TicTacToeSessionParticipantsCommunicator {
 
     override fun sendToClient(clientEndpoint: String, event: TicTacToeResponse<*>) = runBlocking {
         clientChannel.send(event)
+    }
+
+    override fun getClientInfo(clientEndpoint: String): UserInfo? {
+        return null
     }
 }
