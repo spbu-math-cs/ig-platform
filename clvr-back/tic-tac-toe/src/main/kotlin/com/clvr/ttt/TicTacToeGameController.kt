@@ -27,61 +27,64 @@ class TicTacToeGameController(private val game: GameState) :
         manager.sendToClients(clientResponse)
     }
 
-    override fun handle(communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>, event: TicTacToeRequest) = try {
-        if (event is PressButtonRequest) {
-            communicator.sendToHost(
-                TicTacToeResponse(
-                    GameError("Host shouldn't press buttons")
-                )
-            )
-        }
-
-        event as TicTacToeRequestWithPayload<*>
-
-        when (val payload = event.payload) {
-            is QuestionRequest -> {
-                val (row, column) = payload
-                sendQuestionResponses(communicator, row, column)
-            }
-            is NextHintRequest -> {
-                val (row, column) = payload
-                game.openNextHint(row, column)
-                sendQuestionResponses(communicator, row, column)
-            }
-            is ShowAnswerRequest -> {
-                val (row, column) = payload
-                val question = game.getQuestionStatement(row, column)
-                val answer = game.getQuestionAnswer(row, column)
-                val questionWithAnswer = QuestionWithAnswer(row, column, question, answer)
-                val response = TicTacToeResponse(
-                    ShowAnswerResponse(questionWithAnswer, BoardView.fromGameState(game))
-                )
-                communicator.sendToHost(response)
-                communicator.sendToClients(response)
-            }
-            is SetFieldRequest -> {
-                val (row, column, mark) = payload
-                val gameResult = game.updateCellContent(row, column, mark)
-                val response = TicTacToeResponse(
-                    SetFieldResponse(gameResult, BoardView.fromGameState(game))
-                )
-                communicator.sendToHost(response)
-                communicator.sendToClients(response)
-            }
-            is SelectTeamRequest -> {
+    override fun handle(communicator: SessionParticipantsCommunicator<TicTacToeResponse<*>>, event: TicTacToeRequest) {
+        try {
+            if (event is PressButtonRequest) {
                 communicator.sendToHost(
                     TicTacToeResponse(
-                        GameError("Server shouldn't select team")
+                        GameError("Host shouldn't press buttons")
                     )
                 )
+                return
             }
-        }
-    } catch (e: IllegalGameActionException) {
-        communicator.sendToHost(
-            TicTacToeResponse(
-                GameError(e.message ?: "Unknown error occurred!")
+
+            event as TicTacToeRequestWithPayload<*>
+
+            when (val payload = event.payload) {
+                is QuestionRequest -> {
+                    val (row, column) = payload
+                    sendQuestionResponses(communicator, row, column)
+                }
+                is NextHintRequest -> {
+                    val (row, column) = payload
+                    game.openNextHint(row, column)
+                    sendQuestionResponses(communicator, row, column)
+                }
+                is ShowAnswerRequest -> {
+                    val (row, column) = payload
+                    val question = game.getQuestionStatement(row, column)
+                    val answer = game.getQuestionAnswer(row, column)
+                    val questionWithAnswer = QuestionWithAnswer(row, column, question, answer)
+                    val response = TicTacToeResponse(
+                        ShowAnswerResponse(questionWithAnswer, BoardView.fromGameState(game))
+                    )
+                    communicator.sendToHost(response)
+                    communicator.sendToClients(response)
+                }
+                is SetFieldRequest -> {
+                    val (row, column, mark) = payload
+                    val gameResult = game.updateCellContent(row, column, mark)
+                    val response = TicTacToeResponse(
+                        SetFieldResponse(gameResult, BoardView.fromGameState(game))
+                    )
+                    communicator.sendToHost(response)
+                    communicator.sendToClients(response)
+                }
+                is SelectTeamRequest -> {
+                    communicator.sendToHost(
+                        TicTacToeResponse(
+                            GameError("Server shouldn't select team")
+                        )
+                    )
+                }
+            }
+        } catch (e: IllegalGameActionException) {
+            communicator.sendToHost(
+                TicTacToeResponse(
+                    GameError(e.message ?: "Unknown error occurred!")
+                )
             )
-        )
+        }
     }
 
     override fun handleFromClient(
@@ -110,7 +113,9 @@ class TicTacToeGameController(private val game: GameState) :
                     team
                 )
             )
+            // Ideally, there should be API to notify other users that someone has answered
             communicator.sendToHost(response)
+            return
         }
 
         event as TicTacToeRequestWithPayload<*>
@@ -119,7 +124,7 @@ class TicTacToeGameController(private val game: GameState) :
             is SelectTeamRequest -> {
                 endpointToTeam[clientEndpoint] = event.payload.team
                 val playerName = communicator.getClientInfo(clientEndpoint)?.name
-                    ?: "Anonymous user #${clientEndpoint.hashCode() % 10000}"
+                    ?: "unknown user"
                 val response = TicTacToeResponse(
                     SelectTeamResponse(playerName, event.payload.team)
                 )
