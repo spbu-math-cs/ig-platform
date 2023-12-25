@@ -46,7 +46,12 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
         cookie<UserCookie>(cookieName) {
             cookie.path = "/"
             cookie.secure = false
-            cookie.extensions["SameSite"] = "lax"
+
+            // for deploy
+            // cookie.extensions["SameSite"] = "lax"
+
+            // for local tests in FireFox
+            cookie.extensions["SameSite"] = "none"
         }
     }
 
