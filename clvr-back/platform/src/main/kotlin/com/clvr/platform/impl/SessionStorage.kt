@@ -39,7 +39,6 @@ internal class InMemorySessionStorage<Req: RequestEvent, Resp: ResponseEvent>
     override fun startNewGame(controller: ClvrGameController<Req, Resp>, view: ClvrGameView<Req, Resp>): SessionId {
          // TODO: using controller.activityName[0] is a very dirty hack
         val newSession = SessionId(controller.activityName[0] + UUID.randomUUID().toString().take(6))
-        val newSession = SessionId(UUID.randomUUID().toString().take(6))
         val sessionManager: SessionManager<Req, Resp> = SessionManager(controller)
         games[newSession] = GameRecord(sessionManager, view)
         return newSession
