@@ -116,6 +116,9 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
 
 
     internal inner class LobbyGameController: ClvrGameController<LobbyRequestEvent, LobbyResponseEvent> {
+        override val activityName: String
+            get() = error("Should never be called")
+
         private val players: PlayersInfo
             get() = PlayersInfo(
                 clientChannels.keys.toList().map { Player( getClientInfo(it)?.name ?: "unknown user" ) }

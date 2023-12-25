@@ -23,6 +23,8 @@ class SessionManagerTest {
 
         val echoSessionManager = SessionManager(
             object: ClvrGameController<DummyRequest, DummyResponse> {
+                override val activityName: String = "Test activity"
+
                 override fun handle(communicator: SessionParticipantsCommunicator<DummyResponse>, event: DummyRequest) {
                     when (event.payload) {
                         is TestHostPayload -> communicator.sendToHost(DummyResponse(event.payload))
