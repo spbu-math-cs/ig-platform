@@ -196,7 +196,7 @@ internal fun <Req: RequestEvent, Resp: ResponseEvent> Application.addWebsocketRo
             configureHostSession(storage, requestDecoder)
         }
 
-        webSocket("/ws/${activityName}/client/{session_id}") {
+         webSocket("/ws/${activityName}/player/{session_id}") {
             configureClientSession(storage, requestDecoder)
         }
     }

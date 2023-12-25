@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 
@@ -87,9 +88,12 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
 
     fun registerClient(clientEndpoint: String, userInfo: UserInfo?): ReceiveChannel<ResponseEvent> {
         synchronized(clientChannels) {
-            if (userInfo != null) {
-                clientInfo.putIfAbsent(clientEndpoint, userInfo)
-            }
+            val userInfoOrGenerated = userInfo ?: UserInfo(
+                            uuid = UUID.randomUUID(),  // TODO: assigning random uuid is a little bit bullshit tbh
+                            name = "Unknown user #${clientEndpoint.hashCode() % 10000}"
+                        )
+                        clientInfo.putIfAbsent(clientEndpoint, userInfoOrGenerated)
+
             return clientChannels.computeIfAbsent(clientEndpoint) { Channel(Channel.UNLIMITED) }
         }
     }
@@ -151,6 +155,9 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     }
 
     override fun getClientInfo(clientEndpoint: String): UserInfo? {
+     if (!clientInfo.containsKey(clientEndpoint)) {
+               logger.error { "Got unexpected endpoint without UserInfo -- $clientEndpoint" }
+           }
         return clientInfo[clientEndpoint]
     }
 }
