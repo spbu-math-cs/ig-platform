@@ -372,7 +372,7 @@ const Home: NextPage = () => {
                 <img src={
                     state.kind != "playing" && state.kind != "constructor" ? "/clover.PNG"
                         : games[state.game].gameIconPng || "/clover.PNG"}
-                     className="h-20" alt={""}/>
+                     className="h-16 mt-6" alt={""}/>
                 <a href={"/"}>
                     <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
                         C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
