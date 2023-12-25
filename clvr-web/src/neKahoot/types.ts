@@ -1,5 +1,7 @@
 // Common types for game state
 
+import {Team} from "@/components/Lobby"
+
 /**
  * A session is a unique identifier for a game session, which is used to connect to the game server.
  *
@@ -56,7 +58,7 @@ type TemplateInfo = {
     comment: string
 }
 
-export type Role = "host" | "player"
+export type Role = "host" | "client"
 
 export type Request = {
     kind: "GIVE_ANSWER",

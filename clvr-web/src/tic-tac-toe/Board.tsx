@@ -40,9 +40,8 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
     const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
     function value(i: number) {
-        let value
-        let board
-        if (game.state !== "_LOADING" && game.state !== "PREPARING") {
+        let value = undefined, board = undefined
+        if ("board" in game) {
             board = game.board
         }
 
@@ -103,10 +102,10 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
 
     if (game.state == "PREPARING") {
         return <Lobby
+            joinTeam={isHost ? undefined : (team) => sendMessage({type: "TEAM_SELECTION", team: team})}
             isHost={isHost}
             sessionId={sessionId}
-            game="tic_tac_toe"
-            players={game.players.map(p => ({name: p.name, team: undefined}))}
+            players={game.players.map(p => ({name: p.name}))}
             startGame={() => sendMessage({type: "START_GAME"})}
         />
     }

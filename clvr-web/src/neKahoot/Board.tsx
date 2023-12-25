@@ -7,6 +7,7 @@ import {Lobby} from "@/components/Lobby"
 
 interface BoardProps {
     isHost: boolean
+    role: "host" | "client" | "player"
     sessionId: string
 }
 
@@ -54,7 +55,7 @@ function AnswerOption({answer, onClick, selected, correct}: {
 }
 
 export function Board({isHost, sessionId}: BoardProps) {
-    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
+    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
 
     let content
     if (game.state == "_LOADING") {
@@ -102,9 +103,9 @@ export function Board({isHost, sessionId}: BoardProps) {
         </div>
     } else if (game.state == "PREPARING") {
         content = <Lobby
+            joinTeam={undefined}
             isHost={isHost}
             sessionId={sessionId}
-            game="nekahoot"
             players={game.players.map(p => ({name: p.name, team: undefined}))}
             startGame={() => sendMessage({kind: "START_GAME"})}
         />

@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {GameState, Session, Error} from "./types"
-import {Request} from "./wsRequests"
+import {GameState, Session, Error, Request} from "./types"
 import {checkExhausted} from "@/utils"
 
 type Role = "host" | "client"
@@ -153,6 +152,14 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                     row: action.row,
                     column: action.column,
                     // "current_hints_num": action.currentHintsNum,
+                },
+            }
+        } else if (action.type == "TEAM_SELECTION") {
+            request = {
+                session: session,
+                type: "TEAM_SELECTION",
+                payload: {
+                    team: action.team,
                 },
             }
         } else {

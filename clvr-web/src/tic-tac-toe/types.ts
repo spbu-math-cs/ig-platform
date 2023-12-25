@@ -1,5 +1,7 @@
 // Common types for game state
 
+export type Team = "X" | "O" | undefined
+
 /**
  * A session is a unique identifier for a game session, which is used to connect to the game server.
  *
@@ -10,7 +12,6 @@ export type Session = {
 }
 
 export type Mark = "X" | "O" | "EMPTY" | "NOT_OPENED"
-export type EnabledDisabled = "ENABLED" | "DISABLED"
 
 export type Error = {
     error_message: string
@@ -102,6 +103,31 @@ export type GameState = {
     question: ClientQuestion
 } | {
     state: "OPENED_QUESTION_WITH_ANSWER"
-    question: QuestionWithAnswer,
+    question: QuestionWithAnswer
     board: Board
+}
+
+export type Request = {
+    type: "START_GAME"
+} | {
+    type: "TEAM_SELECTION"
+    team: Team
+} | {
+    type: "OPEN_QUESTION"
+    row: number
+    column: number
+} | {
+    type: "SET_FIELD"
+    row: number
+    column: number
+    mark: Mark
+} | {
+    type: "SHOW_ANSWER"
+    row: number
+    column: number
+} | {
+    type: "SHOW_NEXT_HINT"
+    row: number
+    column: number
+    currentHintsNum: number
 }
