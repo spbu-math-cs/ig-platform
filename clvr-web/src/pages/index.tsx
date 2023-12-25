@@ -406,15 +406,15 @@ const Home: NextPage = () => {
     }
 
     return <div
-        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen`}>
-        <div className={`flex flex-row justify-between items-center mt-0`}>
-            <div className="flex flex-row items-center mt-0 ">
+        className={`flex min-h-screen bg-back flex-col items-center  justify-items-center  max-w-screen  py-2`}>
+        <div className={`flex flex-row justify-between items-center`}>
+            <div className="flex flex-row items-center ">
                 <img src={
                     state.kind != "playing" && state.kind != "constructor" ? "/clover.PNG"
                         : games[state.game].gameIconPng || "/clover.PNG"}
-                     className="h-20" alt={""}/>
+                     className="h-16 mt-6" alt={""}/>
                 <a href={"/"}>
-                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-2 text-primary`}>
+                    <h1 className={`ml-3 text-6xl md:text-6xl font-extrabold mt-8 text-primary`}>
                         C<span className="text-createcol">L</span>V<span className="text-createcol">R</span>
                     </h1>
                 </a>

@@ -329,7 +329,8 @@ class ApplicationTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun encodeTicTacToeRequestToJson(event: TicTacToeRequestWithPayload<TicTacToeRequestPayload>): String {     return when (event.payload) {
+    private fun encodeTicTacToeRequestToJson(event: TicTacToeRequestWithPayload<TicTacToeRequestPayload>): String {
+     return when (event.payload) {
              is QuestionRequest -> Json.encodeToString(event as TicTacToeRequestWithPayload<QuestionRequest>)
              is SetFieldRequest -> Json.encodeToString(event as TicTacToeRequestWithPayload<SetFieldRequest>)
              is NextHintRequest -> Json.encodeToString(event as TicTacToeRequestWithPayload<NextHintRequest>)

@@ -57,6 +57,12 @@ function AnswerOption({answer, onClick, selected, correct}: {
 export function Board({isHost, sessionId}: BoardProps) {
     const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
+    useEffect(() => {
+        setTimeout(() => sendMessage({
+            kind: "START_GAME"
+        } as any), 100)
+    }, [])
+
     let content
     if (game.state == "_LOADING") {
         content = <p className="bold text-primary font-bold text-6xl">Loading...</p>

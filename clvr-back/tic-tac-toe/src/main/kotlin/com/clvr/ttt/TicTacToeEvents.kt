@@ -3,11 +3,10 @@ package com.clvr.ttt
 import com.clvr.platform.api.RequestEvent
 import com.clvr.platform.api.ResponseEvent
 import com.clvr.platform.api.SessionId
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.*
-
 
 sealed interface TicTacToeRequestPayload {
     val type: String
@@ -31,7 +30,6 @@ data class PressButtonRequest(
         const val type: String = "PRESS_BUTTON"
     }
 }
-
 
 // The hack with private constructor is used to ensure that properties are serialized in correct order,
 //  but type is pre-defined by payload
@@ -260,6 +258,43 @@ data class ShowAnswerResponse(
     companion object {
         const val state: String = "OPENED_QUESTION_WITH_ANSWER"
     }
+}
+
+@Serializable
+data class SelectTeamRequest(
+    val team: Player
+): TicTacToeRequestPayload {
+    override val type: String = Companion.type
+
+    companion object {
+        const val type: String = "TEAM_SELECTION"
+    }
+}
+
+@Serializable
+data class SelectTeamResponse(
+    val player: String,
+    val team: Player
+) : TicTacToeResponsePayload {
+    override val state: String = Companion.state
+
+    companion object {
+        const val state: String = "TEAM_SELECTED"
+    }
+}
+
+@Serializable
+data class PressButtonResponse(
+    @SerialName("question")
+    val questionView: HostQuestionView,
+
+    @SerialName("board")
+    val boardView: BoardView,
+
+    @Transient
+    val team: Player = Player.X
+) : TicTacToeResponsePayload {
+    override val state: String = "TEAM_{$team}_IS_ANSWERING"
 }
 
 @Serializable

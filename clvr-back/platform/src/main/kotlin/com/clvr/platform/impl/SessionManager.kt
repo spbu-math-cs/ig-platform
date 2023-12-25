@@ -156,8 +156,8 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
 
     override fun getClientInfo(clientEndpoint: String): UserInfo? {
      if (!clientInfo.containsKey(clientEndpoint)) {
-               logger.error { "Got unexpected endpoint without UserInfo -- $clientEndpoint" }
-           }
-        return clientInfo[clientEndpoint]
+            logger.error { "Got unexpected endpoint without UserInfo -- $clientEndpoint" }
+     }
+     return clientInfo[clientEndpoint]
     }
 }
