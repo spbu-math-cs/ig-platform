@@ -7,7 +7,7 @@ import {TemplateCard} from "@/components/TemplateCard"
 import {GameConfig, TemplateInfo} from "@/tic-tac-toe/types"
 import Button from "@/components/Button"
 import {checkExhausted} from "@/utils"
-import {LogIn} from "@/components/Authorization"
+import {LogIn, UserIcon} from "@/components/Authorization"
 import {store} from "@/state/store"
 import {nextTheme} from "@/state/themeSlice"
 import Head from "next/head"
@@ -16,6 +16,7 @@ import {Session} from "@/neKahoot/types"
 import {Board as TicTacToeBoard} from "@/tic-tac-toe/Board"
 import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
+import {User, getUser, userEquals} from "@/components/api"
 import {Lobby} from "@/components/Lobby";
 
 export type GameId = "tic_tac_toe" | "nekahoot"
@@ -110,6 +111,15 @@ const Home: NextPage = () => {
     })
     const dispatch = store.dispatch
 
+    const [user, setUser] = useState<User>("unauthorized")
+    useEffect(() => {
+        getUser().then(newUser => {
+            if (!userEquals(newUser, user)) {
+                setUser(newUser)
+            }
+        })
+      });
+
     type TemplateMap = { [key in GameId]?: TemplateInfo[] }
     const [templates, updateTemplates] = useReducer<
         (templates: TemplateMap, newTemplates: { [game in GameId]?: TemplateInfo[] }) => TemplateMap
@@ -152,6 +162,10 @@ const Home: NextPage = () => {
         // @ts-ignore
         content = <div>
             <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
+                {/* make it beautiful */}
+                <div> 
+                    <UserIcon user={user} setUser={setUser}></UserIcon>
+                </div>
                 <div className="w-full flex flex-row space-x-10 gap-4 m-8">
                     <div className="grow space-y-4">
                         <div
@@ -314,7 +328,7 @@ const Home: NextPage = () => {
             isHost: state.isHost,
         })
     } else if (state.kind == "logging") {
-        content = <LogIn switchPage={setState}></LogIn>
+        content = <LogIn switchPage={setState} setUser={setUser}></LogIn>
     } else if (state.kind == "constructor") {
         let constructor = games[state.game].constructorComponent
         if (constructor === undefined) {

@@ -85,22 +85,10 @@ export function LogIn({switchPage, setUser}: AuthProps) {
     }
 
     function switchToRegister() {
-        setLoginInfo({
-            user_name: '',
-            password: '',
-            password_x2: ''
-        })
-
         setState(AuthorizationState.SignUp)
     }
 
     function switchToLogin() {
-        setLoginInfo({
-            user_name: '',
-            password: '',
-            password_x2: ''
-        })
-
         setState(AuthorizationState.SignIn)
     }
 
