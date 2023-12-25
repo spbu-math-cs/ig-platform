@@ -36,7 +36,7 @@ fun Application.configureAufRouting() {
             val userInfoWithCookie = try {
                 aufManager.getUserInfoWithCookie(userLoginData.name, userLoginData.password)
             } catch (e: NoSuchUserException) {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.Unauthorized)
                 return@post
             } catch (e: ValidationException) {
                 call.respond(HttpStatusCode.Unauthorized)
@@ -114,14 +114,12 @@ private fun userInfoToUserInfoResponse(userInfo: UserInfo): UserInfoResponse {
 
 @Serializable
 data class UserLoginData(
-    @SerialName("login")
     val name: String,
     val password: String
 )
 
 @Serializable
 data class UserInfoResponse(
-    @SerialName("login")
     val name: String,
     @SerialName("id")
     val uuid: String
