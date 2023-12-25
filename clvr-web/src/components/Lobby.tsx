@@ -48,7 +48,7 @@ interface PlayersProps {
     player: Player
 }
 
-export function Players({player}: PlayersProps) {
+export function PlayerCard({player}: PlayersProps) {
     return <div className="border-2 border-back w-[844px] rounded-2xl py-2 px-4 flex flex-col items-start mb-2">
         <div className="rounded-2xl flex flex-row">
             <div className="rounded-2xl py-2 px-4 flex flex-row mb-1 space-x-30 w-[810px]">
@@ -95,12 +95,13 @@ export const PlayersList = ({isHost, sessionId, players, startGame}: PlayersList
             </div>
             <div
                 className="
-                grid grid-cols-4 gap-4  justify-items-start py-10 rounded
+                flex gap-4 justify-items-center py-10 rounded
+                flex-col
                 mb-2 -scroll-ms-3 overflow-auto text-md text-JoinGameTxt
                 max-h-[60vh] bg-square">
                 {
                     players?.map(player =>
-                        <Players
+                        <PlayerCard
                             key={player.name}
                             player={player}
                         />,

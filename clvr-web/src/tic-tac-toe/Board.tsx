@@ -37,7 +37,7 @@ function Square({value, onClick, selected}: SquareProp) {
 
 export const Board = ({isHost, sessionId}: BoardProps) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
+    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
     function value(i: number) {
         let value = undefined, board = undefined
@@ -187,36 +187,35 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                             }
 
                             {game.state == "OPENED_QUESTION_HOST" &&
-                                <>
-                                    {
-                                        game.question.hints.map((hint, i) =>
-                                            <div key={i}
-                                                 className="w-[500px] pt-3 mt-4 min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel pb-2">
-                                                <div className="grow px-4"
-                                                     dangerouslySetInnerHTML={{__html: hint}}></div>
-                                                {
-                                                    game.question.currentHintsNum == i &&
-                                                    <button
-                                                        onClick={() => sendMessage({
-                                                            type: "SHOW_NEXT_HINT",
-                                                            currentHintsNum: i,
-                                                            row: game.question.row,
-                                                            column: game.question.column,
-                                                        })}
-                                                        className="flex ml-3 px-3 mt-1 hover:ring-4 hover:ring-cyan-300 hover:bg-answerPanel text-answerTxt rounded-xl py-1 outline outline-offset-2 outline-1 ">
-                                                        SHOW
-                                                    </button>
-                                                }
-                                            </div>,
-                                        )
-                                    }
-                                </>
+                                game.question.hints.map((hint, i) =>
+                                    <div key={i}
+                                         className="w-[500px] pt-3 mt-4 min-h-[100px] h-auto rounded-xl font-extrabold text-xl text-answerTxt bg-answerPanel pb-2">
+                                        <div className="grow px-4"
+                                             dangerouslySetInnerHTML={{__html: hint}}></div>
+                                        {
+                                            game.question.currentHintsNum == i &&
+                                            <button
+                                                onClick={() => sendMessage({
+                                                    type: "SHOW_NEXT_HINT",
+                                                    currentHintsNum: i,
+                                                    row: game.question.row,
+                                                    column: game.question.column,
+                                                })}
+                                                className="flex ml-3 px-3 mt-1 hover:ring-4 hover:ring-cyan-300 hover:bg-answerPanel text-answerTxt rounded-xl py-1 outline outline-offset-2 outline-1 ">
+                                                SHOW
+                                            </button>
+                                        }
+                                    </div>,
+                                )
                             }
-                            {game.state == "OPENED_QUESTION_CLIENT" &&
+                            {(game.state == "OPENED_QUESTION_CLIENT") &&
                                 <div className={" mt-4 space-y-4"}>
                                     <button
                                         className={`px-4 rounded-2xl text-4xl font-extrabold justify-center  hover:bg-task text-center w-[500px] min-h-[100px] h-auto text-answerTxt bg-answerPanel`}
                                         onClick={() => {
+                                            sendMessage({
+                                                type: "PRESS_BUTTON",
+                                            })
                                         }}>
                                         ANSWER
                                     </button>
@@ -229,7 +228,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                                                 </div>,
                                             )
                                         }
-                                    </div> : <div></div>
+                                    </div> : <div/>
                                     }
                                 </div>
                             }

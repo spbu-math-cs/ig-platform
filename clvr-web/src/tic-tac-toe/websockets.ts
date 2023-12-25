@@ -3,7 +3,7 @@ import useWebSocket, {ReadyState} from "react-use-websocket"
 import {GameState, Session, Error, Request} from "./types"
 import {checkExhausted} from "@/utils"
 
-type Role = "host" | "client"
+type Role = "host" | "player"
 
 /**
  * Connects to the game server and returns the current game state and a function to send requests.
@@ -161,6 +161,11 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                 payload: {
                     team: action.team,
                 },
+            }
+        } else if (action.type == "PRESS_BUTTON") {
+            request = {
+                session: session,
+                type: "PRESS_BUTTON",
             }
         } else {
             checkExhausted(action)

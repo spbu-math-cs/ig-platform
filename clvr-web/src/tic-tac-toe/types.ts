@@ -105,6 +105,14 @@ export type GameState = {
     state: "OPENED_QUESTION_WITH_ANSWER"
     question: QuestionWithAnswer
     board: Board
+} | {
+    state: "TEAM_X_IS_ANSWERING"
+    board: Board
+    question: HostQuestion | ClientQuestion
+} | {
+    state: "TEAM_O_IS_ANSWERING"
+    board: Board
+    question: HostQuestion | ClientQuestion
 }
 
 export type Request = {
@@ -130,4 +138,6 @@ export type Request = {
     row: number
     column: number
     currentHintsNum: number
+} | {
+    type: "PRESS_BUTTON"
 }
