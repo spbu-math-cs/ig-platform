@@ -89,11 +89,10 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     fun registerClient(clientEndpoint: String, userInfo: UserInfo?): ReceiveChannel<ResponseEvent> {
         synchronized(clientChannels) {
             val userInfoOrGenerated = userInfo ?: UserInfo(
-                            uuid = UUID.randomUUID(),  // TODO: assigning random uuid is a little bit bullshit tbh
-                            name = "Unknown user #${clientEndpoint.hashCode() % 10000}"
-                        )
-                        clientInfo.putIfAbsent(clientEndpoint, userInfoOrGenerated)
-
+                uuid = UUID.randomUUID(),  // TODO: assigning random uuid is a little bit bullshit tbh
+                name = "Unknown user #${clientEndpoint.hashCode() % 10000}"
+            )
+            clientInfo.putIfAbsent(clientEndpoint, userInfoOrGenerated)
             return clientChannels.computeIfAbsent(clientEndpoint) { Channel(Channel.UNLIMITED) }
         }
     }
@@ -117,6 +116,8 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
 
 
     internal inner class LobbyGameController: ClvrGameController<LobbyRequestEvent, LobbyResponseEvent> {
+        override val activityName: String
+                 get() = error("Should never be called")
         private val players: PlayersInfo
             get() = PlayersInfo(
                 clientChannels.keys.toList().map { Player( getClientInfo(it)?.name ?: "unknown user" ) }
@@ -155,7 +156,7 @@ internal class SessionManager<Req: RequestEvent, Resp: ResponseEvent>(
     }
 
     override fun getClientInfo(clientEndpoint: String): UserInfo? {
-     if (!clientInfo.containsKey(clientEndpoint)) {
+        if (!clientInfo.containsKey(clientEndpoint)) {
             logger.error { "Got unexpected endpoint without UserInfo -- $clientEndpoint" }
      }
      return clientInfo[clientEndpoint]

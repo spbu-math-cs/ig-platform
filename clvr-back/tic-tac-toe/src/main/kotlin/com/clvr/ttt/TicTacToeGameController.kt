@@ -12,6 +12,7 @@ typealias TicTacToeSessionParticipantsCommunicator =
 class TicTacToeGameController(private val game: GameState) :
     ClvrGameController<TicTacToeRequest, TicTacToeResponse<*>> {
     private val endpointToTeam: MutableMap<String, Player> = mutableMapOf()
+    override val activityName: String = "tic-tac-toe"
 
     private fun sendQuestionResponses(manager: TicTacToeSessionParticipantsCommunicator, row: Int, column: Int) {
         val hostQuestionView = HostQuestionView.fromGameState(game, row, column)

@@ -149,7 +149,6 @@ const Home: NextPage = () => {
     let content
     if (state.kind == "main_page") {
         // @ts-ignore
-        // @ts-ignore
         content = <div>
             <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
                 <div className="w-full flex flex-row space-x-10 gap-4 m-8">
@@ -206,33 +205,7 @@ const Home: NextPage = () => {
                             onSubmit={e => {
                                 setState({
                                     kind: "playing",
-                                    game: "tic_tac_toe",
-                                    sessionId: state.sessionId,
-                                    isHost: false,
-                                })
-                                e.preventDefault()
-                            }}
-                            className="flex flex-col items-center w-[700px] md:w-[450px] h-[90py] rounded-2xl bg-panel py-4 space-y-8 md:space-y-6">
-                            <p className="text-2xl md:text-5xl font-extrabold m-4 text-primary">
-                                ENTER GAME ID
-                            </p>
-                            <input
-                                type="text"
-                                className="mt-1 border  w-80 h-24 rounded-xl px-2 py-3 bg-panel outline-0 text-3xl md:text-4xl font-bold  text-center text-txt outline-none"
-                                value={state.sessionId}
-                                onChange={e => {
-                                    setState({kind: "main_page", sessionId: e.target.value, modal: undefined})
-                                }}
-                            />
-                            <Button>
-                                JOIN!
-                            </Button>
-                        </form>
-                        <form
-                            onSubmit={e => {
-                                setState({
-                                    kind: "playing",
-                                    game: "nekahoot",
+                                    game: state.sessionId?.at(0) == 'k' ? "nekahoot" : "tic_tac_toe",
                                     sessionId: state.sessionId,
                                     isHost: false,
                                 })

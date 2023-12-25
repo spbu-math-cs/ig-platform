@@ -6,13 +6,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 typealias NeKahootSessionParticipantsCommunicator =
         SessionParticipantsCommunicator<NeKahootResponseWithPayload<*>>
 
 class NeKahootGameController(private val game: GameState) :
     ClvrGameController<NeKahootRequest, NeKahootResponseWithPayload<*>> {
+    override val activityName: String = "kahoot-not"
 
     private fun sendQuestionResponses(manager: NeKahootSessionParticipantsCommunicator) {
         val timestamp = System.currentTimeMillis()

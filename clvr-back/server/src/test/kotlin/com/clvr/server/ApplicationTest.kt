@@ -139,7 +139,7 @@ class ApplicationTest {
         playerSession.receiveResponse<SetFieldResponse>()
 
         // Open question
-         hostSession.sendRequest(TicTacToeRequestWithPayload(sessionId, QuestionRequest(0, 0)))
+        hostSession.sendRequest(TicTacToeRequestWithPayload(sessionId, QuestionRequest(0, 0)))
         hostSession.receiveResponse<HostQuestionResponse>()
         playerSession.receiveResponse<ClientQuestionResponse>()
 
