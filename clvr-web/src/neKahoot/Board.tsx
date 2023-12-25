@@ -3,6 +3,7 @@ import {GameState} from "@/neKahoot/types"
 import {useServerState} from "@/neKahoot/websockets"
 import {checkExhausted} from "@/utils"
 import {Lobby} from "@/components/Lobby"
+import {ScoreTable} from "@/neKahoot/ScoreTable";
 
 
 interface BoardProps {
@@ -109,7 +110,12 @@ export function Board({isHost, sessionId}: BoardProps) {
             startGame={() => sendMessage({kind: "START_GAME"})}
         />
     } else if (game.state == "RESULTS") {
-        console.error(game)
+        content = <ScoreTable
+            isHost={isHost}
+            sessionId={sessionId}
+            game="nekahoot"
+            players={game.players.map(p => ({name: p.playerName, score: p.score, correctAnswers : p.correctAnswers, team: undefined}))}
+        />
     } else {
         checkExhausted(game)
     }
