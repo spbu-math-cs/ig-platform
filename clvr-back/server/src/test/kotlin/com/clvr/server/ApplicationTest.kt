@@ -292,7 +292,7 @@ class ApplicationTest {
     }
 
     private suspend fun createPlayerWebSocketSession(client: HttpClient, sessionId: SessionId): ClientWebSocketSession {
-        return client.webSocketSession("/ws/tic-tac-toe/client/${sessionId.id}")
+        return client.webSocketSession("/ws/tic-tac-toe/player/${sessionId.id}")
     }
 
     private fun ApplicationTestBuilder.setupServer() {
