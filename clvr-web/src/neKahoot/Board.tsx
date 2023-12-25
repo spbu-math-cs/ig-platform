@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react'
 import {GameState} from "@/neKahoot/types"
 import {useServerState} from "@/neKahoot/websockets"
+import {checkExhausted} from "@/utils"
+import {Lobby} from "@/components/Lobby"
 
 
 interface BoardProps {
@@ -54,12 +56,6 @@ function AnswerOption({answer, onClick, selected, correct}: {
 export function Board({isHost, sessionId}: BoardProps) {
     const [game, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
-    useEffect(() => {
-        setTimeout(() => sendMessage({
-            kind: "START_GAME"
-        } as any), 100)
-    }, [])
-
     let content
     if (game.state == "_LOADING") {
         content = <p className="bold text-primary font-bold text-6xl">Loading...</p>
@@ -104,8 +100,18 @@ export function Board({isHost, sessionId}: BoardProps) {
                      dangerouslySetInnerHTML={{__html: game.answerDescription || ""}}></div>
             }
         </div>
-    } else {
+    } else if (game.state == "PREPARING") {
+        content = <Lobby
+            isHost={isHost}
+            sessionId={sessionId}
+            game="nekahoot"
+            players={game.players.map(p => ({name: p.name, team: undefined}))}
+            startGame={() => sendMessage({kind: "START_GAME"})}
+        />
+    } else if (game.state == "RESULTS") {
         console.error(game)
+    } else {
+        checkExhausted(game)
     }
 
     return (

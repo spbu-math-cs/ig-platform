@@ -35,8 +35,10 @@ interface RequestShowNextHint {
 /**
  * A request to the game server.
  */
-export type Request =
-    RequestOpenQuestion
+export type Request = {
+        type: "START_GAME"
+    }
+    | RequestOpenQuestion
     | RequestSetField
     | RequestShowAnswer
     | RequestShowNextHint
