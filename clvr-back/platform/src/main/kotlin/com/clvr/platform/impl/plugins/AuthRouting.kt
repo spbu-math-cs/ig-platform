@@ -36,7 +36,7 @@ fun Application.configureAufRouting() {
             val userInfoWithCookie = try {
                 aufManager.getUserInfoWithCookie(userLoginData.name, userLoginData.password)
             } catch (e: NoSuchUserException) {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.Unauthorized)
                 return@post
             } catch (e: ValidationException) {
                 call.respond(HttpStatusCode.Unauthorized)

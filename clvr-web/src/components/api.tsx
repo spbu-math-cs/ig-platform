@@ -40,7 +40,7 @@ export async function login(name: string, password: string): Promise<User> {
         })
         
         if (response.status == 401) {
-            alert("Incorrect password")
+            alert("Incorrect user or password")
             return "unauthorized"
         }
 
