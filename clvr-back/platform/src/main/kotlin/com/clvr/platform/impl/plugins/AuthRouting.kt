@@ -114,14 +114,12 @@ private fun userInfoToUserInfoResponse(userInfo: UserInfo): UserInfoResponse {
 
 @Serializable
 data class UserLoginData(
-    @SerialName("login")
     val name: String,
     val password: String
 )
 
 @Serializable
 data class UserInfoResponse(
-    @SerialName("login")
     val name: String,
     @SerialName("id")
     val uuid: String

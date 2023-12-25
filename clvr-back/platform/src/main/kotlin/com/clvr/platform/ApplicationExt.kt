@@ -47,7 +47,7 @@ fun Application.configurePlatform(dbType: DBType = DBType.EMBEDDED) {
             cookie.path = "/"
             cookie.secure = false
             cookie.extensions["SameSite"] = "none"
-            cookie.extensions["Secure"] = "false"
+//            cookie.extensions["Secure"] = "false"
         }
     }
 
