@@ -194,7 +194,7 @@ const Home: NextPage = () => {
                     </div>
                     <div className="flex flex-col space-y-4">
                         <div
-                            className="text-3xl text-txt font-bold w-full text-center mb-4 rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
+                            className="text-3xl text-txt font-bold w-full text-center rounded-xl outline-1 px-6 py-3 ring-4 ring-txt">
                             JOIN A GAME
                         </div>
                         <form
