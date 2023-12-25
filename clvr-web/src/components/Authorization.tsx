@@ -195,22 +195,15 @@ export function LogIn({switchPage, setUser}: AuthProps) {
     )
 }
 
-// TODO: make it beautiful
 export function UserIcon({user, setUser}: UserIconProps) {
-    function logoutAction() {
-        logout()
-        setUser("unauthorized")
-    }
-
-    let content 
+    let content
     if (user == "unauthorized") {
         content = <div>
-            <h2>unauthorized user</h2>
+            <p className={`text-xl text-greeting font-extrabold text-center uppercase rounded-xl`}> user: guest</p>
         </div>
     } else {
         content = <div>
-            <h2>{user.name}</h2>
-            <button onClick={logoutAction}>LOGOUT</button>
+            <p className={`text-xl text-greeting font-extrabold text-center uppercase rounded-xl`}> user: {user.name}</p>
         </div>
     }
 

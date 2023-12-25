@@ -16,7 +16,7 @@ import {Session} from "@/neKahoot/types"
 import {Board as TicTacToeBoard} from "@/tic-tac-toe/Board"
 import {Board as NekahootBoard} from "@/neKahoot/Board"
 import {EditBoard} from "@/tic-tac-toe/EditBoard"
-import {User, getUser, userEquals} from "@/components/api"
+import {User, getUser, userEquals, logout} from "@/components/api"
 import {Lobby} from "@/components/Lobby";
 
 export type GameId = "tic_tac_toe" | "nekahoot"
@@ -161,12 +161,12 @@ const Home: NextPage = () => {
         // @ts-ignore
         // @ts-ignore
         content = <div>
-            <div className="mt-10 w-[1000px] flex flex-col items-center justify-center mx-auto">
+            <div className="mt-0 w-[1000px] flex flex-col items-center justify-center mx-auto">
                 {/* make it beautiful */}
-                <div> 
+                <div>
                     <UserIcon user={user} setUser={setUser}></UserIcon>
                 </div>
-                <div className="w-full flex flex-row space-x-10 gap-4 m-8">
+                <div className="mt-10 w-full flex flex-row space-x-10 gap-4 m-8">
                     <div className="grow space-y-4">
                         <div
                             className="text-3xl text-txt font-bold text-center rounded-xl outline-1 px-6 py-3 ring-4 ring-txt  ">
@@ -277,9 +277,18 @@ const Home: NextPage = () => {
                                 </Button>
                             </div>
                             <div className="flex justify-end">
-                                <Button onClick={() => setState({kind: "logging"})}>
-                                    LOG IN
-                                </Button>
+                                {user == "unauthorized" ?
+                                    <Button onClick={() => setState({kind: "logging"})}>
+                                        LOG IN
+                                    </Button>
+                                    :
+                                    <Button onClick={() => {
+                                        logout();
+                                        setUser("unauthorized")
+                                    }}>
+                                        LOG OUT
+                                    </Button>
+                                }
                             </div>
                         </div>
                     </div>
