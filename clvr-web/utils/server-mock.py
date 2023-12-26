@@ -238,7 +238,7 @@ app.add_routes([
     web.get("/quiz-list/{quiz_id}", get_quiz),
     web.post("/api/game-session/{quiz_id}", create_game_session),
     web.get("/ws/host/{session_id}", functools.partial(handle_ws_connection, "host")),
-    web.get("/ws/client/{session_id}", functools.partial(handle_ws_connection, "board")),
+    web.get("/ws/player/{session_id}", functools.partial(handle_ws_connection, "board")),
 ])
 
 cors = aiohttp_cors.setup(app, defaults={

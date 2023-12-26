@@ -16,7 +16,12 @@ sealed interface LobbyRequestEvent : RequestEvent {
     companion object {
         fun decodeFromString(jsonString: String): LobbyRequestEvent? {
             return try {
-                Json.decodeFromString<StartGameEvent>(jsonString)
+                val result = Json.decodeFromString<StartGameEvent>(jsonString)
+                if (result.type != StartGameEvent.type) {
+                    null
+                } else {
+                    result
+                }
             } catch (_: IllegalArgumentException) {
                 logger.trace { "Failed to decode event as LobbyEvent" }
                 null

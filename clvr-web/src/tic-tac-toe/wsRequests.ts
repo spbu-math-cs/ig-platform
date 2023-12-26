@@ -32,6 +32,15 @@ interface RequestShowNextHint {
     currentHintsNum: number
 }
 
+interface RequestPressButton {
+    type: "PRESS_BUTTON"
+}
+
+interface RequestTeamSelection {
+    type: "TEAM_SELECTION"
+    team: "X" | "O"
+}
+
 /**
  * A request to the game server.
  */
@@ -42,3 +51,5 @@ export type Request = {
     | RequestSetField
     | RequestShowAnswer
     | RequestShowNextHint
+    | RequestPressButton
+    | RequestTeamSelection

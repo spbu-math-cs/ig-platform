@@ -26,6 +26,7 @@ module.exports = {
             'metalPanel': '#303759',
 
             'error' : '#a2203d',
+            'noterror' : '#0000FF',
 
 
             'purpleX': '#AE445A',

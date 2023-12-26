@@ -107,6 +107,7 @@ export function Board({isHost, sessionId}: BoardProps) {
             game="nekahoot"
             players={game.players.map(p => ({name: p.name, team: undefined}))}
             startGame={() => sendMessage({kind: "START_GAME"})}
+            sendTeamToServer={(_) => {}}
         />
     } else if (game.state == "RESULTS") {
         console.error(game)
