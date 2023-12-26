@@ -108,17 +108,18 @@ class NeKahootGameController(private val game: GameState) :
         clientEndpoint: String,
         event: NeKahootRequest
     ) = try {
+        val clientName = communicator.getClientInfo(clientEndpoint)?.name ?: clientEndpoint
         when (event) {
             is QuestionRequest -> throw ClientOpenQuestionException()
             is NeKahootRequestWithPayload<*> -> {
                 when (val payload = event.payload) {
                     is AnswerRequest -> {
-                        if (game.getAnswerOfPlayer(clientEndpoint).isNotEmpty()) {
+                        if (game.getAnswerOfPlayer(clientName).isNotEmpty()) {
                             throw AlreadyAnsweredException()
                         }
                         when {
                             game.isQuestionOpened() -> {
-                                game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
+                                game.answerQuestion(System.currentTimeMillis(), clientName, payload.answer)
                                 sendAnswerResponses(communicator, clientEndpoint)
                             }
                             else -> throw LateAnswerException()

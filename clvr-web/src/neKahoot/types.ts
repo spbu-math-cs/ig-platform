@@ -34,11 +34,11 @@ export type GameState = {
     timeLimit: Date
     givenAnswer?: string
 } | {
-    state: "RESULTS"
+    state: "RESULT"
     players: {
-        playerName: string
+        player_name: string
         score: number
-        correctAnswers: number
+        correct_questions: number
     }[]
 } | {
     state: "SHOW_QUESTION_ANSWER"

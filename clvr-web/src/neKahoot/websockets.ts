@@ -79,6 +79,11 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                 state: state,
                 players: msg.payload.players
             })
+        } else if (state == "RESULT") {
+            setGameState({
+                state: state,
+                players: msg.payload.results
+            })
         }
     }, [lastJsonMessage])
 
