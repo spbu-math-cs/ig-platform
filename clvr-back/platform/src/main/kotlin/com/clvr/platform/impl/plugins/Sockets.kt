@@ -76,6 +76,8 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                     }
 
                     val jsonEvent: String = frame.readText()
+                    logger.debug { "Receive event $jsonEvent from host in $sessionId game" }
+
                     LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
                         sessionManager.handleHostLobbyEvent(it)
                     } ?: run {
@@ -129,7 +131,6 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                             continue
                         }
 
-                        logger.debug { "Receive event from client $clientEndpoint in $sessionId game" }
                         val jsonEvent: String = frame.readText()
                         logger.debug { "Receive event $jsonEvent from client $clientEndpoint in $sessionId game" }
 
