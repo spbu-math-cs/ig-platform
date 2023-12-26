@@ -37,7 +37,7 @@ function Square({value, onClick, selected}: SquareProp) {
 
 export const Board = ({isHost, sessionId}: BoardProps) => {
     const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(undefined)
-    const [game, errors, sendMessage] = useServerState(isHost ? "host" : "client", {"id": sessionId})
+    const [game, gameWinner, errors, sendMessage] = useServerState(isHost ? "host" : "player", {"id": sessionId})
 
     function value(i: number) {
         let value
@@ -108,6 +108,7 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
             game="tic_tac_toe"
             players={game.players.map(p => ({name: p.name, team: undefined}))}
             startGame={() => sendMessage({type: "START_GAME"})}
+            sendTeamToServer={(t) => {if (t !== undefined) sendMessage({type: "TEAM_SELECTION", team: t})}}
         />
     }
 
@@ -158,6 +159,13 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                         </div>
 
                         <div className="flex-col w-[600px] rounded-lg flex items-center">
+                        {
+                            
+
+                                gameWinner != "EMPTY" && <div className={`text-3xl bg-answerPanel font-extrabold text-primary `}>
+                                    {"Winner: team " + gameWinner + "!!!"}
+                                </div>
+                        }
                             <div
                                 className={`mt-24 w-[500px] min-h-[400px] h-auto md:[w-400px] bg-task rounded-lg flex items-top justify-center`}>
                                 <button className={`rounded-xl py-10 px-10 text-3xl font-extrabold text-txt`}
@@ -218,6 +226,9 @@ export const Board = ({isHost, sessionId}: BoardProps) => {
                                     <button
                                         className={`px-4 rounded-2xl text-4xl font-extrabold justify-center  hover:bg-task text-center w-[500px] min-h-[100px] h-auto text-answerTxt bg-answerPanel`}
                                         onClick={() => {
+                                          sendMessage({
+                                            type: "PRESS_BUTTON"
+                                          })
                                         }}>
                                         ANSWER
                                     </button>

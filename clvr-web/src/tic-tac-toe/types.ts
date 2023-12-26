@@ -15,6 +15,7 @@ export type EnabledDisabled = "ENABLED" | "DISABLED"
 export type Error = {
     error_message: string
     id: number
+    is_error: boolean
 }
 
 type Cell = {
@@ -105,3 +106,5 @@ export type GameState = {
     question: QuestionWithAnswer,
     board: Board
 }
+
+export type GameWinner = "X" | "O" | "EMPTY"

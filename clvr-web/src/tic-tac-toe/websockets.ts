@@ -1,10 +1,10 @@
 import {useEffect, useState} from "react"
 import useWebSocket, {ReadyState} from "react-use-websocket"
-import {GameState, Session, Error} from "./types"
+import {GameState, Session, Error, GameWinner} from "./types"
 import {Request} from "./wsRequests"
 import {checkExhausted} from "@/utils"
 
-type Role = "host" | "client"
+type Role = "host" | "player"
 
 /**
  * Connects to the game server and returns the current game state and a function to send requests.
@@ -20,7 +20,7 @@ type Role = "host" | "client"
  * @param session The session to connect with (returned by POST /api/game-session endpoint)
  * @returns A tuple containing the current game state and a function to send requests
  */
-export function useServerState(role: Role, session: Session): [GameState, Error[], (action: Request) => void] {
+export function useServerState(role: Role, session: Session): [GameState, GameWinner, Error[], (action: Request) => void] {
     const url = new URL(`ws/tic-tac-toe/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
@@ -29,6 +29,9 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
 
     const [gameState, setGameState] =
         useState<GameState>({state: "_LOADING"})
+
+    const [gameWinner, setGameWinner] =
+        useState<GameWinner>("EMPTY")
 
     useEffect(() => {
         if (readyState != ReadyState.OPEN) {
@@ -87,11 +90,12 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                 state: state,
                 board: msg.payload.board,
             })
+            setGameWinner(msg.payload.win)
         } else if (state == "ERROR") {
             console.log("ERROR: " + msg.payload.message)
 
             const newErrors = [...errors]
-            newErrors.push({error_message: msg.payload.message, id: nextErrorId})
+            newErrors.push({error_message: msg.payload.message, id: nextErrorId, is_error: true})
             setNextErrorId(nextErrorId + 1)
             setErrors(newErrors)
             setTimeout(() => {
@@ -106,10 +110,36 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                 state: state,
                 players: msg.payload.players,
             })
+        } else if (state == "TEAM_X_IS_ANSWERING") {
+            const newErrors = [...errors]
+            let time = (new Date()).toISOString()
+            newErrors.push({error_message: "TEAM X wants to answer at time " + time, id: nextErrorId, is_error: false})
+            setNextErrorId(nextErrorId + 1)
+            setErrors(newErrors)
+            setTimeout(() => {
+                setErrors(errors => {
+                    const newErrors = [...errors]
+                    newErrors.shift()
+                    return newErrors
+            })
+            }, 5000)
+        } else if (state == "TEAM_O_IS_ANSWERING") {
+            const newErrors = [...errors]
+            let time = (new Date()).toISOString()
+            newErrors.push({error_message: "TEAM O wants to answer at time " + time, id: nextErrorId, is_error: false})
+            setNextErrorId(nextErrorId + 1)
+            setErrors(newErrors)
+            setTimeout(() => {
+                setErrors(errors => {
+                    const newErrors = [...errors]
+                    newErrors.shift()
+                    return newErrors
+            })
+            }, 5000)
         }
     }, [lastJsonMessage])
 
-    return [gameState, errors, (action: Request) => {
+    return [gameState, gameWinner, errors, (action: Request) => {
         let request: any
 
         if (action.type == "START_GAME") {
@@ -155,7 +185,20 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                     // "current_hints_num": action.currentHintsNum,
                 },
             }
-        } else {
+        } else if (action.type == "PRESS_BUTTON") {
+            request = {
+                session: session,
+                type: "PRESS_BUTTON"
+            }
+        } else if (action.type == "TEAM_SELECTION") {
+            request = {
+                session: session,
+                type: "TEAM_SELECTION",
+                payload: {
+                    team: action.team
+                }
+            }
+        }else {
             checkExhausted(action)
         }
 

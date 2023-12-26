@@ -294,7 +294,7 @@ data class PressButtonResponse(
     @Transient
     val team: Player = Player.X
 ) : TicTacToeResponsePayload {
-    override val state: String = "TEAM_{$team}_IS_ANSWERING"
+    override val state: String = "TEAM_${team}_IS_ANSWERING"
 }
 
 @Serializable

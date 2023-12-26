@@ -168,14 +168,16 @@ interface LobbyProps {
     players: Player[]
 
     startGame: () => void
+    sendTeamToServer: (t: Team) => void 
 }
 
 
-export const Lobby = ({isHost, sessionId, game, players, startGame}: LobbyProps) => {
+export const Lobby = ({isHost, sessionId, game, players, startGame, sendTeamToServer}: LobbyProps) => {
     const [Team, setTeam] = useState<Team>(undefined)
 
     function chooseTeam(t: Team) {
         setTeam(t)
+        sendTeamToServer(t)
     }
 
     return (
