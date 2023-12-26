@@ -1,6 +1,7 @@
 import {GameConfig, ProtoQuiz, Quiz, TemplateInfo, Session} from "@/tic-tac-toe/types"
+import {GAME_SERVER_URL} from "@/config"
 
-const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
+const API_ENDPOINT = new URL(GAME_SERVER_URL)
 
 export async function getTemplateList(): Promise<TemplateInfo[]> {
     const response = await fetch(new URL("tic-tac-toe/template-list", API_ENDPOINT))
