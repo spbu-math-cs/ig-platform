@@ -40,12 +40,12 @@ function AnswerOption({answer, onClick, selected, correct}: {
     correct?: boolean
 }) {
     return (
-        <button className={`bg-panel p-8 rounded-xl grow m-8 hover:scale-110 duration-500 
-            ${selected ? "bg-quit scale-105" : ""}
-            ${correct ? "bg-next scale-120" : ""}`}
+        <button className={`p-8 rounded-xl grow m-8 hover:scale-110 duration-500  
+            ${selected ? " bg-quit scale-105" : "bg-panel"}
+            ${correct ? " bg-[#58D68D] scale-120" : "bg-panel"}`}
             onClick={onClick}>
             <p
-                className={`text-primary font-bold text-6xl duration-500
+                className={`${correct ? "text-[#FCF3CF]" : "text-primary"} font-bold text-6xl duration-500
                     ${correct ? "text-X" : ""}`}>
                 {answer}
             </p>

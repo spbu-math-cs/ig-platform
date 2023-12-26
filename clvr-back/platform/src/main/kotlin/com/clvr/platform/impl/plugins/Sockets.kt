@@ -76,11 +76,9 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                     }
 
                     val jsonEvent: String = frame.readText()
-                    if (!sessionManager.gameStarted) {
-                        LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
-                            sessionManager.handleHostLobbyEvent(it)
-                        }
-                    } else {
+                    LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
+                        sessionManager.handleHostLobbyEvent(it)
+                    } ?: run {
                         val event: Req = requestDecoder(jsonEvent)
                         sessionManager.handleHostEvent(event)
                     }
@@ -135,11 +133,9 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                         val jsonEvent: String = frame.readText()
                         logger.debug { "Receive event $jsonEvent from client $clientEndpoint in $sessionId game" }
 
-                        if (!sessionManager.gameStarted) {
-                            LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
-                                sessionManager.handleClientLobbyEvent(clientEndpoint, it)
-                            }
-                        } else {
+                        LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
+                            sessionManager.handleClientLobbyEvent(clientEndpoint, it)
+                        } ?: run {
                             val event: Req = requestDecoder(jsonEvent)
                             sessionManager.handleClientEvent(clientEndpoint, event)
                         }

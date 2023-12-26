@@ -43,7 +43,7 @@ class NeKahootGameController(private val game: GameState) :
         manager.sendToClients(clientResponse)
     }
 
-    private fun sendAnswerResponses(manager: NeKahootSessionParticipantsCommunicator, clientName: String) {
+    private fun sendAnswerResponses(manager: NeKahootSessionParticipantsCommunicator, clientName: String, clientEndpoint: String) {
         val timestamp = System.currentTimeMillis()
         val hostAnswerView = HostQuestionView.fromGameState(game, timestamp)
         val clientAnswerView = ClientQuestionView.fromGameState(game, timestamp, clientName)
@@ -55,7 +55,7 @@ class NeKahootGameController(private val game: GameState) :
             ClientQuestionResponse(clientAnswerView)
         )
         manager.sendToHost(hostResponse)
-        manager.sendToClient(clientName, clientResponse)
+        manager.sendToClient(clientEndpoint, clientResponse)
     }
 
     private fun sendResultsResponses(manager: NeKahootSessionParticipantsCommunicator) {
@@ -120,7 +120,7 @@ class NeKahootGameController(private val game: GameState) :
                         when {
                             game.isQuestionOpened() -> {
                                 game.answerQuestion(System.currentTimeMillis(), clientName, payload.answer)
-                                sendAnswerResponses(communicator, clientEndpoint)
+                                sendAnswerResponses(communicator, clientName, clientEndpoint)
                             }
                             else -> throw LateAnswerException()
                         }
