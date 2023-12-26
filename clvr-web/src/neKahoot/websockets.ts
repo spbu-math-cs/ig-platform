@@ -2,9 +2,10 @@ import {Error, GameState, Session, Request, Role} from "@/neKahoot/types"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {useEffect, useState} from "react"
 import {checkExhausted} from "@/utils"
+import {WEBSOCKET_GAME_SERVER_URL} from "@/config"
 
 export function useServerState(role: Role, session: Session): [GameState, Error[], (action: Request) => void] {
-    const url = new URL(`ws/nekahoot/${role}/${session.id}`, process.env["WEBSOCKET_GAME_SERVER_URL"] ?? "ws://0.0.0.0:8080/ws")
+    const url = new URL(`ws/nekahoot/${role}/${session.id}`, WEBSOCKET_GAME_SERVER_URL)
 
     const {sendJsonMessage, lastJsonMessage, readyState} = useWebSocket(url.toString(), {
         shouldReconnect: () => true,

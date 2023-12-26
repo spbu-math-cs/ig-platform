@@ -1,7 +1,7 @@
 import exp from "constants"
+import {GAME_SERVER_URL} from "@/config"
 
-
-const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
+const API_ENDPOINT = new URL(GAME_SERVER_URL)
 
 export type UserInfo = {
     name: string,

@@ -1,6 +1,7 @@
 import {GameConfig, Session, TemplateInfo} from "@/tic-tac-toe/types"
+import {GAME_SERVER_URL} from "@/config"
 
-const API_ENDPOINT = new URL("http://0.0.0.0:8080/")
+const API_ENDPOINT = new URL(GAME_SERVER_URL)
 
 export async function getTemplateList(): Promise<TemplateInfo[]> {
     const response = await fetch(new URL("nekahoot/template", API_ENDPOINT))
