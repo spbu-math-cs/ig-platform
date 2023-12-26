@@ -43,7 +43,7 @@ class NeKahootGameController(private val game: GameState) :
         manager.sendToClients(clientResponse)
     }
 
-    private fun sendAnswerResponses(manager: NeKahootSessionParticipantsCommunicator, clientName: String) {
+    private fun sendAnswerResponses(manager: NeKahootSessionParticipantsCommunicator, clientName: String, clientEndpoint: String) {
         val timestamp = System.currentTimeMillis()
         val hostAnswerView = HostQuestionView.fromGameState(game, timestamp)
         val clientAnswerView = ClientQuestionView.fromGameState(game, timestamp, clientName)
@@ -55,7 +55,7 @@ class NeKahootGameController(private val game: GameState) :
             ClientQuestionResponse(clientAnswerView)
         )
         manager.sendToHost(hostResponse)
-        manager.sendToClient(clientName, clientResponse)
+        manager.sendToClient(clientEndpoint, clientResponse)
     }
 
     private fun sendResultsResponses(manager: NeKahootSessionParticipantsCommunicator) {
@@ -108,18 +108,19 @@ class NeKahootGameController(private val game: GameState) :
         clientEndpoint: String,
         event: NeKahootRequest
     ) = try {
+        val clientName = communicator.getClientInfo(clientEndpoint)?.name ?: clientEndpoint
         when (event) {
             is QuestionRequest -> throw ClientOpenQuestionException()
             is NeKahootRequestWithPayload<*> -> {
                 when (val payload = event.payload) {
                     is AnswerRequest -> {
-                        if (game.getAnswerOfPlayer(clientEndpoint).isNotEmpty()) {
+                        if (game.getAnswerOfPlayer(clientName).isNotEmpty()) {
                             throw AlreadyAnsweredException()
                         }
                         when {
                             game.isQuestionOpened() -> {
-                                game.answerQuestion(System.currentTimeMillis(), clientEndpoint, payload.answer)
-                                sendAnswerResponses(communicator, clientEndpoint)
+                                game.answerQuestion(System.currentTimeMillis(), clientName, payload.answer)
+                                sendAnswerResponses(communicator, clientName, clientEndpoint)
                             }
                             else -> throw LateAnswerException()
                         }

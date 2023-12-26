@@ -59,6 +59,7 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
                 answerDescription: q["answer_description"],
                 answerOptions: q["answer_options"],
                 timeLimit: new Date(Date.now() + q.time),
+                givenAnswer: (gameState.state == "OPENED_QUESTION" ? gameState.givenAnswer : undefined)
             })
         } else if (state == "ERROR") {
             console.log("ERROR: " + msg.payload.message)
@@ -78,6 +79,11 @@ export function useServerState(role: Role, session: Session): [GameState, Error[
             setGameState({
                 state: state,
                 players: msg.payload.players
+            })
+        } else if (state == "RESULT") {
+            setGameState({
+                state: state,
+                players: msg.payload.results
             })
         }
     }, [lastJsonMessage])

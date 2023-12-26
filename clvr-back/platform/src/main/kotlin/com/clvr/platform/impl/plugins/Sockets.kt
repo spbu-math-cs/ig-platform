@@ -21,8 +21,12 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.serialization.json.Json
 import java.lang.Exception
+
+
+private val context = newFixedThreadPoolContext(10, "co")
 
 private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketServerSession.configureHostSession(
     sessionStorage: ClvrSessionStorage<Req, Resp>,
@@ -51,7 +55,7 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
     }
 
     coroutineScope {
-        launch {
+        launch(context) {
             for (event in hostChannel) {
                 try {
                     val jsonEvent: String = event.encodeToJson(Json)
@@ -64,7 +68,7 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
             }
         }
 
-        launch {
+        launch(context) {
             for (frame in incoming) {
                 try {
                     if (frame !is Frame.Text) {
@@ -72,7 +76,7 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                     }
 
                     val jsonEvent: String = frame.readText()
-                    logger.debug { "Receive event $jsonEvent from host $hostEndpoint in $sessionId game" }
+                    logger.debug { "Receive event $jsonEvent from host in $sessionId game" }
 
                     LobbyRequestEvent.decodeFromString(jsonEvent)?.let {
                         sessionManager.handleHostLobbyEvent(it)
@@ -117,21 +121,10 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
         sessionManager.handleClientLobbyEvent(clientEndpoint, EnterLobbyEvent(sessionId))
     }
 
+    logger.info { "Starting" }
     try {
         coroutineScope {
-            launch {
-                for (event in clientChannel) {
-                    try {
-                        val jsonEvent: String = event.encodeToJson(Json)
-                        outgoing.send(Frame.Text(jsonEvent))
-                        logger.debug { "Send event $jsonEvent to client $clientEndpoint in $sessionId game" }
-                    } catch (e: Exception) {
-                        logger.error { "Failed to send event to client $clientEndpoint because of $e" }
-                    }
-                }
-            }
-
-            launch {
+            launch(context) {
                 for (frame in incoming) {
                     try {
                         if (frame !is Frame.Text) {
@@ -149,6 +142,18 @@ private suspend fun <Req: RequestEvent, Resp: ResponseEvent> DefaultWebSocketSer
                         }
                     } catch (e: Exception) {
                         logger.error { "Failed to process event incoming frame because of error $e" }
+                    }
+                }
+            }
+
+            launch(context) {
+                for (event in clientChannel) {
+                    try {
+                        val jsonEvent: String = event.encodeToJson(Json)
+                        outgoing.send(Frame.Text(jsonEvent))
+                        logger.debug { "Send event $jsonEvent to client $clientEndpoint in $sessionId game" }
+                    } catch (e: Exception) {
+                        logger.error { "Failed to send event to client $clientEndpoint because of $e" }
                     }
                 }
             }
